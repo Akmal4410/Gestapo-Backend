@@ -7,7 +7,7 @@ import "github.com/spf13/viper"
 type Config struct {
 	DBServer      string `mapstructure:"DB_Driver"`
 	DBSource      string `mapstructure:"DB_SOURCE"`
-	ServerAddress string `mapstructure:"ServerAddress"`
+	ServerAddress string `mapstructure:"SERVER_ADDRESS"`
 }
 
 // LoadConfig reads configuration from file or environment variables.
