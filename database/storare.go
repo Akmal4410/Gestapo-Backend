@@ -20,5 +20,7 @@ func NewStorage(config util.Config) (*Storage, error) {
 		return nil, err
 	}
 
+	defer db.Close()
+
 	return &Storage{db: db}, nil
 }
