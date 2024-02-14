@@ -1,12 +1,12 @@
 package routes
 
 import (
-	"github.com/akmal4410/gestapo/controller"
+	"github.com/akmal4410/gestapo/controllers"
 	"github.com/gorilla/mux"
 )
 
 type AuthRoute struct {
-	login controller.AuthController
+	login controllers.Auth
 }
 
 var authRoute AuthRoute

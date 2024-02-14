@@ -6,11 +6,8 @@ import (
 
 	"github.com/akmal4410/gestapo/database"
 	"github.com/akmal4410/gestapo/routes"
-	"github.com/akmal4410/gestapo/util"
 	"github.com/gorilla/mux"
 )
-
-type ApiFunc func(http.ResponseWriter, *http.Request) error
 
 // Server serves HTTP requests for our e-commerce service.
 type Server struct {
@@ -43,13 +40,20 @@ func (server *Server) setupRouter() {
 	routes.AuthRoutes(server.router)
 }
 
-func MakeHTTPHandleFunc(f ApiFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if err := f(w, r); err != nil {
-			util.WriteJSON(w, http.StatusBadRequest, ErrorInfo{StatusCode: http.StatusBadRequest, Message: err.Error()})
-		}
-	}
+type ErrorInfo struct {
+	StatusCode int32  `json:"status_code"`
+	Message    string `json:"message"`
 }
+
+// type ApiFunc func(http.ResponseWriter, *http.Request) error
+
+// func MakeHTTPHandleFunc(f ApiFunc) http.HandlerFunc {
+// 	return func(w http.ResponseWriter, r *http.Request) {
+// 		if err := f(w, r); err != nil {
+// 			util.WriteJSON(w, http.StatusBadRequest, ErrorInfo{StatusCode: http.StatusBadRequest, Message: err.Error()})
+// 		}
+// 	}
+// }
 
 // func jsonContentTypeMiddleware(next http.Handler) http.Handler {
 // 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -57,8 +61,3 @@ func MakeHTTPHandleFunc(f ApiFunc) http.HandlerFunc {
 // 		next.ServeHTTP(w, r)
 // 	})
 // }
-
-type ErrorInfo struct {
-	StatusCode int    `json:"status_code"`
-	Message    string `json:"message"`
-}

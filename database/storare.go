@@ -2,8 +2,12 @@ package database
 
 import (
 	"database/sql"
+	"log"
 
 	"github.com/akmal4410/gestapo/util"
+	_ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 type Storage struct {
@@ -20,7 +24,12 @@ func NewStorage(config util.Config) (*Storage, error) {
 		return nil, err
 	}
 
-	defer db.Close()
+	gormDB, err := gorm.Open(postgres.Open(config.DBSource), &gorm.Config{})
+	if err != nil {
+		log.Fatal("Error executing gorm  - ", err)
+		return nil, err
+	}
 
+	AutoMigrateTables(gormDB)
 	return &Storage{db: db}, nil
 }
