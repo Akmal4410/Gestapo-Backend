@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"log"
 
-	"github.com/akmal4410/gestapo/util"
+	"github.com/akmal4410/gestapo/utils"
 	_ "github.com/lib/pq"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -14,7 +14,7 @@ type Storage struct {
 	db *sql.DB
 }
 
-func NewStorage(config util.Config) (*Storage, error) {
+func NewStorage(config utils.Config) (*Storage, error) {
 	db, err := sql.Open(config.DBServer, config.DBSource)
 	if err != nil {
 		return nil, err

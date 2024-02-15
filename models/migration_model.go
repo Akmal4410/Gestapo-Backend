@@ -11,7 +11,8 @@ type User_Data struct {
 	Profile_Image string
 	Full_Name     string
 	User_Name     string `gorm:"NOT NULL;UNIQUE"`
-	Phone         string `gorm:"NOT NULL;UNIQUE"`
+	Phone         string `gorm:"UNIQUE"`
+	Email         string `gorm:"UNIQUE"`
 	DOB           time.Time
 	Gender        string
 	User_type     string `gorm:"NOT NULL;CHECK:user_type = 'USER' OR user_type = 'Merchant' OR user_type = 'ADMIN'"`

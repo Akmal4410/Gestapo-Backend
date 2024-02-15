@@ -1,82 +1,99 @@
 package controllers
 
 import (
-	"errors"
+	"fmt"
 	"net/http"
-	"regexp"
 
+	"github.com/akmal4410/gestapo/database"
 	"github.com/akmal4410/gestapo/helpers"
 	"github.com/akmal4410/gestapo/models"
 	"github.com/akmal4410/gestapo/services/mail"
 	"github.com/akmal4410/gestapo/services/twilio"
+	"github.com/akmal4410/gestapo/utils"
 )
 
 type AuthController struct {
 	twilioService twilio.TwilioService
 	emailService  mail.EmailService
+	storage       *database.Storage
 }
 
-func NewAuthController(twilio twilio.TwilioService, email mail.EmailService) *AuthController {
+func NewAuthController(twilio twilio.TwilioService, email mail.EmailService, storage *database.Storage) *AuthController {
 	return &AuthController{
 		twilioService: twilio,
 		emailService:  email,
+		storage:       storage,
 	}
 }
 
 func (auth AuthController) SendOTP(w http.ResponseWriter, r *http.Request) {
-	payload := new(models.SendOTPReq)
+	req := new(models.SendOTPReq)
 
-	err := helpers.ValidateBody(r, payload)
-	if err != nil {
-		helpers.ErrorJson(w, http.StatusBadRequest, err)
-		return
-	}
-	err = validate(payload)
+	err := helpers.ValidateBody(r, req)
 	if err != nil {
 		helpers.ErrorJson(w, http.StatusBadRequest, err)
 		return
 	}
 
-	err = auth.emailService.SendEmail(payload.Email, "Sign Up OTP", "Welcome to Gestapo !!!. Use the following OTP to complete your Sign Up procedures. OTP is valid for 5minutes", nil, nil, nil)
+	err = utils.ValidateEmailOrPhone(req)
+	if err != nil {
+		helpers.ErrorJson(w, http.StatusBadRequest, err)
+		return
+	}
+
+	column, value := utils.IdentifiesColumnValue(req.Email, req.Phone)
+	if len(column) == 0 {
+		helpers.ErrorJson(w, http.StatusBadRequest, err)
+		return
+	}
+	res, err := auth.storage.CheckUserExist(column, value)
 	if err != nil {
 		helpers.ErrorJson(w, http.StatusInternalServerError, err)
 		return
 	}
-	// phoneNumber := fmt.Sprintf("+91%s", payload.Phone)
-	// err = auth.twilioService.SendOTP(phoneNumber)
-	// if err != nil {
-	// 	helpers.ErrorJson(w, http.StatusInternalServerError, err)
-	// 	return
-	// }
-	helpers.WriteJSON(w, http.StatusOK, "")
+	if res {
+		helpers.ErrorJson(w, http.StatusInternalServerError, fmt.Errorf("account already exist using this %s", column))
+		return
+	}
+
+	if !utils.IsEmpty(req.Email) {
+		// res, err := auth.storage.CheckUserExist("email", req.Email)
+		// if err != nil {
+		// 	helpers.ErrorJson(w, http.StatusInternalServerError, err)
+		// 	return
+		// }
+		// if res {
+		// 	helpers.ErrorJson(w, http.StatusInternalServerError, fmt.Errorf("account already exist using this Email"))
+		// 	return
+		// }
+		err = auth.emailService.SendEmail(req.Email, "Sign Up OTP", "Welcome to Gestapo !!!. Use the following OTP to complete your Sign Up procedures. OTP is valid for 5minutes", nil, nil, nil)
+		if err != nil {
+			helpers.ErrorJson(w, http.StatusInternalServerError, err)
+			return
+		}
+	} else {
+		// res, err := auth.storage.CheckUserExist("phone", req.Phone)
+		// if err != nil {
+		// 	helpers.ErrorJson(w, http.StatusInternalServerError, err)
+		// 	return
+		// }
+		// if res {
+		// 	helpers.ErrorJson(w, http.StatusInternalServerError, fmt.Errorf("account already exist using this Phone number"))
+		// 	return
+		// }
+		err = auth.twilioService.SendOTP(req.Phone)
+		if err != nil {
+			helpers.ErrorJson(w, http.StatusInternalServerError, err)
+			return
+		}
+	}
+	w.Header().Set("session-token", "akmal token")
+
+	helpers.WriteJSON(w, http.StatusOK, "OTP sent successfully")
 }
 
 func (auth AuthController) LoginUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (auth AuthController) CreateUser(w http.ResponseWriter, r *http.Request) {
-}
-
-func validate(req *models.SendOTPReq) error {
-	// Check that either Email or Phone is present, but not both
-	if (req.Email != "" && req.Phone != "") || (req.Email == "" && req.Phone == "") {
-		return errors.New("either Email or Phone should be present")
-	}
-	// Check that at least one field is non-empty
-	if req.Email == "" && req.Phone == "" {
-		return errors.New("at least one of Email or Phone should be non-empty")
-	}
-	// Validate email format
-	if req.Email != "" {
-		emailRegex := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
-		if !emailRegex.MatchString(req.Email) {
-			return errors.New("invalid email format")
-		}
-	}
-	// Validate phone number length
-	if req.Phone != "" && len(req.Phone) != 10 {
-		return errors.New("phone number should be 10 digits")
-	}
-
-	return nil
 }

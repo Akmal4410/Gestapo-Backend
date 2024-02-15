@@ -6,7 +6,7 @@ import (
 
 	"github.com/akmal4410/gestapo/database"
 	"github.com/akmal4410/gestapo/routes"
-	"github.com/akmal4410/gestapo/util"
+	"github.com/akmal4410/gestapo/utils"
 	"github.com/gorilla/mux"
 )
 
@@ -14,11 +14,11 @@ import (
 type Server struct {
 	storage *database.Storage
 	router  *mux.Router
-	config  *util.Config
+	config  *utils.Config
 }
 
 // NewServer creates a new HTTP server and sets up routing.
-func NewServer(storage *database.Storage, config *util.Config) *Server {
+func NewServer(storage *database.Storage, config *utils.Config) *Server {
 	server := &Server{
 		storage: storage,
 		config:  config,
@@ -38,7 +38,7 @@ func (server *Server) Start() error {
 }
 
 func (server *Server) setupRouter() {
-	routes.AuthRoutes(server.router, server.config)
+	routes.AuthRoutes(server.router, server.config, server.storage)
 }
 
 type ErrorInfo struct {
@@ -51,7 +51,7 @@ type ErrorInfo struct {
 // func MakeHTTPHandleFunc(f ApiFunc) http.HandlerFunc {
 // 	return func(w http.ResponseWriter, r *http.Request) {
 // 		if err := f(w, r); err != nil {
-// 			util.WriteJSON(w, http.StatusBadRequest, ErrorInfo{StatusCode: http.StatusBadRequest, Message: err.Error()})
+// 			utils.WriteJSON(w, http.StatusBadRequest, ErrorInfo{StatusCode: http.StatusBadRequest, Message: err.Error()})
 // 		}
 // 	}
 // }

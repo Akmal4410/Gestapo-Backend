@@ -3,7 +3,7 @@ package twilio
 import (
 	"fmt"
 
-	"github.com/akmal4410/gestapo/util"
+	"github.com/akmal4410/gestapo/utils"
 	"github.com/twilio/twilio-go"
 	twilioApi "github.com/twilio/twilio-go/rest/verify/v2"
 )
@@ -26,9 +26,9 @@ func NewOTPService() TwilioService {
 }
 
 func LoadEnv() {
-	accountSid = util.EnvAccountSid()
-	authToken = util.EnvAuthToken()
-	serviceSid = util.EnvServiceSid()
+	accountSid = utils.EnvAccountSid()
+	authToken = utils.EnvAuthToken()
+	serviceSid = utils.EnvServiceSid()
 }
 
 func (service *OTPService) SendOTP(to string) error {

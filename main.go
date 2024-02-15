@@ -5,12 +5,12 @@ import (
 
 	"github.com/akmal4410/gestapo/database"
 	"github.com/akmal4410/gestapo/server"
-	"github.com/akmal4410/gestapo/util"
+	"github.com/akmal4410/gestapo/utils"
 	_ "github.com/lib/pq"
 )
 
 func main() {
-	config, err := util.LoadConfig(".")
+	config, err := utils.LoadConfig(".")
 	if err != nil {
 		log.Fatal("Cannot load configuration:", err)
 	}
