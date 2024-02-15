@@ -6,21 +6,22 @@ import (
 
 	"github.com/akmal4410/gestapo/database"
 	"github.com/akmal4410/gestapo/routes"
+	"github.com/akmal4410/gestapo/util"
 	"github.com/gorilla/mux"
 )
 
 // Server serves HTTP requests for our e-commerce service.
 type Server struct {
-	listenAddress string
-	storage       *database.Storage
-	router        *mux.Router
+	storage *database.Storage
+	router  *mux.Router
+	config  *util.Config
 }
 
 // NewServer creates a new HTTP server and sets up routing.
-func NewServer(listenAddress string, storage *database.Storage) *Server {
+func NewServer(storage *database.Storage, config *util.Config) *Server {
 	server := &Server{
-		listenAddress: listenAddress,
-		storage:       storage,
+		storage: storage,
+		config:  config,
 	}
 	return server
 }
@@ -32,12 +33,12 @@ func (server *Server) Start() error {
 
 	server.setupRouter()
 
-	fmt.Println("Go Bank Running on port :", server.listenAddress)
-	return http.ListenAndServe(server.listenAddress, router)
+	fmt.Println("Go Bank Running on port :", server.config.ServerAddress)
+	return http.ListenAndServe(server.config.ServerAddress, router)
 }
 
 func (server *Server) setupRouter() {
-	routes.AuthRoutes(server.router)
+	routes.AuthRoutes(server.router, server.config)
 }
 
 type ErrorInfo struct {

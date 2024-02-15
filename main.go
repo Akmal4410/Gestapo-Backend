@@ -20,7 +20,7 @@ func main() {
 		log.Fatal("Cannot connect to Database", err)
 	}
 
-	server := server.NewServer(config.ServerAddress, store)
+	server := server.NewServer(store, &config)
 
 	err = server.Start()
 	if err != nil {

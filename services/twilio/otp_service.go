@@ -21,13 +21,17 @@ type TwilioService interface {
 
 type OTPService struct{}
 
+func NewOTPService() TwilioService {
+	return &OTPService{}
+}
+
 func LoadEnv() {
 	accountSid = util.EnvAccountSid()
 	authToken = util.EnvAuthToken()
 	serviceSid = util.EnvServiceSid()
 }
 
-func (service OTPService) SendOTP(to string) error {
+func (service *OTPService) SendOTP(to string) error {
 	LoadEnv()
 
 	var client = twilio.NewRestClientWithParams(twilio.ClientParams{
@@ -38,6 +42,7 @@ func (service OTPService) SendOTP(to string) error {
 	params := &twilioApi.CreateVerificationParams{}
 	params.SetTo(to)
 	params.SetChannel("sms")
+	// params.SetCustomMessage("Your [Gestapo] verification code is:\n")
 
 	resp, err := client.VerifyV2.CreateVerification(serviceSid, params)
 	if err != nil {

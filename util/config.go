@@ -11,12 +11,15 @@ import (
 // Config stores all configuration of the application.
 // The values are read by viper from a config file or environment variable.
 type Config struct {
-	DBServer         string `mapstructure:"DB_DRIVER"`
-	DBSource         string `mapstructure:"DB_SOURCE"`
-	ServerAddress    string `mapstructure:"SERVER_ADDRESS"`
-	TwilioAccountSid string `mapstructure:"TWILIO_ACCOUNT_SID"`
-	TwilioAuthToken  string `mapstructure:"TWILIO_AUTH_TOKEN"`
-	TwilioServiceSid string `mapstructure:"TWILIO_SERVICE_SID"`
+	DBServer            string `mapstructure:"DB_DRIVER"`
+	DBSource            string `mapstructure:"DB_SOURCE"`
+	ServerAddress       string `mapstructure:"SERVER_ADDRESS"`
+	TwilioAccountSid    string `mapstructure:"TWILIO_ACCOUNT_SID"`
+	TwilioAuthToken     string `mapstructure:"TWILIO_AUTH_TOKEN"`
+	TwilioServiceSid    string `mapstructure:"TWILIO_SERVICE_SID"`
+	SenderName          string `mapstructure:"SENDER_NAME"`
+	SenderEmailAddress  string `mapstructure:"SENDER_EMAIL_ADDRESS"`
+	SemderEmailPassword string `mapstructure:"SENDER_PASSWORD"`
 }
 
 // LoadConfig reads configuration from file or environment variables.
