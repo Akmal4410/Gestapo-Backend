@@ -12,6 +12,7 @@ type AuthRoute struct {
 var authRoute AuthRoute
 
 func AuthRoutes(router *mux.Router) {
+	router.HandleFunc("/send_otp", authRoute.login.SendOTP).Methods("POST")
 	router.HandleFunc("/login", authRoute.login.LoginUser)
 	router.HandleFunc("/create", authRoute.login.CreateUser)
 }

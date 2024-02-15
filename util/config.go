@@ -37,8 +37,7 @@ func LoadConfig(path string) (config Config, err error) {
 }
 
 func EnvAccountSid() string {
-	// gotenv.Unmarshal(".env")
-	err := godotenv.Load(".env")
+	err := godotenv.Load("app.env")
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
@@ -46,7 +45,7 @@ func EnvAccountSid() string {
 }
 
 func EnvAuthToken() string {
-	err := godotenv.Load(".env")
+	err := godotenv.Load("app.env")
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
@@ -54,9 +53,9 @@ func EnvAuthToken() string {
 }
 
 func EnvServiceSid() string {
-	err := godotenv.Load(".env")
+	err := godotenv.Load("app.env")
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	return os.Getenv("TWILIO_AUTH_TOKEN")
+	return os.Getenv("TWILIO_SERVICE_SID")
 }

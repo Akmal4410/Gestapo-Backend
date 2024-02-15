@@ -1,10 +1,10 @@
 package models
 
-type OTPData struct {
-	PhoneNumber string `json:"phone_number,omitempty" validate:"required"`
+type SendOTPReq struct {
+	Phone string `json:"phone" validate:"required"`
 }
 
-type VerfiyOTP struct {
-	PhoneNumber *OTPData `json:"phone_number,omitempty" validate:"required"`
-	Code        string   `json:"code,omitempty" validate:"required"`
+type VerfiyOTPReq struct {
+	Phone string `json:"phone" validate:"required"`
+	Code  string `json:"code" validate:"required"`
 }
