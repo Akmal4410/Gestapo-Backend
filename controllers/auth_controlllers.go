@@ -3,11 +3,13 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/akmal4410/gestapo/database"
 	"github.com/akmal4410/gestapo/helpers"
 	"github.com/akmal4410/gestapo/models"
 	"github.com/akmal4410/gestapo/services/mail"
+	"github.com/akmal4410/gestapo/services/token"
 	"github.com/akmal4410/gestapo/services/twilio"
 	"github.com/akmal4410/gestapo/utils"
 )
@@ -16,13 +18,20 @@ type AuthController struct {
 	twilioService twilio.TwilioService
 	emailService  mail.EmailService
 	storage       *database.Storage
+	token         token.Maker
 }
 
-func NewAuthController(twilio twilio.TwilioService, email mail.EmailService, storage *database.Storage) *AuthController {
+func NewAuthController(
+	twilio twilio.TwilioService,
+	email mail.EmailService,
+	storage *database.Storage,
+	token token.Maker,
+) *AuthController {
 	return &AuthController{
 		twilioService: twilio,
 		emailService:  email,
 		storage:       storage,
+		token:         token,
 	}
 }
 
@@ -81,14 +90,19 @@ func (auth AuthController) SendOTP(w http.ResponseWriter, r *http.Request) {
 		// 	helpers.ErrorJson(w, http.StatusInternalServerError, fmt.Errorf("account already exist using this Phone number"))
 		// 	return
 		// }
-		err = auth.twilioService.SendOTP(req.Phone)
+		phoneNumber := fmt.Sprintf("+91%s", req.Phone)
+		err = auth.twilioService.SendOTP(phoneNumber)
 		if err != nil {
 			helpers.ErrorJson(w, http.StatusInternalServerError, err)
 			return
 		}
 	}
-	w.Header().Set("session-token", "akmal token")
-
+	token, err := auth.token.CreateSessionToken(value, time.Minute*5)
+	if err != nil {
+		helpers.ErrorJson(w, http.StatusInternalServerError, err)
+		return
+	}
+	w.Header().Set("session-token", token)
 	helpers.WriteJSON(w, http.StatusOK, "OTP sent successfully")
 }
 

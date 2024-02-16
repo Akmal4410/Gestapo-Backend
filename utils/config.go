@@ -14,6 +14,7 @@ type Config struct {
 	DBServer            string `mapstructure:"DB_DRIVER"`
 	DBSource            string `mapstructure:"DB_SOURCE"`
 	ServerAddress       string `mapstructure:"SERVER_ADDRESS"`
+	TokenSymmetricKey   string `mapstructure:"TOKEN_SYMMETRIC_KEY"`
 	TwilioAccountSid    string `mapstructure:"TWILIO_ACCOUNT_SID"`
 	TwilioAuthToken     string `mapstructure:"TWILIO_AUTH_TOKEN"`
 	TwilioServiceSid    string `mapstructure:"TWILIO_SERVICE_SID"`
