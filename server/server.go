@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/akmal4410/gestapo/database"
+	"github.com/akmal4410/gestapo/helpers"
 	"github.com/akmal4410/gestapo/routes"
 	"github.com/akmal4410/gestapo/utils"
 	"github.com/gorilla/mux"
@@ -30,6 +31,8 @@ func NewServer(storage *database.Storage, config *utils.Config) *Server {
 func (server *Server) Start() error {
 	router := mux.NewRouter()
 	server.router = router
+
+	helpers.RegisterValidator()
 
 	server.setupRouter()
 

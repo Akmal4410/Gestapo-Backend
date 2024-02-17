@@ -15,6 +15,14 @@ type JWTMaker struct {
 	secretKey string
 }
 
+// NewJWTMaker creates a new JWTMaker
+func NewJWTMaker(secretKey string) (Maker, error) {
+	if len(secretKey) < minSecretKeySize {
+		return nil, fmt.Errorf("invalid key size: must be atleast %d characters", minSecretKeySize)
+	}
+	return &JWTMaker{secretKey}, nil
+}
+
 // CreateSessionToken implements Maker.
 func (maker *JWTMaker) CreateSessionToken(value string, duration time.Duration) (string, error) {
 	mySigningKey := []byte(maker.secretKey)
@@ -47,14 +55,6 @@ func (maker *JWTMaker) VerifySessionToken(token string) (*SessionPayload, error)
 		return nil, ErrorInvalidToken
 	}
 	return payload, nil
-}
-
-// NewJWTMaker creates a new JWTMaker
-func NewJWTMaker(secretKey string) (Maker, error) {
-	if len(secretKey) < minSecretKeySize {
-		return nil, fmt.Errorf("invalid key size: must be atleast %d characters", minSecretKeySize)
-	}
-	return &JWTMaker{secretKey}, nil
 }
 
 // CreateAccessToken create a token for specific userName and duration

@@ -15,7 +15,7 @@ func main() {
 		log.Fatal("Cannot load configuration:", err)
 	}
 
-	store, err := database.NewStorage(config)
+	store, err := database.NewStorage(config.Database)
 	if err != nil {
 		log.Fatal("Cannot connect to Database", err)
 	}

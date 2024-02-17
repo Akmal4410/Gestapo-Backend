@@ -14,8 +14,8 @@ type Storage struct {
 	db *sql.DB
 }
 
-func NewStorage(config utils.Config) (*Storage, error) {
-	db, err := sql.Open(config.DBServer, config.DBSource)
+func NewStorage(database *utils.Database) (*Storage, error) {
+	db, err := sql.Open(database.DBDriver, database.DBSource)
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +24,7 @@ func NewStorage(config utils.Config) (*Storage, error) {
 		return nil, err
 	}
 
-	gormDB, err := gorm.Open(postgres.Open(config.DBSource), &gorm.Config{})
+	gormDB, err := gorm.Open(postgres.Open(database.DBSource), &gorm.Config{})
 	if err != nil {
 		log.Fatal("Error executing gorm  - ", err)
 		return nil, err

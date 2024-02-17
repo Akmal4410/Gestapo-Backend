@@ -4,8 +4,6 @@ import (
 	"errors"
 	"regexp"
 	"strings"
-
-	"github.com/akmal4410/gestapo/models"
 )
 
 func IsEmpty(str string) bool {
@@ -50,26 +48,26 @@ func EmailOrPhone(input string) string {
 	return "unknown"
 }
 
-func ValidateEmailOrPhone(req *models.SendOTPReq) error {
+func ValidateEmailOrPhone(email, phone string) error {
 	// Check that either Email or Phone is present, but not both
-	if (req.Email != "" && req.Phone != "") || (req.Email == "" && req.Phone == "") {
+	if (email != "" && phone != "") || (email == "" && phone == "") {
 		return errors.New("either Email or Phone should be present")
 	}
 	// Check that at least one field is non-empty
-	if req.Email == "" && req.Phone == "" {
+	if email == "" && phone == "" {
 		return errors.New("at least one of Email or Phone should be non-empty")
 	}
 	// Validate email format
-	if req.Email != "" {
+	if email != "" {
 		emailRegex := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
-		if !emailRegex.MatchString(req.Email) {
+		if !emailRegex.MatchString(email) {
 			return errors.New("invalid email format")
 		}
 	}
 	// Validate phone number length
-	if req.Phone != "" && len(req.Phone) != 10 {
+	if phone != "" && len(phone) != 10 {
 		phoneRegex := regexp.MustCompile(`^\+?[1-9]\d{1,14}$`)
-		if !phoneRegex.MatchString(req.Email) {
+		if !phoneRegex.MatchString(phone) {
 			return errors.New("phone number should be 10 digits")
 		}
 
