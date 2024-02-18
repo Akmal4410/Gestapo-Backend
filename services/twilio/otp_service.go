@@ -56,17 +56,18 @@ func (service *OTPService) SendOTP(to string) error {
 func (service OTPService) VerfiyOTP(to, code string) (bool, error) {
 	LoadEnv()
 
-	var client = twilio.NewRestClientWithParams(twilio.ClientParams{
+	var client *twilio.RestClient = twilio.NewRestClientWithParams(twilio.ClientParams{
 		Username: accountSid,
 		Password: authToken,
 	})
-
 	params := &twilioApi.CreateVerificationCheckParams{}
 	params.SetTo(to)
 	params.SetCode(code)
 
 	resp, err := client.VerifyV2.CreateVerificationCheck(serviceSid, params)
+
 	if err != nil {
+		fmt.Println("error :", err.Error())
 		return false, err
 	}
 	if *resp.Status == "approved" {

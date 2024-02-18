@@ -3,8 +3,6 @@ package helpers
 import (
 	"encoding/json"
 	"net/http"
-
-	"github.com/go-playground/validator"
 )
 
 type jsonResponse struct {
@@ -17,18 +15,6 @@ type jsonResponse struct {
 type errorInfo struct {
 	StatusCode int    `json:"status_code"`
 	Message    string `json:"message"`
-}
-
-var validate = validator.New()
-
-func ValidateBody(r *http.Request, data any) error {
-	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-		return err
-	}
-	if err := validate.Struct(data); err != nil {
-		return err
-	}
-	return nil
 }
 
 func WriteJSON(w http.ResponseWriter, status int, data any) error {

@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/akmal4410/gestapo/database"
-	"github.com/akmal4410/gestapo/helpers"
 	"github.com/akmal4410/gestapo/routes"
 	"github.com/akmal4410/gestapo/utils"
 	"github.com/gorilla/mux"
@@ -32,7 +31,7 @@ func (server *Server) Start() error {
 	router := mux.NewRouter()
 	server.router = router
 
-	helpers.RegisterValidator()
+	// helpers.RegisterValidator()
 
 	server.setupRouter()
 

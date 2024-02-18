@@ -11,7 +11,6 @@ import (
 	"github.com/akmal4410/gestapo/models"
 	"github.com/akmal4410/gestapo/services/cache"
 	"github.com/akmal4410/gestapo/services/mail"
-	"github.com/akmal4410/gestapo/services/password"
 	"github.com/akmal4410/gestapo/services/token"
 	"github.com/akmal4410/gestapo/services/twilio"
 	"github.com/akmal4410/gestapo/utils"
@@ -24,6 +23,7 @@ type AuthController struct {
 	storage       *database.Storage
 	token         token.Maker
 	redis         cache.Cache
+	user          database.User
 }
 
 func NewAuthController(
@@ -159,12 +159,12 @@ func (auth AuthController) SignupUser(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	hashedPassword, err := password.HashPassword(req.Password)
+	err = auth.user.InsertUser(req, auth.storage)
 	if err != nil {
-		helpers.ErrorJson(w, http.StatusInternalServerError, err)
+		err = fmt.Errorf("error while inserting user %w", err)
+		helpers.ErrorJson(w, http.StatusUnauthorized, err)
 		return
 	}
-	fmt.Println(hashedPassword)
 
 	token, err := auth.token.CreateAccessToken(value, time.Minute*5)
 	if err != nil {
@@ -172,8 +172,7 @@ func (auth AuthController) SignupUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("access-token", token)
-	helpers.WriteJSON(w, http.StatusOK, "OTP sent successfully")
-
+	helpers.WriteJSON(w, http.StatusOK, "User created Successfully")
 }
 
 func (auth AuthController) LoginUser(w http.ResponseWriter, r *http.Request) {
