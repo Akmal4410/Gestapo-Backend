@@ -8,11 +8,7 @@ import (
 	"github.com/akmal4410/gestapo/services/password"
 )
 
-type User struct {
-	password password.Password
-}
-
-func (u User) InsertUser(user *models.SignupReq, storage *Storage) (err error) {
+func (storage *Storage) InsertUser(user *models.SignupReq) (err error) {
 	var column string
 	var value string
 	if user.Email != "" {
@@ -25,7 +21,7 @@ func (u User) InsertUser(user *models.SignupReq, storage *Storage) (err error) {
 	createdAt := time.Now()
 	updatedAt := time.Now()
 
-	user.Password, err = u.password.HashPassword(user.Password)
+	user.Password, err = password.HashPassword(user.Password)
 	if err != nil {
 		return err
 	}

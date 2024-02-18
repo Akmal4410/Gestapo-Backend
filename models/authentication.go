@@ -13,6 +13,10 @@ type SignupReq struct {
 	Code     string `json:"code" validate:"required,min=6,max=6"`
 	Password string `json:"password" validate:"required,min=6,max=100"`
 }
+type LoginReq struct {
+	UserName string `json:"user_name" validate:"required,min=4,max=12"`
+	Password string `json:"password" validate:"required,min=6,max=100"`
+}
 
 // type SignupReq struct {
 // 	Email        string    `json:"email" validate:"omitempty"`

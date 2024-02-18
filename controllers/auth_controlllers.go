@@ -23,7 +23,6 @@ type AuthController struct {
 	storage       *database.Storage
 	token         token.Maker
 	redis         cache.Cache
-	user          database.User
 }
 
 func NewAuthController(
@@ -159,7 +158,7 @@ func (auth AuthController) SignupUser(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err = auth.user.InsertUser(req, auth.storage)
+	err = auth.storage.InsertUser(req)
 	if err != nil {
 		err = fmt.Errorf("error while inserting user %w", err)
 		helpers.ErrorJson(w, http.StatusUnauthorized, err)
@@ -176,4 +175,45 @@ func (auth AuthController) SignupUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (auth AuthController) LoginUser(w http.ResponseWriter, r *http.Request) {
+	req := new(models.LoginReq)
+	var formatedErr error
+	err := helpers.ValidateBody(r, req)
+	if err != nil {
+		formatedErr = fmt.Errorf("invalid body %w", err)
+		helpers.ErrorJson(w, http.StatusBadRequest, formatedErr)
+		return
+	}
+
+	res, err := auth.storage.CheckUserExist("user_name", req.UserName)
+	if err != nil {
+		formatedErr = fmt.Errorf("check user exist %w", err)
+		helpers.ErrorJson(w, http.StatusInternalServerError, formatedErr)
+		return
+	}
+	if !res {
+		formatedErr = fmt.Errorf("user already exist %w", err)
+		helpers.ErrorJson(w, http.StatusInternalServerError, formatedErr)
+		return
+	}
+
+	res, err = auth.storage.CheckPassword(req.UserName, req.Password)
+	if err != nil {
+		formatedErr = fmt.Errorf("check password %w", err)
+		helpers.ErrorJson(w, http.StatusInternalServerError, formatedErr)
+		return
+	}
+	if !res {
+		formatedErr = fmt.Errorf("wrong password %w", err)
+		helpers.ErrorJson(w, http.StatusForbidden, formatedErr)
+		return
+	}
+
+	token, err := auth.token.CreateAccessToken(req.UserName, time.Minute*10)
+	if err != nil {
+		helpers.ErrorJson(w, http.StatusInternalServerError, err)
+		return
+	}
+	w.Header().Set("access-token", token)
+	helpers.WriteJSON(w, http.StatusOK, "User loggedin Successfully")
+
 }

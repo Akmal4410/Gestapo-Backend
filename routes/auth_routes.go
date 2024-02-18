@@ -36,6 +36,6 @@ func AuthRoutes(router *mux.Router, config *utils.Config, storage *database.Stor
 
 	router.HandleFunc("/send_otp", authRoute.auth.SendOTP).Methods("POST")
 	router.Handle("/signup", middlewares.AuthenticationMiddleware(tokenMaker, http.HandlerFunc(authRoute.auth.SignupUser))).Methods("POST")
-	router.HandleFunc("/login", authRoute.auth.LoginUser)
+	router.HandleFunc("/login", authRoute.auth.LoginUser).Methods("POST")
 
 }
