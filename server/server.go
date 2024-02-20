@@ -6,6 +6,7 @@ import (
 
 	"github.com/akmal4410/gestapo/database"
 	"github.com/akmal4410/gestapo/routes"
+	"github.com/akmal4410/gestapo/services/logger"
 	"github.com/akmal4410/gestapo/utils"
 	"github.com/gorilla/mux"
 )
@@ -27,14 +28,14 @@ func NewServer(storage *database.Storage, config *utils.Config) *Server {
 }
 
 // Start runs the HTTP server on a specific address.
-func (server *Server) Start() error {
+func (server *Server) Start(logger logger.Logger) error {
 	router := mux.NewRouter()
 	server.router = router
 
 	// helpers.RegisterValidator()
 
 	server.setupRouter()
-
+	logger.LogInfo("Go Bank Running on port :", server.config.ServerAddress)
 	fmt.Println("Go Bank Running on port :", server.config.ServerAddress)
 	return http.ListenAndServe(server.config.ServerAddress, router)
 }
