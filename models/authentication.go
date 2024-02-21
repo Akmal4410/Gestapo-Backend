@@ -6,12 +6,6 @@ type SendOTPReq struct {
 	Action string `json:"action" validate:"required"`
 }
 
-type VerfiyOTPReq struct {
-	Email string `json:"email" validate:"omitempty"`
-	Phone string `json:"phone" validate:"omitempty,len=10,numeric"`
-	Code  string `json:"code" validate:"required,min=6,max=6"`
-}
-
 type SignupReq struct {
 	Email    string `json:"email" validate:"omitempty"`
 	Phone    string `json:"phone" validate:"omitempty,len=10,numeric"`
@@ -22,5 +16,12 @@ type SignupReq struct {
 }
 type LoginReq struct {
 	UserName string `json:"user_name" validate:"required,min=4,max=12"`
+	Password string `json:"password" validate:"required,min=6,max=100"`
+}
+
+type ForgotPassword struct {
+	Email    string `json:"email" validate:"omitempty"`
+	Phone    string `json:"phone" validate:"omitempty,len=10,numeric"`
+	Code     string `json:"code" validate:"required,min=6,max=6"`
 	Password string `json:"password" validate:"required,min=6,max=100"`
 }

@@ -20,6 +20,7 @@ import (
 
 const (
 	InternalServerError string = "Internal server error"
+	InvalidBody         string = "Invalid Body"
 )
 
 type AuthController struct {
@@ -49,13 +50,13 @@ func NewAuthController(
 	}
 }
 
-func (auth AuthController) SendOTP(w http.ResponseWriter, r *http.Request) {
+func (auth *AuthController) SendOTP(w http.ResponseWriter, r *http.Request) {
 	req := new(models.SendOTPReq)
 
 	err := helpers.ValidateBody(r, req)
 	if err != nil {
 		auth.log.LogError("Error while ValidateBody", err)
-		helpers.ErrorJson(w, http.StatusBadRequest, "Invalid body")
+		helpers.ErrorJson(w, http.StatusBadRequest, InvalidBody)
 		return
 	}
 
@@ -67,22 +68,24 @@ func (auth AuthController) SendOTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	column, value := utils.IdentifiesColumnValue(req.Email, req.Phone)
-	if len(column) == 0 {
-		auth.log.LogError("Error while IdentifiesColumnValue", column)
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
-		return
-	}
-	res, err := auth.storage.CheckDataExist(column, value)
-	if err != nil {
-		auth.log.LogError("Error while CheckDataExist", err)
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
-		return
-	}
-	if res {
-		err = fmt.Errorf("account already exist using this %s", column)
-		auth.log.LogError(err)
-		helpers.ErrorJson(w, http.StatusConflict, err.Error())
-		return
+	if req.Action == utils.SIGN_UP {
+		if len(column) == 0 {
+			auth.log.LogError("Error while IdentifiesColumnValue", column)
+			helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+			return
+		}
+		res, err := auth.storage.CheckDataExist(column, value)
+		if err != nil {
+			auth.log.LogError("Error while CheckDataExist", err)
+			helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+			return
+		}
+		if res {
+			err = fmt.Errorf("account already exist using this %s", column)
+			auth.log.LogError(err)
+			helpers.ErrorJson(w, http.StatusConflict, err.Error())
+			return
+		}
 	}
 
 	if !utils.IsEmpty(req.Email) {
@@ -111,96 +114,84 @@ func (auth AuthController) SendOTP(w http.ResponseWriter, r *http.Request) {
 	helpers.WriteJSON(w, http.StatusOK, "OTP sent successfully")
 }
 
-func (auth AuthController) VerifyOTP(w http.ResponseWriter, r *http.Request) {
-	req := new(models.VerfiyOTPReq)
-	err := helpers.ValidateBody(r, req)
-	if err != nil {
-		auth.log.LogError("Invalid body", err)
-		helpers.ErrorJson(w, http.StatusBadRequest, "Invalid body")
-		return
-	}
-	err = utils.ValidateEmailOrPhone(req.Email, req.Phone)
-	if err != nil {
-		auth.log.LogError("Error while ValidateEmailOrPhone", err)
-		helpers.ErrorJson(w, http.StatusBadRequest, "Invalid email or phone")
-		return
+func (auth *AuthController) verifyOTP(w http.ResponseWriter, payload *token.SessionPayload, email, phone, code, action string) bool {
+	if payload.TokenType != action {
+		auth.log.LogError("Payload doesnot match")
+		helpers.ErrorJson(w, http.StatusForbidden, "Unauthorized: Payload doesnot match")
+		return false
 	}
 
-	column, value := utils.IdentifiesColumnValue(req.Email, req.Phone)
-	if len(column) == 0 {
-		auth.log.LogError("Error while IdentifiesColumnValue", column)
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
-		return
+	column, value := utils.IdentifiesColumnValue(email, phone)
+	if action == utils.SIGN_UP {
+		if len(column) == 0 {
+			auth.log.LogError("Error while IdentifiesColumnValue", column)
+			helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+			return false
+		}
+		res, err := auth.storage.CheckDataExist(column, value)
+		if err != nil {
+			auth.log.LogError("Error while CheckDataExist", err)
+			helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+			return false
+		}
+		if res {
+			fmtError := fmt.Errorf("account already exist using this %s", column)
+			auth.log.LogError(fmtError)
+			helpers.ErrorJson(w, http.StatusConflict, fmtError.Error())
+			return false
+		}
 	}
-	res, err := auth.storage.CheckDataExist(column, value)
-	if err != nil {
-		auth.log.LogError("Error while CheckDataExist", err)
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
-		return
-	}
-	if res {
-		fmtError := fmt.Errorf("account already exist using this %s", column)
-		auth.log.LogError(fmtError)
-		helpers.ErrorJson(w, http.StatusConflict, fmtError.Error())
-		return
-	}
-	payload := r.Context().Value(middlewares.AuthorizationPayloadKey).(*token.SessionPayload)
-	if !utils.IsEmpty(req.Email) {
-		if payload.Value != req.Email {
+
+	if !utils.IsEmpty(email) {
+		if payload.Value != email {
+			err := errors.New("Forbidden")
 			auth.log.LogError("Forbidden", err)
 			helpers.ErrorJson(w, http.StatusForbidden, "Forbidden")
-			return
+			return false
 		}
-		status, err := auth.emailService.VerfiyOTP(req.Email, req.Code, auth.redis)
+		status, err := auth.emailService.VerfiyOTP(email, code, auth.redis)
 		if err != nil {
 			auth.log.LogError("Error while VerfiyOTP", err)
 			helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
-			return
+			return false
 		}
 		if !status {
 			err = errors.New("Invalid OTP")
 			auth.log.LogError("Invalid OTP", err)
 			helpers.ErrorJson(w, http.StatusUnauthorized, "Invalid OTP")
-			return
+			return false
 		}
 	} else {
-		if payload.Value != req.Phone {
-			err = errors.New("Forbidden")
+		if payload.Value != phone {
+			err := errors.New("Forbidden")
 			auth.log.LogError("Forbidden", err)
 			helpers.ErrorJson(w, http.StatusForbidden, "Forbidden")
-			return
+			return false
 		}
-		phoneNumber := fmt.Sprintf("+91%s", req.Phone)
-		status, err := auth.twilioService.VerfiyOTP(phoneNumber, req.Code)
+		phoneNumber := fmt.Sprintf("+91%s", phone)
+		status, err := auth.twilioService.VerfiyOTP(phoneNumber, code)
 		if err != nil {
 			auth.log.LogError("Error while VerfiyOTP", err)
 			helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
-			return
+			return false
 		}
 		if !status {
 			err = errors.New("Invalid OTP")
 			auth.log.LogError("Invalid OTP", err)
 			helpers.ErrorJson(w, http.StatusUnauthorized, "Invalid OTP")
-			return
+			return false
 		}
 	}
-	token, err := auth.token.CreateSessionToken(value, "sign-up", time.Minute*5)
-	if err != nil {
-		auth.log.LogError("Error while CreateSessionToken", err)
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
-		return
-	}
-	w.Header().Set("session-token", token)
-	helpers.WriteJSON(w, http.StatusOK, "OTP sent successfully")
+	return true
 }
 
-func (auth AuthController) SignUpUser(w http.ResponseWriter, r *http.Request) {
+func (auth *AuthController) SignUpUser(w http.ResponseWriter, r *http.Request) {
 	req := new(models.SignupReq)
 
 	err := helpers.ValidateBody(r, req)
 	if err != nil {
 		auth.log.LogError("Error while ValidateBody", err)
-		helpers.ErrorJson(w, http.StatusBadRequest, "Invalid body")
+		helpers.ErrorJson(w, http.StatusBadRequest, InvalidBody)
 		return
 	}
 
@@ -211,65 +202,10 @@ func (auth AuthController) SignUpUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	column, value := utils.IdentifiesColumnValue(req.Email, req.Phone)
-	if len(column) == 0 {
-		auth.log.LogError("Error while IdentifiesColumnValue", column)
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
-		return
-	}
-	res, err := auth.storage.CheckDataExist(column, value)
-	if err != nil {
-		auth.log.LogError("Error while CheckDataExist", err)
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
-		return
-	}
-	if res {
-		err = fmt.Errorf("account already exist using this %s", column)
-		auth.log.LogError(err)
-		helpers.ErrorJson(w, http.StatusConflict, err.Error())
-		return
-	}
-
 	payload := r.Context().Value(middlewares.AuthorizationPayloadKey).(*token.SessionPayload)
-	if !utils.IsEmpty(req.Email) {
-		if payload.Value != req.Email {
-			err = errors.New("Forbidden")
-			auth.log.LogError("Forbidden", err)
-			helpers.ErrorJson(w, http.StatusForbidden, "Forbidden")
-			return
-		}
-		status, err := auth.emailService.VerfiyOTP(req.Email, req.Code, auth.redis)
-		if err != nil {
-			auth.log.LogError("Error whileVerfiyOTP ", err)
-			helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
-			return
-		}
-		if !status {
-			err = errors.New("Invalid OTP")
-			auth.log.LogError("Invalid OTP", err)
-			helpers.ErrorJson(w, http.StatusUnauthorized, "Invalid OTP")
-			return
-		}
-	} else {
-		if payload.Value != req.Phone {
-			err = errors.New("Forbidden")
-			auth.log.LogError("Forbidden", err)
-			helpers.ErrorJson(w, http.StatusForbidden, "Forbidden")
-			return
-		}
-		phoneNumber := fmt.Sprintf("+91%s", req.Phone)
-		status, err := auth.twilioService.VerfiyOTP(phoneNumber, req.Code)
-		if err != nil {
-			auth.log.LogError("Error while VerfiyOTP", err)
-			helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
-			return
-		}
-		if !status {
-			err = errors.New("Invalid OTP")
-			auth.log.LogError("Invalid OTP", err)
-			helpers.ErrorJson(w, http.StatusUnauthorized, "Invalid OTP")
-			return
-		}
+	verify := auth.verifyOTP(w, payload, req.Email, req.Phone, req.Code, utils.SIGN_UP)
+	if !verify {
+		return
 	}
 
 	err = auth.storage.InsertUser(req)
@@ -280,7 +216,7 @@ func (auth AuthController) SignUpUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := auth.token.CreateAccessToken(value, time.Minute*5)
+	token, err := auth.token.CreateAccessToken(req.UserName, time.Minute*5)
 	if err != nil {
 		auth.log.LogError("Error while CreateAccessToken", err)
 		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
@@ -290,13 +226,13 @@ func (auth AuthController) SignUpUser(w http.ResponseWriter, r *http.Request) {
 	helpers.WriteJSON(w, http.StatusOK, "User created Successfully")
 }
 
-func (auth AuthController) LoginUser(w http.ResponseWriter, r *http.Request) {
+func (auth *AuthController) LoginUser(w http.ResponseWriter, r *http.Request) {
 	req := new(models.LoginReq)
 
 	err := helpers.ValidateBody(r, req)
 	if err != nil {
 		auth.log.LogError("Error while ValidateBody", err)
-		helpers.ErrorJson(w, http.StatusBadRequest, "Invalid body")
+		helpers.ErrorJson(w, http.StatusBadRequest, InvalidBody)
 		return
 	}
 
@@ -334,5 +270,38 @@ func (auth AuthController) LoginUser(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("access-token", token)
 	helpers.WriteJSON(w, http.StatusOK, "User loggedin Successfully")
+}
+
+func (auth *AuthController) ForgotPassword(w http.ResponseWriter, r *http.Request) {
+	req := new(models.ForgotPassword)
+
+	err := helpers.ValidateBody(r, req)
+	if err != nil {
+		auth.log.LogError("Error while ValidateBody", err)
+		helpers.ErrorJson(w, http.StatusBadRequest, InvalidBody)
+		return
+	}
+
+	err = utils.ValidateEmailOrPhone(req.Email, req.Phone)
+	if err != nil {
+		auth.log.LogError("Error while ValidateEmailOrPhone", err)
+		helpers.ErrorJson(w, http.StatusBadRequest, "Invalid Email or Phone")
+		return
+	}
+
+	payload := r.Context().Value(middlewares.AuthorizationPayloadKey).(*token.SessionPayload)
+	verify := auth.verifyOTP(w, payload, req.Email, req.Phone, req.Code, utils.FORGOT_PASSWORD)
+	if !verify {
+		return
+	}
+
+	err = auth.storage.ChangePassword(req)
+	if err != nil {
+		auth.log.LogError("Error while ChangePassword", err)
+		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		return
+	}
+
+	helpers.WriteJSON(w, http.StatusOK, "Password changed successfully")
 
 }

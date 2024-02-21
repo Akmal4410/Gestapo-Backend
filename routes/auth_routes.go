@@ -36,7 +36,7 @@ func (server *Server) authRoutes() {
 
 	authRoutes.HandleFunc("/login", authRoute.auth.LoginUser).Methods("POST")
 	authRoutes.HandleFunc("/send-otp", authRoute.auth.SendOTP).Methods("POST")
-	authRoutes.HandleFunc("/verify-otp", authRoute.auth.VerifyOTP).Methods("POST")
-	authRoutes.HandleFunc("/forgot-password", authRoute.auth.LoginUser).Methods("POST")
 	authRoutes.Handle("/signup", middlewares.AuthenticationMiddleware(tokenMaker, server.log, http.HandlerFunc(authRoute.auth.SignUpUser))).Methods("POST")
+	authRoutes.Handle("/forgot-password", middlewares.AuthenticationMiddleware(tokenMaker, server.log, http.HandlerFunc(authRoute.auth.ForgotPassword))).Methods("POST")
+
 }

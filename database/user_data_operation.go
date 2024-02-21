@@ -37,3 +37,28 @@ func (storage *Storage) InsertUser(user *models.SignupReq) (err error) {
 	}
 	return nil
 }
+
+func (storage *Storage) ChangePassword(req *models.ForgotPassword) (err error) {
+	var column string
+	var value string
+	if req.Email != "" {
+		column = "email"
+		value = req.Email
+	} else if req.Phone != "" {
+		column = "phone"
+		value = req.Phone
+	}
+	updatedAt := time.Now()
+
+	req.Password, err = password.HashPassword(req.Password)
+	if err != nil {
+		return err
+	}
+
+	updateQuery := fmt.Sprintf(`UPDATE user_data SET password = $1, updated_at = $2 WHERE %s = $3`, column)
+	_, err = storage.db.Exec(updateQuery, req.Password, updatedAt, value)
+	if err != nil {
+		return err
+	}
+	return nil
+}
