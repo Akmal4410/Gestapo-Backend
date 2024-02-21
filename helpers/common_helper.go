@@ -27,14 +27,14 @@ func WriteJSON(w http.ResponseWriter, status int, data any) error {
 	})
 }
 
-func ErrorJson(w http.ResponseWriter, status int, err error) error {
+func ErrorJson(w http.ResponseWriter, status int, err string) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	return json.NewEncoder(w).Encode(jsonResponse{
 		Status: false,
 		ErrorInfo: &errorInfo{
 			StatusCode: status,
-			Message:    err.Error(),
+			Message:    err,
 		},
 	})
 }

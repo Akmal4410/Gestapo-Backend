@@ -24,9 +24,9 @@ func NewJWTMaker(secretKey string) (Maker, error) {
 }
 
 // CreateSessionToken implements Maker.
-func (maker *JWTMaker) CreateSessionToken(value string, duration time.Duration) (string, error) {
+func (maker *JWTMaker) CreateSessionToken(value, tokenType string, duration time.Duration) (string, error) {
 	mySigningKey := []byte(maker.secretKey)
-	payload := NewSessionPayload(value, duration)
+	payload := NewSessionPayload(value, tokenType, duration)
 	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
 	return jwtToken.SignedString(mySigningKey)
 }

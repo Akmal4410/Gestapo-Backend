@@ -15,7 +15,8 @@ var (
 
 // SessionPayload contains the payload data of the session token
 type SessionPayload struct {
-	Value string `json:"value"`
+	Value     string `json:"value"`
+	TokenType string `json:"token_type"`
 	jwt.RegisteredClaims
 }
 
@@ -26,9 +27,10 @@ type AccessPayload struct {
 }
 
 // NewSessionPayload creates a new token payload with a specific value and duration
-func NewSessionPayload(value string, duration time.Duration) *SessionPayload {
+func NewSessionPayload(value, tokenType string, duration time.Duration) *SessionPayload {
 	payload := &SessionPayload{
-		Value: value,
+		Value:     value,
+		TokenType: tokenType,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(duration)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),

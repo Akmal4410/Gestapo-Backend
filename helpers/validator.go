@@ -22,6 +22,17 @@ func ValidateBody(r *http.Request, data any) error {
 	return nil
 }
 
+func RegisterValidator() {
+	err := validate.RegisterValidation("USER_TYPE", validateUserType)
+	if err != nil {
+		fmt.Println("Error registering custom validation:", err.Error())
+	}
+	err = validate.RegisterValidation("SIGNUP_ACTION", validateSignupAction)
+	if err != nil {
+		fmt.Println("Error registering custom validation:", err.Error())
+	}
+}
+
 var validateUserType validator.Func = func(fl validator.FieldLevel) bool {
 	if userType, ok := fl.Field().Interface().(string); ok {
 		// Check userType is supported or not
@@ -30,9 +41,10 @@ var validateUserType validator.Func = func(fl validator.FieldLevel) bool {
 	return false
 }
 
-func RegisterValidator() {
-	err := validate.RegisterValidation("user_type", validateUserType)
-	if err != nil {
-		fmt.Println("Error registering custom validation:", err.Error())
+var validateSignupAction validator.Func = func(fl validator.FieldLevel) bool {
+	if signupAction, ok := fl.Field().Interface().(string); ok {
+		// Check signupAction is supported or not
+		return utils.IsSupportedSignupAction(signupAction)
 	}
+	return false
 }

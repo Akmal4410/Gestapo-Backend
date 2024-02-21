@@ -29,7 +29,7 @@ Creates a new Logrus Logger pointer to be used for logging.
 This function will need a log ile name.
 The log file name should represent the service name.
 */
-func NewLogServiceWrapper(logFileName string) Logger {
+func NewLogrusLogger(logFileName string) Logger {
 	return &LogrusLogger{
 		infoLogger:  createLogger("info_"+logFileName, false),
 		errorLogger: createLogger("error_"+logFileName, false),
@@ -92,24 +92,24 @@ func (l *LogrusLogger) LogError(args ...interface{}) {
 
 // LogFatal implements Logger.
 func (l *LogrusLogger) LogFatal(args ...interface{}) {
-	e := &event{
+	event := &event{
 		name:   "Fatal",
 		level:  logrus.FatalLevel,
 		logger: l.fatalLogger,
 		args:   args,
 	}
-	l.log(e)
+	event.logger.Fatal(event.level, event.args)
 }
 
 // LogPanic implements Logger.
 func (l *LogrusLogger) LogPanic(args ...interface{}) {
-	e := &event{
+	event := &event{
 		name:   "Panic",
 		level:  logrus.PanicLevel,
 		logger: l.panicLogger,
 		args:   args,
 	}
-	l.log(e)
+	event.logger.Panic(event.level, event.args)
 }
 
 func (l *LogrusLogger) log(event *event) {

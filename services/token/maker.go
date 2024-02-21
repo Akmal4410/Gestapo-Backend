@@ -5,7 +5,7 @@ import "time"
 // Maker is an interface for managing tokens
 type Maker interface {
 	// CreateSessionToken create a session token for specific value and duration
-	CreateSessionToken(value string, duration time.Duration) (string, error)
+	CreateSessionToken(value, tokenType string, duration time.Duration) (string, error)
 
 	// VerifySessionToken  checks if session token is valid or not
 	VerifySessionToken(token string) (*SessionPayload, error)

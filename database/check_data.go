@@ -6,7 +6,7 @@ import (
 	"github.com/akmal4410/gestapo/services/password"
 )
 
-func (storage *Storage) CheckUserExist(column, value string) (bool, error) {
+func (storage *Storage) CheckDataExist(column, value string) (bool, error) {
 	checkQuery := fmt.Sprintf(`SELECT * FROM user_data WHERE %s = $1;`, column)
 	res, err := storage.db.Exec(checkQuery, value)
 	if err != nil {

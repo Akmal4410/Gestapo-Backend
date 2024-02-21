@@ -47,7 +47,7 @@ func parseTemplate(email, templateType, content string) (int, *bytes.Buffer, err
 	return otp, &body, nil
 }
 
-func (sender *GmailService) SendEmail(to, subject, content string, redisCache cache.Cache) error {
+func (sender *GmailService) SendOTP(to, subject, content string, redisCache cache.Cache) error {
 	email := email.NewEmail()
 
 	otp, htmlContent, err := parseTemplate(to, "email", content)
