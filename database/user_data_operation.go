@@ -62,3 +62,23 @@ func (storage *Storage) ChangePassword(req *models.ForgotPassword) (err error) {
 	}
 	return nil
 }
+
+type TokenPayload struct {
+	UserName string
+	UserType string
+}
+
+func (storage *Storage) GetTokenPayload(column, value string) (*TokenPayload, error) {
+	selectQuery := fmt.Sprintf(`SELECT user_name, userType FROM user_data WHERE %s = $1;`, column)
+	rows := storage.db.QueryRow(selectQuery, value)
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+	var tokenPayload TokenPayload
+	err := rows.Scan(&tokenPayload)
+	if err != nil {
+		return nil, err
+	}
+
+	return &tokenPayload, nil
+}

@@ -30,12 +30,15 @@ func (server *Server) authRoutes() {
 		log.Fatal("%w", err)
 	}
 
-	authRoute.auth = controllers.NewAuthController(twilio, email, server.storage, tokenMaker, redis, server.log)
+	authRoute.auth = controllers.NewAuthController(twilio, email, server.storage, tokenMaker, redis, server.log, server.config)
 
+	// server.router.HandleFunc("/", authRoute.auth.Home)
 	authRoutes := server.router.PathPrefix("/auth").Subrouter()
 
 	authRoutes.HandleFunc("/login", authRoute.auth.LoginUser).Methods("POST")
 	authRoutes.HandleFunc("/send-otp", authRoute.auth.SendOTP).Methods("POST")
+	// authRoutes.HandleFunc("/sso-callback", authRoute.auth.SSOCallback)
+	authRoutes.Handle("/sso-auth", middlewares.SsoMiddleware(server.log, http.HandlerFunc(authRoute.auth.SSOAuth))).Methods("POST")
 	authRoutes.Handle("/signup", middlewares.AuthenticationMiddleware(tokenMaker, server.log, http.HandlerFunc(authRoute.auth.SignUpUser))).Methods("POST")
 	authRoutes.Handle("/forgot-password", middlewares.AuthenticationMiddleware(tokenMaker, server.log, http.HandlerFunc(authRoute.auth.ForgotPassword))).Methods("POST")
 

@@ -58,9 +58,9 @@ func (maker *JWTMaker) VerifySessionToken(token string) (*SessionPayload, error)
 }
 
 // CreateAccessToken create a token for specific userName and duration
-func (maker *JWTMaker) CreateAccessToken(userName string, duration time.Duration) (string, error) {
+func (maker *JWTMaker) CreateAccessToken(userName, userType string, duration time.Duration) (string, error) {
 	mySigningKey := []byte(maker.secretKey)
-	payload := NewAccessPayload(userName, duration)
+	payload := NewAccessPayload(userName, userType, duration)
 	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
 	return jwtToken.SignedString(mySigningKey)
 

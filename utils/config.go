@@ -17,6 +17,7 @@ type Config struct {
 	Twilio            *Twilio   `mapstructure:"TWILIO" json:"TWILIO"`
 	Email             *Email    `mapstructure:"EMAIL" json:"EMAIL"`
 	Redis             *Redis    `mapstructure:"REDIS_SERVER" json:"REDIS_SERVER"`
+	OAuth             *OAuth    `mapstructure:"OAUTH" json:"OAUTH"`
 }
 
 type Database struct {
@@ -40,6 +41,13 @@ type Redis struct {
 	Address  string `mapstructure:"ADDRESS" json:"ADDRESS"`
 	Password string `mapstructure:"PASSWORD" json:"PASSWORD"`
 	Db       string `mapstructure:"DB" json:"DB"`
+}
+
+type OAuth struct {
+	WebClientId     string `mapstructure:"GOOGLE_WEB_CLIENT_ID" json:"GOOGLE_WEB_CLIENT_ID"`
+	WebClientSecret string `mapstructure:"GOOGLE_WEB_CLIENT_SECRET" json:"GOOGLE_WEB_CLIENT_SECRET"`
+	AndroidClientId string `mapstructure:"GOOGLE_ANDROID_CLIENT_ID" json:"GOOGLE_ANDROID_CLIENT_ID"`
+	IOSClientId     string `mapstructure:"GOOGLE_IOS_CLIENT_ID" json:"GOOGLE_IOS_CLIENT_ID"`
 }
 
 // LoadConfig reads configuration from file or environment variables.

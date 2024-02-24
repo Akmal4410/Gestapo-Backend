@@ -11,7 +11,7 @@ type Maker interface {
 	VerifySessionToken(token string) (*SessionPayload, error)
 
 	// CreateAccessToken create a access token for specific userName and duration
-	CreateAccessToken(userName string, duration time.Duration) (string, error)
+	CreateAccessToken(userName, userType string, duration time.Duration) (string, error)
 
 	// VerifyAccessToken checks if access token is valid or not
 	VerifyAccessToken(token string) (*AccessPayload, error)
