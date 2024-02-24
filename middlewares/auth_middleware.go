@@ -22,7 +22,7 @@ const (
 	AuthorizationPayloadKey contextKey = "authorization_payload"
 )
 
-func AuthenticationMiddleware(tokenMaker token.Maker, log logger.Logger, next http.Handler) http.Handler {
+func AuthMiddleware(tokenMaker token.Maker, log logger.Logger, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authorizationHeader := r.Header.Get(AuthorizationKey)
 		if len(authorizationHeader) == 0 {

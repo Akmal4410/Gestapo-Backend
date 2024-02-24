@@ -39,7 +39,7 @@ func (server *Server) authRoutes() {
 	authRoutes.HandleFunc("/send-otp", authRoute.auth.SendOTP).Methods("POST")
 	// authRoutes.HandleFunc("/sso-callback", authRoute.auth.SSOCallback)
 	authRoutes.Handle("/sso-auth", middlewares.SsoMiddleware(server.log, http.HandlerFunc(authRoute.auth.SSOAuth))).Methods("POST")
-	authRoutes.Handle("/signup", middlewares.AuthenticationMiddleware(tokenMaker, server.log, http.HandlerFunc(authRoute.auth.SignUpUser))).Methods("POST")
-	authRoutes.Handle("/forgot-password", middlewares.AuthenticationMiddleware(tokenMaker, server.log, http.HandlerFunc(authRoute.auth.ForgotPassword))).Methods("POST")
+	authRoutes.Handle("/signup", middlewares.AuthMiddleware(tokenMaker, server.log, http.HandlerFunc(authRoute.auth.SignUpUser))).Methods("POST")
+	authRoutes.Handle("/forgot-password", middlewares.AuthMiddleware(tokenMaker, server.log, http.HandlerFunc(authRoute.auth.ForgotPassword))).Methods("POST")
 
 }
