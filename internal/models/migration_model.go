@@ -3,11 +3,12 @@ package models
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type User_Data struct {
-	ID            uint `gorm:"NOT NULL;PRIMARY_KEY;AUTO_INCREMENT"`
+	ID            uuid.UUID `gorm:"NOT NULL;PRIMARY_KEY"`
 	Profile_Image string
 	Full_Name     string
 	User_Name     string `gorm:"NOT NULL;UNIQUE"`

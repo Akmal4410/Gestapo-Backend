@@ -22,6 +22,7 @@ type SessionPayload struct {
 
 // AccessPayload contains the payload data of the token
 type AccessPayload struct {
+	UserID   string `json:"user_id"`
 	UserName string `json:"user_name"`
 	UserType string `json:"user_type"`
 	jwt.RegisteredClaims
@@ -41,8 +42,9 @@ func NewSessionPayload(value, tokenType string, duration time.Duration) *Session
 }
 
 // NewAccessPayload creates a new token payload with a specific username and duration
-func NewAccessPayload(userName, userType string, duration time.Duration) *AccessPayload {
+func NewAccessPayload(userID, userName, userType string, duration time.Duration) *AccessPayload {
 	payload := &AccessPayload{
+		UserID:   userID,
 		UserName: userName,
 		UserType: userType,
 		RegisteredClaims: jwt.RegisteredClaims{

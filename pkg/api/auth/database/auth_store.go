@@ -7,6 +7,7 @@ import (
 	"github.com/akmal4410/gestapo/internal/database"
 	"github.com/akmal4410/gestapo/pkg/api/auth/database/entity"
 	"github.com/akmal4410/gestapo/pkg/service/password"
+	"github.com/google/uuid"
 )
 
 type AuthStore struct {
@@ -18,7 +19,7 @@ func NewAuthStore(storage *database.Storage) *AuthStore {
 
 }
 
-func (store AuthStore) InsertUser(user *entity.SignupReq) (err error) {
+func (store AuthStore) InsertUser(user *entity.SignupReq) (id string, err error) {
 	var column string
 	var value string
 	if user.Email != "" {
@@ -33,19 +34,24 @@ func (store AuthStore) InsertUser(user *entity.SignupReq) (err error) {
 
 	user.Password, err = password.HashPassword(user.Password)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	insertQuery := fmt.Sprintf(`
-	INSERT INTO user_data (user_name, %s, user_type, password, created_at, updated_at)
-	VALUES ($1, $2, $3, $4, $5, $6);
+	INSERT INTO user_data (id, user_name, %s, user_type, password, created_at, updated_at)
+	VALUES ($1, $2, $3, $4, $5, $6, $7);
 	`, column)
 
-	_, err = store.storage.DB.Exec(insertQuery, user.UserName, value, user.UserType, user.Password, createdAt, updatedAt)
+	uuId, err := uuid.NewRandom()
 	if err != nil {
-		return err
+		return "", err
 	}
-	return nil
+
+	_, err = store.storage.DB.Exec(insertQuery, uuId, user.UserName, value, user.UserType, user.Password, createdAt, updatedAt)
+	if err != nil {
+		return "", err
+	}
+	return uuId.String(), nil
 }
 
 func (store AuthStore) ChangePassword(req *entity.ForgotPassword) (err error) {
@@ -74,18 +80,19 @@ func (store AuthStore) ChangePassword(req *entity.ForgotPassword) (err error) {
 }
 
 type TokenPayload struct {
+	UserId   string
 	UserName string
 	UserType string
 }
 
 func (store AuthStore) GetTokenPayload(column, value string) (*TokenPayload, error) {
-	selectQuery := fmt.Sprintf(`SELECT user_name, userType FROM user_data WHERE %s = $1;`, column)
+	selectQuery := fmt.Sprintf(`SELECT id, user_name, user_type FROM user_data WHERE %s = $1;`, column)
 	rows := store.storage.DB.QueryRow(selectQuery, value)
 	if rows.Err() != nil {
 		return nil, rows.Err()
 	}
 	var tokenPayload TokenPayload
-	err := rows.Scan(&tokenPayload)
+	err := rows.Scan(&tokenPayload.UserId, &tokenPayload.UserName, &tokenPayload.UserType)
 	if err != nil {
 		return nil, err
 	}

@@ -213,7 +213,7 @@ func (auth *AuthHandler) SignUpUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = auth.storage.InsertUser(req)
+	id, err := auth.storage.InsertUser(req)
 	if err != nil {
 		err = fmt.Errorf("error while inserting user %w", err)
 		auth.log.LogError("Error while InsertUser", err)
@@ -221,7 +221,7 @@ func (auth *AuthHandler) SignUpUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := auth.token.CreateAccessToken(req.UserName, req.UserType, time.Minute*5)
+	token, err := auth.token.CreateAccessToken(id, req.UserName, req.UserType, time.Minute*5)
 	if err != nil {
 		auth.log.LogError("Error while CreateAccessToken", err)
 		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
@@ -273,7 +273,7 @@ func (auth *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
 		return
 	}
-	token, err := auth.token.CreateAccessToken(req.UserName, payload.UserType, time.Minute*10)
+	token, err := auth.token.CreateAccessToken(payload.UserId, req.UserName, payload.UserType, time.Minute*10)
 	if err != nil {
 		auth.log.LogError("Error while CreateAccessToken", err)
 		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
@@ -372,7 +372,7 @@ func (auth *AuthHandler) SSOAuth(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		token, err := auth.token.CreateAccessToken(payload.UserName, payload.UserType, time.Minute*10)
+		token, err := auth.token.CreateAccessToken(payload.UserId, payload.UserName, payload.UserType, time.Minute*10)
 		if err != nil {
 			auth.log.LogError("Error while CreateAccessToken", err)
 			helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
@@ -388,14 +388,14 @@ func (auth *AuthHandler) SSOAuth(w http.ResponseWriter, r *http.Request) {
 			UserType: req.UserType,
 			Password: email + fullname + req.UserType,
 		}
-		err = auth.storage.InsertUser(&signupReq)
+		id, err := auth.storage.InsertUser(&signupReq)
 		if err != nil {
 			auth.log.LogError("Error while InsertUser", err)
 			helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
 			return
 		}
 
-		token, err := auth.token.CreateAccessToken(fullname, req.UserType, time.Minute*5)
+		token, err := auth.token.CreateAccessToken(id, fullname, req.UserType, time.Minute*5)
 		if err != nil {
 			auth.log.LogError("Error while CreateAccessToken", err)
 			helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
