@@ -10,7 +10,7 @@ import (
 
 func main() {
 	log := logger.NewLogrusLogger("gestapo")
-	config, err := config.LoadConfig(".")
+	config, err := config.LoadConfig("configs")
 	if err != nil {
 		log.LogFatal("Cannot load configuration:", err)
 	}

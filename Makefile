@@ -8,7 +8,7 @@ dropdb:
 	docker exec -it postgres16 dropdb gestapo
 
 server:
-	go run main.go
+	go run cmd/main.go
 
 
 .PHONY: postgres createdb dropdb server

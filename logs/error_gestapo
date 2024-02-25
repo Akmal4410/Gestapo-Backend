@@ -32,3 +32,4 @@
 {"level":"error","msg":"[Error while ValidateBody Key: 'SendOTPReq.Action' Error:Field validation for 'Action' failed on the 'SIGNUP_ACTION' tag]","time":"2024-02-22T00:57:27+05:30"}
 {"level":"error","msg":"[Error while ValidateBody Key: 'SendOTPReq.Action' Error:Field validation for 'Action' failed on the 'SIGNUP_ACTION' tag]","time":"2024-02-22T00:57:34+05:30"}
 {"level":"error","msg":"[Error while ValidateBody Key: 'SendOTPReq.Action' Error:Field validation for 'Action' failed on the 'signup_action' tag]","time":"2024-02-22T00:59:21+05:30"}
+{"level":"error","msg":"[Error while SendOTP open ./static/email.html: no such file or directory]","time":"2024-02-25T13:23:10+05:30"}

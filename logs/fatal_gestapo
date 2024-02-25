@@ -1,0 +1,4 @@
+{"level":"fatal","msg":"fatal [Cannot load configuration: Config File \"config\" Not Found in \"[/Users/akmal/Documents/go-workspace/gestapo]\"]","time":"2024-02-25T13:19:28+05:30"}
+{"level":"fatal","msg":"fatal [Cannot load configuration: Config File \"config\" Not Found in \"[/Users/akmal/Documents/go-workspace/gestapo/.Config]\"]","time":"2024-02-25T13:20:20+05:30"}
+{"level":"fatal","msg":"fatal [Cannot load configuration: Config File \"config\" Not Found in \"[/Users/akmal/Documents/go-workspace]\"]","time":"2024-02-25T13:20:30+05:30"}
+{"level":"fatal","msg":"fatal [Cannot load configuration: Config File \"config\" Not Found in \"[/Users/akmal/Documents/go-workspace/gestapo/.configs]\"]","time":"2024-02-25T13:22:26+05:30"}

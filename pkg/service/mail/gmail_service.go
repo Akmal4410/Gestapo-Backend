@@ -34,7 +34,7 @@ func NewGmailService(email *config.Email) EmailService {
 }
 
 func parseTemplate(email, templateType, content string) (int, *bytes.Buffer, error) {
-	bodyTpl, err := template.ParseFiles(fmt.Sprintf("./static/%s.html", templateType))
+	bodyTpl, err := template.ParseFiles(fmt.Sprintf("web/templates/%s.html", templateType))
 	if err != nil {
 		return 0, nil, err
 	}
