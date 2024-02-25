@@ -70,7 +70,6 @@ func ValidateEmailOrPhone(email, phone string) error {
 		if !phoneRegex.MatchString(phone) {
 			return errors.New("phone number should be 10 digits")
 		}
-
 	}
 	return nil
 }

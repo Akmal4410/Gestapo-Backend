@@ -11,7 +11,7 @@ import (
 )
 
 type Storage struct {
-	db *sql.DB
+	DB *sql.DB
 }
 
 func NewStorage(database *config.Database) (*Storage, error) {
@@ -31,5 +31,5 @@ func NewStorage(database *config.Database) (*Storage, error) {
 	}
 
 	AutoMigrateTables(gormDB)
-	return &Storage{db: db}, nil
+	return &Storage{DB: db}, nil
 }

@@ -1,11 +1,11 @@
-package routes
+package server
 
 import (
 	"log"
 	"net/http"
 
-	"github.com/akmal4410/gestapo/api/handler"
-	"github.com/akmal4410/gestapo/api/middleware"
+	"github.com/akmal4410/gestapo/pkg/api/auth"
+	"github.com/akmal4410/gestapo/pkg/api/auth/database"
 	"github.com/akmal4410/gestapo/pkg/service/cache"
 	"github.com/akmal4410/gestapo/pkg/service/mail"
 	"github.com/akmal4410/gestapo/pkg/service/token"
@@ -13,7 +13,7 @@ import (
 )
 
 type AuthRoute struct {
-	auth *handler.AuthHandler
+	auth *auth.AuthHandler
 }
 
 var authRoute AuthRoute
@@ -30,7 +30,9 @@ func (server *Server) authRoutes() {
 		log.Fatal("%w", err)
 	}
 
-	authRoute.auth = handler.NewAuthHandler(twilio, email, server.storage, tokenMaker, redis, server.log, server.config)
+	authStore := database.NewAuthStore(server.storage)
+
+	authRoute.auth = auth.NewAuthHandler(twilio, email, authStore, tokenMaker, redis, server.log, server.config)
 
 	// server.router.HandleFunc("/", authRoute.auth.Home)
 	authRoutes := server.router.PathPrefix("/auth").Subrouter()
@@ -38,8 +40,7 @@ func (server *Server) authRoutes() {
 	authRoutes.HandleFunc("/login", authRoute.auth.LoginUser).Methods("POST")
 	authRoutes.HandleFunc("/send-otp", authRoute.auth.SendOTP).Methods("POST")
 	// authRoutes.HandleFunc("/sso-callback", authRoute.auth.SSOCallback)
-	authRoutes.Handle("/sso-auth", middleware.SsoMiddleware(server.log, http.HandlerFunc(authRoute.auth.SSOAuth))).Methods("POST")
-	authRoutes.Handle("/signup", middleware.AuthMiddleware(tokenMaker, server.log, http.HandlerFunc(authRoute.auth.SignUpUser))).Methods("POST")
-	authRoutes.Handle("/forgot-password", middleware.AuthMiddleware(tokenMaker, server.log, http.HandlerFunc(authRoute.auth.ForgotPassword))).Methods("POST")
-
+	authRoutes.Handle("/sso-auth", auth.SsoMiddleware(server.log, http.HandlerFunc(authRoute.auth.SSOAuth))).Methods("POST")
+	authRoutes.Handle("/signup", auth.AuthMiddleware(tokenMaker, server.log, http.HandlerFunc(authRoute.auth.SignUpUser))).Methods("POST")
+	authRoutes.Handle("/forgot-password", auth.AuthMiddleware(tokenMaker, server.log, http.HandlerFunc(authRoute.auth.ForgotPassword))).Methods("POST")
 }

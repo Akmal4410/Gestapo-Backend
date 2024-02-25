@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/akmal4410/gestapo/api/routes"
 	"github.com/akmal4410/gestapo/internal/config"
 	"github.com/akmal4410/gestapo/internal/database"
+	"github.com/akmal4410/gestapo/pkg/api/server"
 	"github.com/akmal4410/gestapo/pkg/service/logger"
 	_ "github.com/lib/pq"
 )
@@ -20,7 +20,7 @@ func main() {
 		log.LogFatal("Cannot connect to Database", err)
 	}
 
-	server := routes.NewServer(store, &config, log)
+	server := server.NewServer(store, &config, log)
 
 	err = server.Start()
 	if err != nil {

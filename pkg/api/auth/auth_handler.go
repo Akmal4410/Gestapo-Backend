@@ -1,4 +1,4 @@
-package handler
+package auth
 
 import (
 	"errors"
@@ -6,10 +6,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/akmal4410/gestapo/api/middleware"
 	"github.com/akmal4410/gestapo/internal/config"
-	"github.com/akmal4410/gestapo/internal/database"
-	"github.com/akmal4410/gestapo/internal/models"
+	"github.com/akmal4410/gestapo/pkg/api/auth/database"
+	"github.com/akmal4410/gestapo/pkg/api/auth/database/entity"
 	"github.com/akmal4410/gestapo/pkg/helpers"
 	"github.com/akmal4410/gestapo/pkg/service/cache"
 	"github.com/akmal4410/gestapo/pkg/service/logger"
@@ -29,7 +28,7 @@ const (
 type AuthHandler struct {
 	twilioService twilio.TwilioService
 	emailService  mail.EmailService
-	storage       *database.Storage
+	storage       *database.AuthStore
 	token         token.Maker
 	redis         cache.Cache
 	log           logger.Logger
@@ -39,7 +38,7 @@ type AuthHandler struct {
 func NewAuthHandler(
 	twilio twilio.TwilioService,
 	email mail.EmailService,
-	storage *database.Storage,
+	storage *database.AuthStore,
 	token token.Maker,
 	redisCache cache.Cache,
 	logger logger.Logger,
@@ -57,7 +56,7 @@ func NewAuthHandler(
 }
 
 func (auth *AuthHandler) SendOTP(w http.ResponseWriter, r *http.Request) {
-	req := new(models.SendOTPReq)
+	req := new(entity.SendOTPReq)
 
 	err := helpers.ValidateBody(r, req)
 	if err != nil {
@@ -192,7 +191,7 @@ func (auth *AuthHandler) verifyOTP(w http.ResponseWriter, payload *token.Session
 }
 
 func (auth *AuthHandler) SignUpUser(w http.ResponseWriter, r *http.Request) {
-	req := new(models.SignupReq)
+	req := new(entity.SignupReq)
 
 	err := helpers.ValidateBody(r, req)
 	if err != nil {
@@ -208,7 +207,7 @@ func (auth *AuthHandler) SignUpUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	payload := r.Context().Value(middleware.AuthorizationPayloadKey).(*token.SessionPayload)
+	payload := r.Context().Value(AuthorizationPayloadKey).(*token.SessionPayload)
 	verify := auth.verifyOTP(w, payload, req.Email, req.Phone, req.Code, utils.SIGN_UP)
 	if !verify {
 		return
@@ -233,7 +232,7 @@ func (auth *AuthHandler) SignUpUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (auth *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
-	req := new(models.LoginReq)
+	req := new(entity.LoginReq)
 
 	err := helpers.ValidateBody(r, req)
 	if err != nil {
@@ -285,7 +284,7 @@ func (auth *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (auth *AuthHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) {
-	req := new(models.ForgotPassword)
+	req := new(entity.ForgotPassword)
 
 	err := helpers.ValidateBody(r, req)
 	if err != nil {
@@ -301,7 +300,7 @@ func (auth *AuthHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	payload := r.Context().Value(middleware.AuthorizationPayloadKey).(*token.SessionPayload)
+	payload := r.Context().Value(AuthorizationPayloadKey).(*token.SessionPayload)
 	verify := auth.verifyOTP(w, payload, req.Email, req.Phone, req.Code, utils.FORGOT_PASSWORD)
 	if !verify {
 		return
@@ -318,7 +317,7 @@ func (auth *AuthHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) 
 }
 
 func (auth *AuthHandler) SSOAuth(w http.ResponseWriter, r *http.Request) {
-	req := new(models.SsoReq)
+	req := new(entity.SsoReq)
 
 	err := helpers.ValidateBody(r, req)
 	if err != nil {
@@ -327,7 +326,7 @@ func (auth *AuthHandler) SSOAuth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token := r.Context().Value(middleware.AuthorizationPayloadKey).(string)
+	token := r.Context().Value(AuthorizationPayloadKey).(string)
 
 	var email, fullname string
 
@@ -383,7 +382,7 @@ func (auth *AuthHandler) SSOAuth(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("access-token", token)
 		helpers.WriteJSON(w, http.StatusOK, "User loggedin Successfully")
 	} else {
-		signupReq := models.SignupReq{
+		signupReq := entity.SignupReq{
 			Email:    email,
 			UserName: fullname,
 			UserType: req.UserType,

@@ -1,4 +1,4 @@
-package models
+package entity
 
 type SendOTPReq struct {
 	Email  string `json:"email" validate:"omitempty"`
