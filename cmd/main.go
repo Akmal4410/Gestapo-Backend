@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/akmal4410/gestapo/internal/config"
 	"github.com/akmal4410/gestapo/internal/database"
-	"github.com/akmal4410/gestapo/pkg/api/server"
+	"github.com/akmal4410/gestapo/pkg/server"
 	"github.com/akmal4410/gestapo/pkg/service/logger"
 	_ "github.com/lib/pq"
 )

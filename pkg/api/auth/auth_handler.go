@@ -207,7 +207,7 @@ func (auth *AuthHandler) SignUpUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	payload := r.Context().Value(AuthorizationPayloadKey).(*token.SessionPayload)
+	payload := r.Context().Value(utils.AuthorizationPayloadKey).(*token.SessionPayload)
 	verify := auth.verifyOTP(w, payload, req.Email, req.Phone, req.Code, utils.SIGN_UP)
 	if !verify {
 		return
@@ -300,7 +300,7 @@ func (auth *AuthHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	payload := r.Context().Value(AuthorizationPayloadKey).(*token.SessionPayload)
+	payload := r.Context().Value(utils.AuthorizationPayloadKey).(*token.SessionPayload)
 	verify := auth.verifyOTP(w, payload, req.Email, req.Phone, req.Code, utils.FORGOT_PASSWORD)
 	if !verify {
 		return
@@ -326,7 +326,7 @@ func (auth *AuthHandler) SSOAuth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token := r.Context().Value(AuthorizationPayloadKey).(string)
+	token := r.Context().Value(utils.AuthorizationPayloadKey).(string)
 
 	var email, fullname string
 
