@@ -48,3 +48,17 @@
 {"level":"error","msg":"[Invalid OTP invalid OTP]","time":"2024-02-25T21:56:19+05:30"}
 {"level":"error","msg":"[Error while InsertUser error while inserting user pq: invalid input syntax for type bigint: \"ca80d3b9-73b9-4cbb-8927-c914df8d3517\"]","time":"2024-02-25T21:56:55+05:30"}
 {"level":"error","msg":"[Invalid OTP invalid OTP]","time":"2024-02-25T22:53:11+05:30"}
+{"level":"error","msg":"[Error authorization header is not provided]","time":"2024-02-27T06:59:52+05:30"}
+{"level":"error","msg":"[User doesn't user doesnt exist %!w(\u003cnil\u003e)]","time":"2024-02-27T07:00:05+05:30"}
+{"level":"error","msg":"[Wrong password wrong password %!w(\u003cnil\u003e)]","time":"2024-02-27T07:02:09+05:30"}
+{"level":"error","msg":"[account does'nt exist using this 1]","time":"2024-02-27T07:03:40+05:30"}
+{"level":"error","msg":"[Error while CheckUserExist sql: expected 13 destination arguments in Scan, not 1]","time":"2024-02-27T07:04:13+05:30"}
+{"level":"error","msg":"[Error while CheckUserExist sql: expected 13 destination arguments in Scan, not 9]","time":"2024-02-27T07:06:19+05:30"}
+{"level":"error","msg":"[Error while CheckUserExist sql: Scan error on column index 1, name \"profile_image\": converting NULL to string is unsupported]","time":"2024-02-27T07:07:46+05:30"}
+{"level":"error","msg":"[Error while CheckUserExist sql: Scan error on column index 2, name \"full_name\": converting NULL to string is unsupported]","time":"2024-02-27T07:10:41+05:30"}
+{"level":"error","msg":"[Error while CheckUserExist sql: Scan error on column index 6, name \"dob\": unsupported Scan, storing driver.Value type \u003cnil\u003e into type *time.Time]","time":"2024-02-27T07:10:59+05:30"}
+{"level":"error","msg":"[Error token is expired]","time":"2024-02-27T07:13:37+05:30"}
+{"level":"error","msg":"[Error while CheckUserExist sql: Scan error on column index 1, name \"profile_image\": converting NULL to string is unsupported]","time":"2024-02-27T07:13:55+05:30"}
+{"level":"error","msg":"[Error while CheckUserExist sql: Scan error on column index 6, name \"dob\": unsupported Scan, storing driver.Value type \u003cnil\u003e into type *time.Time]","time":"2024-02-27T07:14:21+05:30"}
+{"level":"error","msg":"[account does'nt exist using this c53c9831-6cce-485e-9b74-fb54f513277]","time":"2024-02-27T07:17:23+05:30"}
+{"level":"error","msg":"[Error token is expired]","time":"2024-02-27T07:25:00+05:30"}

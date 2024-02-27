@@ -1,6 +1,7 @@
 package merchant
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 
@@ -28,9 +29,9 @@ func NewMerchentHandler(storage *database.MarchantStore, logger logger.Logger) *
 }
 
 func (merchat *MerchantHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
-	user_id := mux.Vars(r)["id"]
+	userId := mux.Vars(r)["id"]
 
-	res, err := merchat.storage.CheckUserExist("id", user_id)
+	res, err := merchat.storage.CheckUserExist("id", userId)
 	if err != nil {
 		merchat.log.LogError("Error while CheckUserExist", err)
 		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
@@ -38,10 +39,23 @@ func (merchat *MerchantHandler) GetProfile(w http.ResponseWriter, r *http.Reques
 	}
 
 	if !res {
-		err = fmt.Errorf("account does'nt exist using this %s", user_id)
+		err = fmt.Errorf("account does'nt exist using this %s", userId)
 		merchat.log.LogError(err)
 		helpers.ErrorJson(w, http.StatusConflict, err.Error())
 		return
 	}
+
+	userData, err := merchat.storage.GetProfile(userId)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			merchat.log.LogError("Error while CheckUserExist", err)
+			helpers.ErrorJson(w, http.StatusNotFound, "Not found")
+			return
+		}
+		merchat.log.LogError("Error while CheckUserExist", err)
+		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		return
+	}
+	helpers.WriteJSON(w, http.StatusOK, userData)
 
 }
