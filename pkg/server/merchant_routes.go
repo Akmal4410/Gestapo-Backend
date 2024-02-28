@@ -23,4 +23,5 @@ func (server *Server) merchantRoutes() {
 	merchantRoutes := server.router.PathPrefix("/merchant").Subrouter()
 
 	merchantRoutes.Handle("/profile/{id}", middleware.AccessMiddleware(tokenMaker, server.log, http.HandlerFunc(handler.GetProfile))).Methods("GET")
+	merchantRoutes.Handle("/profile", middleware.AccessMiddleware(tokenMaker, server.log, http.HandlerFunc(handler.EditProfile))).Methods("PATCH")
 }

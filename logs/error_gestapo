@@ -62,3 +62,24 @@
 {"level":"error","msg":"[Error while CheckUserExist sql: Scan error on column index 6, name \"dob\": unsupported Scan, storing driver.Value type \u003cnil\u003e into type *time.Time]","time":"2024-02-27T07:14:21+05:30"}
 {"level":"error","msg":"[account does'nt exist using this c53c9831-6cce-485e-9b74-fb54f513277]","time":"2024-02-27T07:17:23+05:30"}
 {"level":"error","msg":"[Error token is expired]","time":"2024-02-27T07:25:00+05:30"}
+{"level":"error","msg":"[Error authorization header is not provided]","time":"2024-02-28T08:09:59+05:30"}
+{"level":"error","msg":"[Error while ValidateBody EOF]","time":"2024-02-28T08:11:34+05:30"}
+{"level":"error","msg":"[Error while ValidateBody Key: 'EditMerchantReq.Gender' Error:Field validation for 'Gender' failed on the 'gender' tag]","time":"2024-02-28T08:11:51+05:30"}
+{"level":"error","msg":"[Error while UpdateProfile couldnot update the user]","time":"2024-02-28T08:18:07+05:30"}
+{"level":"error","msg":"[Error while ValidateBody parsing time \"2001-09-05\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"\" as \"T\"]","time":"2024-02-28T08:18:41+05:30"}
+{"level":"error","msg":"[Error token is expired]","time":"2024-02-28T08:22:33+05:30"}
+{"level":"error","msg":"[Error token is expired]","time":"2024-02-28T08:22:49+05:30"}
+{"level":"error","msg":"[Error while ValidateBody parsing time \"2001-09-05\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"\" as \"T\"]","time":"2024-02-28T08:23:17+05:30"}
+{"level":"error","msg":"[Error token is expired]","time":"2024-02-28T08:33:10+05:30"}
+{"level":"error","msg":"[Error while ValidateBody parsing time \"2001-09-05\" as \"2006-01-02T15:04:05Z07:00\": cannot parse \"\" as \"T\"]","time":"2024-02-28T08:33:31+05:30"}
+{"level":"error","msg":"[Error while UpdateProfile couldnot update the user]","time":"2024-02-28T08:37:30+05:30"}
+{"level":"error","msg":"[Error while UpdateProfile couldnot update the user]","time":"2024-02-28T08:40:41+05:30"}
+{"level":"error","msg":"[account already exist using this email]","time":"2024-02-28T08:41:46+05:30"}
+{"level":"error","msg":"[Error while UpdateProfile couldnot update the user]","time":"2024-02-28T08:43:21+05:30"}
+{"level":"error","msg":"[Error while UpdateProfile couldnot update the user]","time":"2024-02-28T08:46:32+05:30"}
+{"level":"error","msg":"[account does'nt exist using c53c9831-6cce-485e-9b74-fb54f513277f]","time":"2024-02-28T08:49:06+05:30"}
+{"level":"error","msg":"[Invalid OTP invalid OTP]","time":"2024-02-28T08:49:48+05:30"}
+{"level":"error","msg":"[account does'nt exist using c53c9831-6cce-485e-9b74-fb54f513277f]","time":"2024-02-28T08:50:54+05:30"}
+{"level":"error","msg":"[account does'nt exist using c53c9831-6cce-485e-9b74-fb54f513277f]","time":"2024-02-28T08:51:52+05:30"}
+{"level":"error","msg":"[Error while ValidateBody invalid character '}' looking for beginning of object key string]","time":"2024-02-28T08:52:42+05:30"}
+{"level":"error","msg":"[Error while UpdateProfile pq: invalid input syntax for type timestamp with time zone: \"\"]","time":"2024-02-28T08:52:47+05:30"}

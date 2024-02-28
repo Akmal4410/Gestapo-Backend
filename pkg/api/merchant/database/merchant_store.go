@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/akmal4410/gestapo/internal/database"
 	"github.com/akmal4410/gestapo/pkg/api/merchant/database/entity"
@@ -30,26 +31,47 @@ func (store *MarchantStore) CheckUserExist(id, value string) (bool, error) {
 	return result != 0, nil
 }
 
-func (store *MarchantStore) GetProfile(userId string) (*entity.UserData, error) {
+func (store *MarchantStore) GetProfile(userId string) (*entity.MerchantRes, error) {
 	selectQuery := `SELECT id, profile_image, full_name, user_name, phone, email, dob, gender, user_type FROM user_data WHERE id = $1;`
 	rows := store.storage.DB.QueryRow(selectQuery, userId)
 	if rows.Err() != nil {
-		return &entity.UserData{}, rows.Err()
+		return &entity.MerchantRes{}, rows.Err()
 	}
-	var user entity.UserData
+	var user entity.MerchantRes
 	err := rows.Scan(
 		&user.ID,
-		&user.Profile_Image,
-		&user.Full_Name,
-		&user.User_Name,
+		&user.ProfileImage,
+		&user.FullName,
+		&user.UserName,
 		&user.Phone,
 		&user.Email,
 		&user.DOB,
 		&user.Gender,
-		&user.User_type,
+		&user.UserType,
 	)
 	if err != nil {
-		return &entity.UserData{}, err
+		return &entity.MerchantRes{}, err
 	}
 	return &user, nil
+}
+
+func (store *MarchantStore) UpdateProfile(id string, req *entity.EditMerchantReq) error {
+	updatedAt := time.Now()
+
+	updateQuery := `UPDATE user_data
+	SET profile_image = $2, full_name = $3, dob = $4, gender = $5, updated_at = $6
+	WHERE id = $1;`
+
+	res, err := store.storage.DB.Exec(updateQuery, id, req.ProfileImage, req.FullName, req.DOB, req.Gender, updatedAt)
+	if err != nil {
+		return err
+	}
+	n, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if n == 0 {
+		return fmt.Errorf("couldnot update the user")
+	}
+	return nil
 }

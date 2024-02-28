@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/akmal4410/gestapo/pkg/utils"
 	"github.com/go-playground/validator/v10"
@@ -25,15 +26,23 @@ func ValidateBody(r *http.Request, data any) error {
 func RegisterValidator() {
 	err := validate.RegisterValidation("user_type", validateUserType)
 	if err != nil {
-		fmt.Println("Error registering custom validation:", err.Error())
+		fmt.Println("Error registering user_type:", err.Error())
 	}
 	err = validate.RegisterValidation("signup_action", validateSignupAction)
 	if err != nil {
-		fmt.Println("Error registering custom validation:", err.Error())
+		fmt.Println("Error registering signup_action:", err.Error())
 	}
 	err = validate.RegisterValidation("sso_action", validateSSOAction)
 	if err != nil {
-		fmt.Println("Error registering custom validation:", err.Error())
+		fmt.Println("Error registering sso_action:", err.Error())
+	}
+	err = validate.RegisterValidation("gender", validateGender)
+	if err != nil {
+		fmt.Println("Error registering gender:", err.Error())
+	}
+	err = validate.RegisterValidation("validate_date", validateDate)
+	if err != nil {
+		fmt.Println("Error registering validate_date:", err.Error())
 	}
 }
 
@@ -59,4 +68,18 @@ var validateSSOAction validator.Func = func(fl validator.FieldLevel) bool {
 		return utils.IsSupportedSSOAction(signupAction)
 	}
 	return false
+}
+
+var validateGender validator.Func = func(fl validator.FieldLevel) bool {
+	if signupAction, ok := fl.Field().Interface().(string); ok {
+		// Check gender is supported or not
+		return utils.IsSupportedGender(signupAction)
+	}
+	return false
+}
+
+var validateDate validator.Func = func(fl validator.FieldLevel) bool {
+	dateStr := fl.Field().String()
+	_, err := time.Parse("2006-01-02", dateStr)
+	return err == nil
 }
