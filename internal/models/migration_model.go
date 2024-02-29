@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"gorm.io/gorm"
 )
 
@@ -16,9 +17,31 @@ type User_Data struct {
 	Email         string `gorm:"UNIQUE;DEFAULT:NULL"`
 	DOB           time.Time
 	Gender        string
-	User_type     string `gorm:"NOT NULL;CHECK:user_type = 'USER' OR user_type = 'MERCHANT' OR user_type = 'ADMIN'"`
-	Password      string `gorm:"NOT NULL"`
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
-	DeletedAt     gorm.DeletedAt `gorm:"index"`
+	User_type     string    `gorm:"NOT NULL;CHECK:user_type = 'USER' OR user_type = 'MERCHANT' OR user_type = 'ADMIN'"`
+	Password      string    `gorm:"NOT NULL"`
+	CreatedAt     time.Time `gorm:"NOT NULL"`
+	UpdatedAt     time.Time `gorm:"NOT NULL"`
+	DeletedAt     gorm.DeletedAt
+}
+
+type Categories struct {
+	ID            uuid.UUID `gorm:"NOT NULL;PRIMARY_KEY"`
+	Category_Name string    `gorm:"NOT NULL;UNIQUE"`
+	CreatedAt     time.Time `gorm:"NOT NULL"`
+	UpdatedAt     time.Time `gorm:"NOT NULL"`
+	DeletedAt     gorm.DeletedAt
+}
+
+type Products struct {
+	ID          uuid.UUID       `gorm:"NOT NULL;PRIMARY_KEY"`
+	Category    Categories      `gorm:"foreignKey:CategoryID;references:ID"`
+	CategoryID  uuid.UUID       `gorm:"NOT NULL;index"`
+	ProductName string          `gorm:"NOT NULL"`
+	Description string          `gorm:"NOT NULL"`
+	Images      pq.StringArray  `gorm:"type:text[]"`
+	Size        pq.Float32Array `gorm:"type:float[]"`
+	Price       float64         `gorm:"NOT NULL"`
+	CreatedAt   time.Time       `gorm:"NOT NULL"`
+	UpdatedAt   time.Time       `gorm:"NOT NULL"`
+	DeletedAt   gorm.DeletedAt
 }
