@@ -4,13 +4,15 @@ import (
 	"net/http"
 
 	"github.com/akmal4410/gestapo/pkg/api/admin"
+	"github.com/akmal4410/gestapo/pkg/api/admin/database"
 	"github.com/akmal4410/gestapo/pkg/server/middleware"
 	"github.com/akmal4410/gestapo/pkg/service/token"
 	"github.com/akmal4410/gestapo/pkg/utils"
 )
 
 func (server *Server) adminRoutes() {
-	adminHandler := admin.NewAdminHandler(server.log)
+	storage := database.NewAdminStore(server.storage)
+	adminHandler := admin.NewAdminHandler(storage, server.log)
 
 	tokenMaker, err := token.NewJWTMaker(server.config.TokenSymmetricKey)
 	if err != nil {

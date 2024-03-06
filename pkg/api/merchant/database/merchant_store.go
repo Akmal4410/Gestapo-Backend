@@ -16,6 +16,7 @@ func NewMarchantStore(storage *database.Storage) *MarchantStore {
 	return &MarchantStore{storage: storage}
 
 }
+
 func (store *MarchantStore) CheckUserExist(id, value string) (bool, error) {
 	checkQuery := fmt.Sprintf(`SELECT * FROM user_data WHERE %s = $1;`, id)
 	res, err := store.storage.DB.Exec(checkQuery, value)
