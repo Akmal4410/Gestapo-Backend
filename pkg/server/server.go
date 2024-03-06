@@ -41,5 +41,7 @@ func (server *Server) Start() error {
 
 func (server *Server) setupRouter() {
 	server.authRoutes()
+	server.adminRoutes()
 	server.merchantRoutes()
+
 }

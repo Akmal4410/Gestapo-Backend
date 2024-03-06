@@ -49,7 +49,7 @@ func AccessMiddleware(tokenMaker token.Maker, log logger.Logger, next http.Handl
 		}
 
 		if payload.TokenType != "access-token" {
-			err := fmt.Errorf("invalid token: %s", payload.TokenType)
+			err := fmt.Errorf("invalid token type: %s", payload.TokenType)
 			log.LogError("Error", err)
 			helpers.ErrorJson(w, http.StatusUnauthorized, err.Error())
 			return
@@ -59,4 +59,30 @@ func AccessMiddleware(tokenMaker token.Maker, log logger.Logger, next http.Handl
 		next.ServeHTTP(w, r.WithContext(ctx))
 
 	})
+}
+
+// RoleMiddleware is responsible for authorization based on user roles.
+func RoleMiddleware(requiredRole string, log logger.Logger, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		payload, ok := r.Context().Value(utils.AuthorizationPayloadKey).(*token.AccessPayload)
+		if !ok {
+			err := errors.New("unable to retrieve user payload from context")
+			log.LogError("Error", err)
+			helpers.ErrorJson(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		if requiredRole != "" && payload.UserType != requiredRole {
+			err := fmt.Errorf("user does not have required role: %s", requiredRole)
+			log.LogError("Error", err)
+			helpers.ErrorJson(w, http.StatusForbidden, err.Error())
+			return
+		}
+		ctx := context.WithValue(r.Context(), utils.AuthorizationPayloadKey, payload)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+func ApplyMiddleware(tokenMaker token.Maker, log logger.Logger, role string, handler http.Handler) http.Handler {
+	return AccessMiddleware(tokenMaker, log, RoleMiddleware(role, log, handler))
 }

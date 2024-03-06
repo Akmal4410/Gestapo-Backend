@@ -83,3 +83,4 @@
 {"level":"error","msg":"[account does'nt exist using c53c9831-6cce-485e-9b74-fb54f513277f]","time":"2024-02-28T08:51:52+05:30"}
 {"level":"error","msg":"[Error while ValidateBody invalid character '}' looking for beginning of object key string]","time":"2024-02-28T08:52:42+05:30"}
 {"level":"error","msg":"[Error while UpdateProfile pq: invalid input syntax for type timestamp with time zone: \"\"]","time":"2024-02-28T08:52:47+05:30"}
+{"level":"error","msg":"[Error while ValidateBody Key: 'SignupReq.UserName' Error:Field validation for 'UserName' failed on the 'max' tag]","time":"2024-02-29T22:31:28+05:30"}
