@@ -32,13 +32,16 @@ func (store *MarchantStore) CheckUserExist(id, value string) (bool, error) {
 	return result != 0, nil
 }
 
-func (store *MarchantStore) GetProfile(userId string) (*entity.MerchantRes, error) {
-	selectQuery := `SELECT id, profile_image, full_name, user_name, phone, email, dob, gender, user_type FROM user_data WHERE id = $1;`
+func (store *MarchantStore) GetProfile(userId string) (*entity.GetMerchantRes, error) {
+	selectQuery := `
+	SELECT id, profile_image, full_name, user_name, phone, email, dob, gender, user_type 
+	FROM user_data WHERE id = $1;
+	`
 	rows := store.storage.DB.QueryRow(selectQuery, userId)
 	if rows.Err() != nil {
-		return &entity.MerchantRes{}, rows.Err()
+		return &entity.GetMerchantRes{}, rows.Err()
 	}
-	var user entity.MerchantRes
+	var user entity.GetMerchantRes
 	err := rows.Scan(
 		&user.ID,
 		&user.ProfileImage,
@@ -51,7 +54,7 @@ func (store *MarchantStore) GetProfile(userId string) (*entity.MerchantRes, erro
 		&user.UserType,
 	)
 	if err != nil {
-		return &entity.MerchantRes{}, err
+		return &entity.GetMerchantRes{}, err
 	}
 	return &user, nil
 }

@@ -20,6 +20,12 @@ func (server *Server) adminRoutes() {
 	}
 
 	adminRoutes := server.router.PathPrefix("/admin").Subrouter()
-	category := middleware.ApplyMiddleware(tokenMaker, server.log, utils.ADMIN, http.HandlerFunc(adminHandler.CreateCategories))
-	adminRoutes.Handle("/category", category).Methods("POST")
+
+	createCategory := middleware.ApplyMiddleware(tokenMaker, server.log, utils.ADMIN, http.HandlerFunc(adminHandler.CreateCategory))
+	adminRoutes.Handle("/category", createCategory).Methods("POST")
+	getCategory := middleware.ApplyMiddleware(tokenMaker, server.log, utils.ADMIN, http.HandlerFunc(adminHandler.GetCategories))
+	adminRoutes.Handle("/category", getCategory).Methods("GET")
+
+	allUsers := middleware.ApplyMiddleware(tokenMaker, server.log, utils.ADMIN, http.HandlerFunc(adminHandler.GetUsers))
+	adminRoutes.Handle("/user", allUsers).Methods("GET")
 }

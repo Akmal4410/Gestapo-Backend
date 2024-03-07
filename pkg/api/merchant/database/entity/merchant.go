@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-type MerchantRes struct {
+type GetMerchantRes struct {
 	ID           string     `json:"id"`
 	ProfileImage *string    `json:"profile_image,omitempty"`
 	FullName     *string    `json:"full_name,omitempty"`

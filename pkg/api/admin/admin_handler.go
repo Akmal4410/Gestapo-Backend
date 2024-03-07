@@ -27,7 +27,7 @@ func NewAdminHandler(storage *database.AdminStore, log logger.Logger) *AdminHand
 	}
 }
 
-func (handler *AdminHandler) CreateCategories(w http.ResponseWriter, r *http.Request) {
+func (handler *AdminHandler) CreateCategory(w http.ResponseWriter, r *http.Request) {
 	req := new(entity.InsertCategoryReq)
 
 	err := helpers.ValidateBody(r, req)
@@ -58,4 +58,26 @@ func (handler *AdminHandler) CreateCategories(w http.ResponseWriter, r *http.Req
 	}
 
 	helpers.WriteJSON(w, http.StatusOK, "Category insterted Successfully")
+}
+
+func (handler *AdminHandler) GetCategories(w http.ResponseWriter, r *http.Request) {
+	res, err := handler.storage.GetCategories()
+	if err != nil {
+		handler.log.LogError("Error while GetCategories", err)
+		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		return
+	}
+
+	helpers.WriteJSON(w, http.StatusOK, res)
+}
+
+func (handler *AdminHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
+	res, err := handler.storage.GetUsers()
+	if err != nil {
+		handler.log.LogError("Error while GetUsers", err)
+		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		return
+	}
+
+	helpers.WriteJSON(w, http.StatusOK, res)
 }
