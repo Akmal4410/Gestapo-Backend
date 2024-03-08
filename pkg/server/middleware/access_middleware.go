@@ -83,6 +83,6 @@ func RoleMiddleware(requiredRole string, log logger.Logger, next http.Handler) h
 	})
 }
 
-func ApplyMiddleware(tokenMaker token.Maker, log logger.Logger, role string, handler http.Handler) http.Handler {
+func ApplyAccessRoleMiddleware(tokenMaker token.Maker, log logger.Logger, role string, handler http.Handler) http.Handler {
 	return AccessMiddleware(tokenMaker, log, RoleMiddleware(role, log, handler))
 }

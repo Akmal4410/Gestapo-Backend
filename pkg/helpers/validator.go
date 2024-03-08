@@ -3,7 +3,7 @@ package helpers
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
+	"io"
 	"time"
 
 	"github.com/akmal4410/gestapo/pkg/utils"
@@ -12,9 +12,9 @@ import (
 
 var validate = validator.New()
 
-func ValidateBody(r *http.Request, data any) error {
+func ValidateBody(body io.Reader, data any) error {
 	RegisterValidator()
-	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+	if err := json.NewDecoder(body).Decode(&data); err != nil {
 		return err
 	}
 	if err := validate.Struct(data); err != nil {

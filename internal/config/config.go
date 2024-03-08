@@ -18,6 +18,7 @@ type Config struct {
 	Email             *Email    `mapstructure:"EMAIL" json:"EMAIL"`
 	Redis             *Redis    `mapstructure:"REDIS_SERVER" json:"REDIS_SERVER"`
 	OAuth             *OAuth    `mapstructure:"OAUTH" json:"OAUTH"`
+	AwsS3             *AWSS3    `mapstructure:"AWSS3" json:"AWSS3"`
 }
 
 type Database struct {
@@ -48,6 +49,13 @@ type OAuth struct {
 	WebClientSecret string `mapstructure:"GOOGLE_WEB_CLIENT_SECRET" json:"GOOGLE_WEB_CLIENT_SECRET"`
 	AndroidClientId string `mapstructure:"GOOGLE_ANDROID_CLIENT_ID" json:"GOOGLE_ANDROID_CLIENT_ID"`
 	IOSClientId     string `mapstructure:"GOOGLE_IOS_CLIENT_ID" json:"GOOGLE_IOS_CLIENT_ID"`
+}
+
+type AWSS3 struct {
+	BucketName string `mapstructure:"BUCKET_NAME" json:"BUCKET_NAME"`
+	Region     string `mapstructure:"REGION" json:"REGION"`
+	AccessKey  string `mapstructure:"ACCESS_KEY" json:"ACCESS_KEY"`
+	SecretKey  string `mapstructure:"SECRET_KEY" json:"SECRET_KEY"`
 }
 
 // LoadConfig reads configuration from file or environment variables.

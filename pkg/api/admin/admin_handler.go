@@ -30,7 +30,7 @@ func NewAdminHandler(storage *database.AdminStore, log logger.Logger) *AdminHand
 func (handler *AdminHandler) CreateCategory(w http.ResponseWriter, r *http.Request) {
 	req := new(entity.InsertCategoryReq)
 
-	err := helpers.ValidateBody(r, req)
+	err := helpers.ValidateBody(r.Body, req)
 	if err != nil {
 		handler.log.LogError("Error while ValidateBody", err)
 		helpers.ErrorJson(w, http.StatusBadRequest, InvalidBody)

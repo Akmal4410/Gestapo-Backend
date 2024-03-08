@@ -103,3 +103,25 @@
 {"level":"error","msg":"[Error invalid authorization header format]","time":"2024-03-07T07:25:55+05:30"}
 {"level":"error","msg":"[Error token is expired]","time":"2024-03-07T07:50:00+05:30"}
 {"level":"error","msg":"[Error authorization header is not provided]","time":"2024-03-07T07:50:59+05:30"}
+{"level":"error","msg":"[Unable to parse form request Content-Type isn't multipart/form-data]","time":"2024-03-07T15:45:57+05:30"}
+{"level":"error","msg":"[Error token is expired]","time":"2024-03-07T22:07:09+05:30"}
+{"level":"error","msg":"[Error token is expired]","time":"2024-03-08T08:20:56+05:30"}
+{"level":"error","msg":"[Error token is expired]","time":"2024-03-08T08:21:10+05:30"}
+{"level":"error","msg":"[Unable to parse form request Content-Type isn't multipart/form-data]","time":"2024-03-08T08:22:12+05:30"}
+{"level":"error","msg":"[Error while ValidateBody EOF]","time":"2024-03-08T08:22:50+05:30"}
+{"level":"error","msg":"[Error while ValidateBody EOF]","time":"2024-03-08T08:24:55+05:30"}
+{"level":"error","msg":"[Error while ValidateBody EOF]","time":"2024-03-08T08:25:08+05:30"}
+{"level":"error","msg":"[Error token is expired]","time":"2024-03-08T08:36:32+05:30"}
+{"level":"error","msg":"[Error token is expired]","time":"2024-03-08T08:37:00+05:30"}
+{"level":"error","msg":"[account already exist using this email]","time":"2024-03-08T08:37:25+05:30"}
+{"level":"error","msg":"[Error while ValidateBody EOF]","time":"2024-03-08T08:37:54+05:30"}
+{"level":"error","msg":"[Error token is expired]","time":"2024-03-08T09:01:36+05:30"}
+{"level":"error","msg":"[Error user does not have required role: MERCHANT]","time":"2024-03-08T09:02:00+05:30"}
+{"level":"error","msg":"[Error token is expired]","time":"2024-03-08T09:04:53+05:30"}
+{"level":"error","msg":"[Error token is expired]","time":"2024-03-08T18:15:15+05:30"}
+{"level":"error","msg":"[Error token is expired]","time":"2024-03-08T18:15:21+05:30"}
+{"level":"error","msg":"[Error token is expired]","time":"2024-03-08T18:42:14+05:30"}
+{"level":"error","msg":"[unable to upload file to S3 AccessControlListNotSupported: The bucket does not allow ACLs\n\tstatus code: 400, request id: ZV5FNTXKSKVX9WBB, host id: 1t1a5GLrFLT+x0No56PWxWZ/CHgPcSFAmPzuX62SPO8j3/VLRG3W9VjPciU3YnW8AH94H4kpHXU=]","time":"2024-03-08T18:50:23+05:30"}
+{"level":"error","msg":"[Error uploading file to S3 unable to upload file to S3: AccessControlListNotSupported: The bucket does not allow ACLs\n\tstatus code: 400, request id: ZV5FNTXKSKVX9WBB, host id: 1t1a5GLrFLT+x0No56PWxWZ/CHgPcSFAmPzuX62SPO8j3/VLRG3W9VjPciU3YnW8AH94H4kpHXU=]","time":"2024-03-08T18:50:23+05:30"}
+{"level":"error","msg":"[Error token is expired]","time":"2024-03-08T18:53:35+05:30"}
+{"level":"error","msg":"[account does'nt exist using 13971ef1-b0f9-4732-987a-17a4e5bff231]","time":"2024-03-08T22:12:50+05:30"}

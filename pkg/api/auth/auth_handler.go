@@ -58,7 +58,7 @@ func NewAuthHandler(
 func (auth *AuthHandler) SendOTP(w http.ResponseWriter, r *http.Request) {
 	req := new(entity.SendOTPReq)
 
-	err := helpers.ValidateBody(r, req)
+	err := helpers.ValidateBody(r.Body, req)
 	if err != nil {
 		auth.log.LogError("Error while ValidateBody", err)
 		helpers.ErrorJson(w, http.StatusBadRequest, InvalidBody)
@@ -193,7 +193,7 @@ func (auth *AuthHandler) verifyOTP(w http.ResponseWriter, payload *token.Session
 func (auth *AuthHandler) SignUpUser(w http.ResponseWriter, r *http.Request) {
 	req := new(entity.SignupReq)
 
-	err := helpers.ValidateBody(r, req)
+	err := helpers.ValidateBody(r.Body, req)
 	if err != nil {
 		auth.log.LogError("Error while ValidateBody", err)
 		helpers.ErrorJson(w, http.StatusBadRequest, InvalidBody)
@@ -234,7 +234,7 @@ func (auth *AuthHandler) SignUpUser(w http.ResponseWriter, r *http.Request) {
 func (auth *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 	req := new(entity.LoginReq)
 
-	err := helpers.ValidateBody(r, req)
+	err := helpers.ValidateBody(r.Body, req)
 	if err != nil {
 		auth.log.LogError("Error while ValidateBody", err)
 		helpers.ErrorJson(w, http.StatusBadRequest, InvalidBody)
@@ -286,7 +286,7 @@ func (auth *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 func (auth *AuthHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 	req := new(entity.ForgotPassword)
 
-	err := helpers.ValidateBody(r, req)
+	err := helpers.ValidateBody(r.Body, req)
 	if err != nil {
 		auth.log.LogError("Error while ValidateBody", err)
 		helpers.ErrorJson(w, http.StatusBadRequest, InvalidBody)
@@ -319,7 +319,7 @@ func (auth *AuthHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) 
 func (auth *AuthHandler) SSOAuth(w http.ResponseWriter, r *http.Request) {
 	req := new(entity.SsoReq)
 
-	err := helpers.ValidateBody(r, req)
+	err := helpers.ValidateBody(r.Body, req)
 	if err != nil {
 		auth.log.LogError("Error while ValidateBody", err)
 		helpers.ErrorJson(w, http.StatusBadRequest, InvalidBody)
