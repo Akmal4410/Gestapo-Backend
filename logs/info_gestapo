@@ -112,3 +112,5 @@
 {"level":"info","msg":"[File uploaded to S3 successfully FileURL: profile/5b1c5c8f-485d-4e21-aa30-3b8ccb77bf99/coop_card.png]","time":"2024-03-08T22:12:44+05:30"}
 {"level":"info","msg":"[File uploaded to S3 successfully FileURL: profile/5b1c5c8f-485d-4e21-aa30-3b8ccb77bf99/Momentum Screen-6.jpg]","time":"2024-03-08T22:15:16+05:30"}
 {"level":"info","msg":"[Go Bank Running on port : 0.0.0.0:8080]","time":"2024-03-08T22:16:05+05:30"}
+{"level":"info","msg":"[Go Bank Running on port : 0.0.0.0:8080]","time":"2024-03-09T15:54:05+05:30"}
+{"level":"info","msg":"[Go Bank Running on port : 0.0.0.0:8080]","time":"2024-03-09T16:42:57+05:30"}

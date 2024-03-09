@@ -16,8 +16,11 @@ type DBMigration struct {
 var migrate DBMigration
 
 func AutoMigrateTables(gormDB *gorm.DB) {
+	if err := gormDB.AutoMigrate(&migrate.user_data); err != nil {
+		fmt.Println(err.Error())
+	}
+
 	if err := gormDB.AutoMigrate(
-		&migrate.user_data,
 		&migrate.categories,
 		&migrate.products,
 	); err != nil {

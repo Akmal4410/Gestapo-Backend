@@ -139,8 +139,6 @@ func (handler *MerchantHandler) EditProfile(w http.ResponseWriter, r *http.Reque
 		}
 		defer file.Close()
 
-		// Upload file to S3
-
 		folderPath := "profile/" + payload.UserID + "/"
 		fileURL, err := handler.s3Service.UploadFileToS3(file, folderPath, fileHeader.Filename)
 		if err != nil {
