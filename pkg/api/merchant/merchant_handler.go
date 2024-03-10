@@ -241,3 +241,5 @@ func (handler *MerchantHandler) InsertProduct(w http.ResponseWriter, r *http.Req
 	helpers.WriteJSON(w, http.StatusOK, "Product added successfully")
 
 }
+
+////
