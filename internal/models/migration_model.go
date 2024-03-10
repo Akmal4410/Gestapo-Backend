@@ -44,7 +44,7 @@ type Inventories struct {
 
 type Discounts struct {
 	ID        uuid.UUID `gorm:"NOT NULL; PRIMARY_KEY"`
-	Name      int       `gorm:"NOT NULL"`
+	Name      string    `gorm:"NOT NULL;UNIQUE"`
 	Percent   int32     `gorm:"NOT NULL"`
 	CreatedAt time.Time `gorm:"NOT NULL"`
 	UpdatedAt time.Time `gorm:"NOT NULL"`
@@ -57,13 +57,13 @@ type Products struct {
 	CategoryID  uuid.UUID       `gorm:"NOT NULL;index"`
 	Inventory   Inventories     `gorm:"foreignKey:InventoryID;references:ID"`
 	InventoryID uuid.UUID       `gorm:"NOT NULL;index"`
+	Discount    Discounts       `gorm:"foreignKey:DiscountID;references:ID"`
+	DiscountID  uuid.UUID       `gorm:"NOT NULL;index"`
 	ProductName string          `gorm:"NOT NULL"`
 	Description string          `gorm:"NOT NULL"`
 	Images      pq.StringArray  `gorm:"type:text[]"`
 	Size        pq.Float32Array `gorm:"type:float[]"`
 	Price       float64         `gorm:"NOT NULL"`
-	Discount    Discounts       `gorm:"foreignKey:DiscountID;references:ID"`
-	DiscountID  uuid.UUID       `gorm:"NOT NULL;index"`
 	CreatedAt   time.Time       `gorm:"NOT NULL"`
 	UpdatedAt   time.Time       `gorm:"NOT NULL"`
 	DeletedAt   gorm.DeletedAt

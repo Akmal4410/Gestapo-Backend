@@ -31,7 +31,7 @@ func (store *AdminStore) CheckCategoryExist(category string) (bool, error) {
 	return result != 0, nil
 }
 
-func (store AdminStore) InsertCategory(req *entity.InsertCategoryReq) error {
+func (store AdminStore) AddCategory(req *entity.AddCategoryReq) error {
 	createdAt := time.Now()
 	updatedAt := time.Now()
 

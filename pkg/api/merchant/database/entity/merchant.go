@@ -22,3 +22,15 @@ type EditMerchantReq struct {
 	DOB          string `json:"dob" validate:"omitempty,validate_date"`
 	Gender       string `json:"gender" validate:"omitempty,gender"`
 }
+
+type AddProductReq struct {
+	ProductName   string    `json:"product_name" validate:"required"`
+	Description   string    `json:"description" validate:"required"`
+	ProductImages []string  `json:"product_images" validate:"omitempty"`
+	Sizes         []float64 `json:"sizes" validate:"required"`
+	Price         float64   `json:"price" validate:"required"`
+	CategoryId    string    `json:"category_id" validate:"required"`
+	Quantity      int       `json:"quantity" validate:"required"`
+	DiscountName  string    `json:"discount_name" validate:"omitempty"`
+	Percent       int32     `json:"percent" validate:"omitempty"`
+}

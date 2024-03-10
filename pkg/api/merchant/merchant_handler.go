@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -15,6 +16,7 @@ import (
 	s3 "github.com/akmal4410/gestapo/pkg/service/s3_service"
 	"github.com/akmal4410/gestapo/pkg/service/token"
 	"github.com/akmal4410/gestapo/pkg/utils"
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 )
 
@@ -107,20 +109,6 @@ func (handler *MerchantHandler) EditProfile(w http.ResponseWriter, r *http.Reque
 
 	payload := r.Context().Value(utils.AuthorizationPayloadKey).(*token.AccessPayload)
 
-	res, err := handler.storage.CheckUserExist("id", payload.UserID)
-	if err != nil {
-		handler.log.LogError("Error while CheckUserExist", err)
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
-		return
-	}
-
-	if !res {
-		err = fmt.Errorf("account does'nt exist using %s", payload.UserID)
-		handler.log.LogError(err)
-		helpers.ErrorJson(w, http.StatusConflict, err.Error())
-		return
-	}
-
 	files := r.MultipartForm.File["files"]
 	if len(files) > maxFileCount {
 		handler.log.LogError("Too many files uploaded", "Max allowed: %d", maxFileCount)
@@ -129,7 +117,7 @@ func (handler *MerchantHandler) EditProfile(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	var uploadedFileURLs []string
+	var uploadedFileKeys []string
 	for _, fileHeader := range files {
 		file, err := fileHeader.Open()
 		if err != nil {
@@ -148,11 +136,11 @@ func (handler *MerchantHandler) EditProfile(w http.ResponseWriter, r *http.Reque
 		}
 
 		handler.log.LogInfo("File uploaded to S3 successfully", "FileURL:", fileURL)
-		uploadedFileURLs = append(uploadedFileURLs, fileURL)
+		uploadedFileKeys = append(uploadedFileKeys, fileURL)
 	}
 
-	if len(uploadedFileURLs) != 0 {
-		req.ProfileImage = uploadedFileURLs[0]
+	if len(uploadedFileKeys) != 0 {
+		req.ProfileImage = uploadedFileKeys[0]
 	}
 	err = handler.storage.UpdateProfile(payload.UserID, req)
 	if err != nil {
@@ -162,4 +150,82 @@ func (handler *MerchantHandler) EditProfile(w http.ResponseWriter, r *http.Reque
 	}
 
 	helpers.WriteJSON(w, http.StatusOK, "User updated successfully")
+}
+
+func (handler *MerchantHandler) AddProduct(w http.ResponseWriter, r *http.Request) {
+	const (
+		thirtyTwoMB      = 32 << 20
+		maxFileCount int = 15
+	)
+	// Extract the JSON data from the form
+	jsonData := r.FormValue("data")
+	reader := io.Reader(strings.NewReader(jsonData))
+	fmt.Println(jsonData)
+	req := new(entity.AddProductReq)
+
+	err := helpers.ValidateBody(reader, req)
+	if err != nil {
+		handler.log.LogError("Error while ValidateBody", err)
+		helpers.ErrorJson(w, http.StatusBadRequest, InvalidBody)
+		return
+	}
+
+	err = r.ParseMultipartForm(thirtyTwoMB)
+	if err != nil {
+		handler.log.LogError("Unable to parse form", err.Error())
+		helpers.ErrorJson(w, http.StatusBadRequest, StatusBadRequest)
+		return
+	}
+
+	files := r.MultipartForm.File["files"]
+	if len(files) > maxFileCount {
+		handler.log.LogError("Too many files uploaded", "Max allowed: %d", maxFileCount)
+		errMsg := fmt.Sprintf("too many files uploaded. Max allowed: %s", strconv.Itoa(maxFileCount))
+		helpers.ErrorJson(w, http.StatusBadRequest, errMsg)
+		return
+	}
+
+	payload := r.Context().Value(utils.AuthorizationPayloadKey).(*token.AccessPayload)
+	uuId, err := uuid.NewRandom()
+	if err != nil {
+		handler.log.LogError("error while uuid NewRandom", err.Error())
+		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		return
+	}
+
+	var uploadedFileKeys []string
+	for _, fileHeader := range files {
+		file, err := fileHeader.Open()
+		if err != nil {
+			handler.log.LogError("Unable to open file", err)
+			helpers.ErrorJson(w, http.StatusInternalServerError, "Unable to open file")
+			return
+		}
+		defer file.Close()
+
+		folderPath := filepath.Join("products", payload.UserID, uuId.String()) + "/"
+
+		fileURL, err := handler.s3Service.UploadFileToS3(file, folderPath, fileHeader.Filename)
+		if err != nil {
+			handler.log.LogError("Error uploading file to S3", err)
+			helpers.ErrorJson(w, http.StatusInternalServerError, "Error uploading file to S3")
+			return
+		}
+
+		handler.log.LogInfo("File uploaded to S3 successfully", "FileURL:", fileURL)
+		uploadedFileKeys = append(uploadedFileKeys, fileURL)
+	}
+	if len(uploadedFileKeys) != 0 {
+		req.ProductImages = uploadedFileKeys
+	}
+
+	err = handler.storage.InsertProduct(uuId.String(), req)
+	if err != nil {
+		handler.log.LogError("Error while InsertProduct", err)
+		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		return
+	}
+
+	helpers.WriteJSON(w, http.StatusOK, "Product added successfully")
+
 }

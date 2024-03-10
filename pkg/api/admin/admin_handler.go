@@ -28,7 +28,7 @@ func NewAdminHandler(storage *database.AdminStore, log logger.Logger) *AdminHand
 }
 
 func (handler *AdminHandler) CreateCategory(w http.ResponseWriter, r *http.Request) {
-	req := new(entity.InsertCategoryReq)
+	req := new(entity.AddCategoryReq)
 
 	err := helpers.ValidateBody(r.Body, req)
 	if err != nil {
@@ -50,7 +50,7 @@ func (handler *AdminHandler) CreateCategory(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	err = handler.storage.InsertCategory(req)
+	err = handler.storage.AddCategory(req)
 	if err != nil {
 		handler.log.LogError("Error while InsertCategory", err)
 		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)

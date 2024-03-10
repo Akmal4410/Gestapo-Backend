@@ -273,7 +273,7 @@ func (auth *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
 		return
 	}
-	token, err := auth.token.CreateAccessToken(payload.UserId, req.UserName, payload.UserType, time.Minute*10)
+	token, err := auth.token.CreateAccessToken(payload.UserId, req.UserName, payload.UserType, time.Hour*48)
 	if err != nil {
 		auth.log.LogError("Error while CreateAccessToken", err)
 		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)

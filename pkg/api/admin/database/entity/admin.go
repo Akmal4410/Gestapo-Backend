@@ -2,7 +2,7 @@ package entity
 
 import "time"
 
-type InsertCategoryReq struct {
+type AddCategoryReq struct {
 	Category_Name string `json:"category_name" validate:"required"`
 }
 

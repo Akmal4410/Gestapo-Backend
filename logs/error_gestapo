@@ -125,3 +125,21 @@
 {"level":"error","msg":"[Error uploading file to S3 unable to upload file to S3: AccessControlListNotSupported: The bucket does not allow ACLs\n\tstatus code: 400, request id: ZV5FNTXKSKVX9WBB, host id: 1t1a5GLrFLT+x0No56PWxWZ/CHgPcSFAmPzuX62SPO8j3/VLRG3W9VjPciU3YnW8AH94H4kpHXU=]","time":"2024-03-08T18:50:23+05:30"}
 {"level":"error","msg":"[Error token is expired]","time":"2024-03-08T18:53:35+05:30"}
 {"level":"error","msg":"[account does'nt exist using 13971ef1-b0f9-4732-987a-17a4e5bff231]","time":"2024-03-08T22:12:50+05:30"}
+{"level":"error","msg":"[Error user does not have required role: MERCHANT]","time":"2024-03-09T23:42:02+05:30"}
+{"level":"error","msg":"[Error while ValidateBody EOF]","time":"2024-03-09T23:45:00+05:30"}
+{"level":"error","msg":"[Error while ValidateBody EOF]","time":"2024-03-09T23:45:38+05:30"}
+{"level":"error","msg":"[Error while ValidateBody EOF]","time":"2024-03-09T23:50:30+05:30"}
+{"level":"error","msg":"[Error while ValidateBody EOF]","time":"2024-03-09T23:50:53+05:30"}
+{"level":"error","msg":"[Error while ValidateBody EOF]","time":"2024-03-09T23:51:43+05:30"}
+{"level":"error","msg":"[Error while ValidateBody EOF]","time":"2024-03-09T23:51:56+05:30"}
+{"level":"error","msg":"[Error while ValidateBody EOF]","time":"2024-03-09T23:54:39+05:30"}
+{"level":"error","msg":"[Error while ValidateBody EOF]","time":"2024-03-09T23:57:04+05:30"}
+{"level":"error","msg":"[Error while ValidateBody EOF]","time":"2024-03-09T23:57:13+05:30"}
+{"level":"error","msg":"[Error while InsertProduct pq: invalid input syntax for type bigint: \"FLAT_100\"]","time":"2024-03-09T23:59:30+05:30"}
+{"level":"error","msg":"[Error while InsertProduct sql: converting argument $5 type: unsupported type []string, a slice of string]","time":"2024-03-10T00:01:10+05:30"}
+{"level":"error","msg":"[Error while InsertProduct sql: converting argument $5 type: unsupported type []string, a slice of string]","time":"2024-03-10T00:02:23+05:30"}
+{"level":"error","msg":"[Error while InsertProduct sql: converting argument $5 type: unsupported type []string, a slice of string]","time":"2024-03-10T00:03:46+05:30"}
+{"level":"error","msg":"[Error while InsertProduct sql: converting argument $6 type: unsupported type []float64, a slice of float64]","time":"2024-03-10T00:06:40+05:30"}
+{"level":"error","msg":"[Error while InsertProduct pq: insert or update on table \"products\" violates foreign key constraint \"fk_products_discount\"]","time":"2024-03-10T00:07:22+05:30"}
+{"level":"error","msg":"[Error while InsertProduct pq: insert or update on table \"products\" violates foreign key constraint \"fk_products_discount\"]","time":"2024-03-10T00:08:35+05:30"}
+{"level":"error","msg":"[Error while InsertProduct pq: insert or update on table \"products\" violates foreign key constraint \"fk_products_discount\"]","time":"2024-03-10T00:09:16+05:30"}
