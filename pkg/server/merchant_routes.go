@@ -30,12 +30,17 @@ func (server *Server) merchantRoutes() {
 
 	merchantRoutes := server.router.PathPrefix("/merchant").Subrouter()
 
+	//GetProfile
 	merchantRoutes.Handle("/profile/{id}", middleware.AccessMiddleware(tokenMaker, server.log, http.HandlerFunc(handler.GetProfile))).Methods("GET")
 
+	//EditProfile
 	editProfile := middleware.ApplyAccessRoleMiddleware(tokenMaker, server.log, utils.MERCHANT, http.HandlerFunc(handler.EditProfile))
 	merchantRoutes.Handle("/profile", editProfile).Methods("PATCH")
 
+	//InsertProduct
 	addProduct := middleware.ApplyAccessRoleMiddleware(tokenMaker, server.log, utils.MERCHANT, http.HandlerFunc(handler.InsertProduct))
 	merchantRoutes.Handle("/product", addProduct).Methods("POST")
 
+	//GetProducts
+	merchantRoutes.Handle("/product", middleware.AccessMiddleware(tokenMaker, server.log, http.HandlerFunc(handler.GetProducts))).Methods("GET")
 }

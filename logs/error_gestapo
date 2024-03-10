@@ -148,3 +148,8 @@
 {"level":"error","msg":"[Error while ValidateBody validation errors: Field 'ProductName' failed validation. ]","time":"2024-03-10T10:52:38+05:30"}
 {"level":"error","msg":"[Error while InsertProduct pq: insert or update on table \"products\" violates foreign key constraint \"fk_products_category\"]","time":"2024-03-10T10:52:53+05:30"}
 {"level":"error","msg":"[Error  category doesnt exist: 7d99da50-472d-497b-83ff-f606aa47e5ae]","time":"2024-03-10T11:17:29+05:30"}
+{"level":"error","msg":"[Error  category doesnt exist: 7d99da50-472d-497b-83ff-f606aa47e5ae]","time":"2024-03-10T11:53:57+05:30"}
+{"level":"error","msg":"[Error token is expired]","time":"2024-03-10T11:54:07+05:30"}
+{"level":"error","msg":"[Error  category doesnt exist: 9bc32bdb-ee18-4001-a4ee-9b33d97d0d54]","time":"2024-03-10T11:58:34+05:30"}
+{"level":"error","msg":"[Error  category doesnt exist: 9bc32bdb-ee18-4001-a4ee-9b33d97d0d54]","time":"2024-03-10T12:02:52+05:30"}
+{"level":"error","msg":"[There should be atleast one image]","time":"2024-03-10T12:03:03+05:30"}
