@@ -153,3 +153,6 @@
 {"level":"error","msg":"[Error  category doesnt exist: 9bc32bdb-ee18-4001-a4ee-9b33d97d0d54]","time":"2024-03-10T11:58:34+05:30"}
 {"level":"error","msg":"[Error  category doesnt exist: 9bc32bdb-ee18-4001-a4ee-9b33d97d0d54]","time":"2024-03-10T12:02:52+05:30"}
 {"level":"error","msg":"[There should be atleast one image]","time":"2024-03-10T12:03:03+05:30"}
+{"level":"error","msg":"[Error authorization header is not provided]","time":"2024-03-10T23:29:35+05:30"}
+{"level":"error","msg":"[Error while GetProducts sql: Scan error on column index 2, name \"images\": unsupported Scan, storing driver.Value type []uint8 into type *[]string]","time":"2024-03-10T23:29:51+05:30"}
+{"level":"error","msg":"[Error while GetProducts sql: Scan error on column index 2, name \"images\": unsupported Scan, storing driver.Value type []uint8 into type *[]string]","time":"2024-03-10T23:30:39+05:30"}

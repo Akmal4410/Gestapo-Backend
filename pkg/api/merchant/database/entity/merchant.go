@@ -37,7 +37,7 @@ type AddProductReq struct {
 
 type GetProductRes struct {
 	ID            string     `json:"id"`
-	ProductImages *[]string  `json:"product_images,omitempty"`
+	ProductImages []string   `json:"product_images,omitempty"`
 	ProductName   *string    `json:"product_name"`
 	Description   *string    `json:"description,omitempty"`
 	CategoryName  *string    `json:"category_name,omitempty"`
