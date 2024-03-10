@@ -83,6 +83,21 @@ func (store *MarchantStore) UpdateProfile(id string, req *entity.EditMerchantReq
 	return nil
 }
 
+func (store *MarchantStore) CheckCategoryExist(categoryId string) (bool, error) {
+	checkQuery := `SELECT * FROM categories WHERE id = $1;`
+	res, err := store.storage.DB.Exec(checkQuery, categoryId)
+	if err != nil {
+		return false, err
+	}
+
+	result, err := res.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+
+	return result != 0, nil
+}
+
 func (store *MarchantStore) InsertProduct(id string, req *entity.AddProductReq) error {
 	createdAt := time.Now()
 	updatedAt := time.Now()

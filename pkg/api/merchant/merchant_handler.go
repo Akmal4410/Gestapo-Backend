@@ -152,7 +152,7 @@ func (handler *MerchantHandler) EditProfile(w http.ResponseWriter, r *http.Reque
 	helpers.WriteJSON(w, http.StatusOK, "User updated successfully")
 }
 
-func (handler *MerchantHandler) AddProduct(w http.ResponseWriter, r *http.Request) {
+func (handler *MerchantHandler) InsertProduct(w http.ResponseWriter, r *http.Request) {
 	const (
 		thirtyTwoMB      = 32 << 20
 		maxFileCount int = 15
@@ -160,13 +160,25 @@ func (handler *MerchantHandler) AddProduct(w http.ResponseWriter, r *http.Reques
 	// Extract the JSON data from the form
 	jsonData := r.FormValue("data")
 	reader := io.Reader(strings.NewReader(jsonData))
-	fmt.Println(jsonData)
-	req := new(entity.AddProductReq)
 
+	req := new(entity.AddProductReq)
 	err := helpers.ValidateBody(reader, req)
 	if err != nil {
 		handler.log.LogError("Error while ValidateBody", err)
-		helpers.ErrorJson(w, http.StatusBadRequest, InvalidBody)
+		helpers.ErrorJson(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	res, err := handler.storage.CheckCategoryExist(req.CategoryId)
+	if err != nil {
+		handler.log.LogError("Error while CheckCategoryExist", err)
+		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		return
+	}
+	if !res {
+		err = fmt.Errorf("category doesnt exist: %s", req.CategoryId)
+		handler.log.LogError("Error ", err)
+		helpers.ErrorJson(w, http.StatusConflict, err.Error())
 		return
 	}
 

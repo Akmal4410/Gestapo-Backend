@@ -143,3 +143,8 @@
 {"level":"error","msg":"[Error while InsertProduct pq: insert or update on table \"products\" violates foreign key constraint \"fk_products_discount\"]","time":"2024-03-10T00:07:22+05:30"}
 {"level":"error","msg":"[Error while InsertProduct pq: insert or update on table \"products\" violates foreign key constraint \"fk_products_discount\"]","time":"2024-03-10T00:08:35+05:30"}
 {"level":"error","msg":"[Error while InsertProduct pq: insert or update on table \"products\" violates foreign key constraint \"fk_products_discount\"]","time":"2024-03-10T00:09:16+05:30"}
+{"level":"error","msg":"[Error while InsertProduct pq: duplicate key value violates unique constraint \"uni_discounts_name\"]","time":"2024-03-10T10:32:42+05:30"}
+{"level":"error","msg":"[Error while ValidateBody validation errors: Field 'ProductName' failed validation. ]","time":"2024-03-10T10:51:07+05:30"}
+{"level":"error","msg":"[Error while ValidateBody validation errors: Field 'ProductName' failed validation. ]","time":"2024-03-10T10:52:38+05:30"}
+{"level":"error","msg":"[Error while InsertProduct pq: insert or update on table \"products\" violates foreign key constraint \"fk_products_category\"]","time":"2024-03-10T10:52:53+05:30"}
+{"level":"error","msg":"[Error  category doesnt exist: 7d99da50-472d-497b-83ff-f606aa47e5ae]","time":"2024-03-10T11:17:29+05:30"}

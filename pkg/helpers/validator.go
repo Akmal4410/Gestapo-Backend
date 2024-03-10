@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"strings"
 	"time"
 
 	"github.com/akmal4410/gestapo/pkg/utils"
@@ -17,9 +18,22 @@ func ValidateBody(body io.Reader, data any) error {
 	if err := json.NewDecoder(body).Decode(&data); err != nil {
 		return err
 	}
-	if err := validate.Struct(data); err != nil {
-		return err
+
+	err := validate.Struct(data)
+	if err != nil {
+		if _, ok := err.(*validator.InvalidValidationError); ok {
+			return err
+		}
+
+		var errorMessage strings.Builder
+		for _, err := range err.(validator.ValidationErrors) {
+			fieldName := err.Field()
+			errorMessage.WriteString(fmt.Sprintf("Field '%s' failed validation. ", fieldName))
+		}
+
+		return fmt.Errorf("validation errors: %s", errorMessage.String())
 	}
+
 	return nil
 }
 

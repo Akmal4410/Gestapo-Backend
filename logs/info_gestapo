@@ -132,3 +132,17 @@
 {"level":"info","msg":"[Go Bank Running on port : 0.0.0.0:8080]","time":"2024-03-10T00:10:22+05:30"}
 {"level":"info","msg":"[Go Bank Running on port : 0.0.0.0:8080]","time":"2024-03-10T00:11:41+05:30"}
 {"level":"info","msg":"[Go Bank Running on port : 0.0.0.0:8080]","time":"2024-03-10T09:57:36+05:30"}
+{"level":"info","msg":"[Go Bank Running on port : 0.0.0.0:8080]","time":"2024-03-10T10:32:39+05:30"}
+{"level":"info","msg":"[File uploaded to S3 successfully FileURL: products/5b1c5c8f-485d-4e21-aa30-3b8ccb77bf99/bcf87590-785a-46d4-8a06-c7ef84dfa58f/1.jpg]","time":"2024-03-10T10:32:41+05:30"}
+{"level":"info","msg":"[File uploaded to S3 successfully FileURL: products/5b1c5c8f-485d-4e21-aa30-3b8ccb77bf99/bcf87590-785a-46d4-8a06-c7ef84dfa58f/2.jpg]","time":"2024-03-10T10:32:42+05:30"}
+{"level":"info","msg":"[File uploaded to S3 successfully FileURL: products/5b1c5c8f-485d-4e21-aa30-3b8ccb77bf99/bcf87590-785a-46d4-8a06-c7ef84dfa58f/3.jpg]","time":"2024-03-10T10:32:42+05:30"}
+{"level":"info","msg":"[Go Bank Running on port : 0.0.0.0:8080]","time":"2024-03-10T10:33:39+05:30"}
+{"level":"info","msg":"[File uploaded to S3 successfully FileURL: products/5b1c5c8f-485d-4e21-aa30-3b8ccb77bf99/2640aaaf-224e-4ced-883f-ab0d1a610669/1.jpg]","time":"2024-03-10T10:33:44+05:30"}
+{"level":"info","msg":"[File uploaded to S3 successfully FileURL: products/5b1c5c8f-485d-4e21-aa30-3b8ccb77bf99/2640aaaf-224e-4ced-883f-ab0d1a610669/2.jpg]","time":"2024-03-10T10:33:44+05:30"}
+{"level":"info","msg":"[File uploaded to S3 successfully FileURL: products/5b1c5c8f-485d-4e21-aa30-3b8ccb77bf99/2640aaaf-224e-4ced-883f-ab0d1a610669/3.jpg]","time":"2024-03-10T10:33:45+05:30"}
+{"level":"info","msg":"[Go Bank Running on port : 0.0.0.0:8080]","time":"2024-03-10T10:50:49+05:30"}
+{"level":"info","msg":"[Go Bank Running on port : 0.0.0.0:8080]","time":"2024-03-10T10:52:36+05:30"}
+{"level":"info","msg":"[File uploaded to S3 successfully FileURL: products/5b1c5c8f-485d-4e21-aa30-3b8ccb77bf99/88540668-b388-4d0d-a3ed-96b6a4ddc572/1.jpg]","time":"2024-03-10T10:52:52+05:30"}
+{"level":"info","msg":"[File uploaded to S3 successfully FileURL: products/5b1c5c8f-485d-4e21-aa30-3b8ccb77bf99/88540668-b388-4d0d-a3ed-96b6a4ddc572/2.jpg]","time":"2024-03-10T10:52:53+05:30"}
+{"level":"info","msg":"[File uploaded to S3 successfully FileURL: products/5b1c5c8f-485d-4e21-aa30-3b8ccb77bf99/88540668-b388-4d0d-a3ed-96b6a4ddc572/3.jpg]","time":"2024-03-10T10:52:53+05:30"}
+{"level":"info","msg":"[Go Bank Running on port : 0.0.0.0:8080]","time":"2024-03-10T11:17:25+05:30"}
