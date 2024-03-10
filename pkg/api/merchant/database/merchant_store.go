@@ -154,3 +154,41 @@ func (store *MarchantStore) InsertProduct(id string, req *entity.AddProductReq) 
 	tx.Commit()
 	return nil
 }
+
+func (store *MarchantStore) GetProducts() ([]entity.GetProductRes, error) {
+	var products []entity.GetProductRes
+	insertQuery := `
+		SELECT id, product_name, images, price
+		FROM products;
+	`
+
+	rows, err := store.storage.DB.Query(insertQuery)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var product entity.GetProductRes
+		var images pq.StringArray
+
+		err := rows.Scan(
+			&product.ID,
+			&product.ProductName,
+			&images,
+			&product.Price,
+		)
+		if err != nil {
+			return nil, err
+		}
+		product.ProductImages = []string(images)
+		products = append(products, product)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return products, nil
+}

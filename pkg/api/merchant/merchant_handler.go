@@ -190,6 +190,12 @@ func (handler *MerchantHandler) InsertProduct(w http.ResponseWriter, r *http.Req
 	}
 
 	files := r.MultipartForm.File["files"]
+	if len(files) == 0 {
+		handler.log.LogError("There should be atleast one image")
+		errMsg := "There should be atleast one image"
+		helpers.ErrorJson(w, http.StatusBadRequest, errMsg)
+		return
+	}
 	if len(files) > maxFileCount {
 		handler.log.LogError("Too many files uploaded", "Max allowed: %d", maxFileCount)
 		errMsg := fmt.Sprintf("too many files uploaded. Max allowed: %s", strconv.Itoa(maxFileCount))
@@ -239,7 +245,28 @@ func (handler *MerchantHandler) InsertProduct(w http.ResponseWriter, r *http.Req
 	}
 
 	helpers.WriteJSON(w, http.StatusOK, "Product added successfully")
-
 }
 
-////
+func (handler *MerchantHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
+	res, err := handler.storage.GetProducts()
+	if err != nil {
+		handler.log.LogError("Error while GetProducts", err)
+		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		return
+	}
+	for _, product := range res {
+		if product.ProductImages != nil {
+			for i, image := range product.ProductImages {
+				url, err := handler.s3Service.GetPreSignedURL(image)
+				if err != nil {
+					handler.log.LogError("Error while GetPreSignedURL", err)
+					helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+					return
+				}
+				product.ProductImages[i] = url
+			}
+		}
+	}
+
+	helpers.WriteJSON(w, http.StatusOK, res)
+}
