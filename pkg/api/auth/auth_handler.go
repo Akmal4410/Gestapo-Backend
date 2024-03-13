@@ -88,7 +88,7 @@ func (auth *AuthHandler) SendOTP(w http.ResponseWriter, r *http.Request) {
 		if res {
 			err = fmt.Errorf("account already exist using this %s", column)
 			auth.log.LogError(err)
-			helpers.ErrorJson(w, http.StatusConflict, err.Error())
+			helpers.ErrorJson(w, http.StatusNotFound, err.Error())
 			return
 		}
 	}
@@ -142,7 +142,7 @@ func (auth *AuthHandler) verifyOTP(w http.ResponseWriter, payload *token.Session
 		if res {
 			fmtError := fmt.Errorf("account already exist using this %s", column)
 			auth.log.LogError(fmtError)
-			helpers.ErrorJson(w, http.StatusConflict, fmtError.Error())
+			helpers.ErrorJson(w, http.StatusNotFound, fmtError.Error())
 			return false
 		}
 	}
@@ -335,7 +335,7 @@ func (auth *AuthHandler) SSOAuth(w http.ResponseWriter, r *http.Request) {
 		email, fullname, err = sso.GoogleOauth(token, auth.config.OAuth.AndroidClientId, auth.log)
 		if err != nil {
 			if err.Error() == "missing claims" {
-				helpers.ErrorJson(w, http.StatusConflict, "conflict occurs, missing claims")
+				helpers.ErrorJson(w, http.StatusNotFound, "conflict occurs, missing claims")
 				return
 			}
 			helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
@@ -345,7 +345,7 @@ func (auth *AuthHandler) SSOAuth(w http.ResponseWriter, r *http.Request) {
 		email, fullname, err = sso.GoogleOauth(token, auth.config.OAuth.IOSClientId, auth.log)
 		if err != nil {
 			if err.Error() == "missing claims" {
-				helpers.ErrorJson(w, http.StatusConflict, "conflict occurs, missing claims")
+				helpers.ErrorJson(w, http.StatusNotFound, "conflict occurs, missing claims")
 				return
 			}
 			helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
