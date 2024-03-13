@@ -26,20 +26,20 @@ type User_Data struct {
 
 //PRODUCTS------------------------------
 
-type Categories struct {
-	ID            uuid.UUID `gorm:"NOT NULL;PRIMARY_KEY"`
-	Category_Name string    `gorm:"NOT NULL;UNIQUE"`
-	CreatedAt     time.Time `gorm:"NOT NULL"`
-	UpdatedAt     time.Time `gorm:"NOT NULL"`
-	DeletedAt     gorm.DeletedAt
-}
-
 type Inventories struct {
 	ID        uuid.UUID `gorm:"NOT NULL;PRIMARY_KEY"`
 	Quantity  int       `gorm:"NOT NULL"`
 	CreatedAt time.Time `gorm:"NOT NULL"`
 	UpdatedAt time.Time `gorm:"NOT NULL"`
 	DeletedAt gorm.DeletedAt
+}
+
+type Categories struct {
+	ID            uuid.UUID `gorm:"NOT NULL;PRIMARY_KEY"`
+	Category_Name string    `gorm:"NOT NULL;UNIQUE"`
+	CreatedAt     time.Time `gorm:"NOT NULL"`
+	UpdatedAt     time.Time `gorm:"NOT NULL"`
+	DeletedAt     gorm.DeletedAt
 }
 
 type Discounts struct {
@@ -62,7 +62,7 @@ type Products struct {
 	ProductName string          `gorm:"NOT NULL"`
 	Description string          `gorm:"NOT NULL"`
 	Images      pq.StringArray  `gorm:"type:text[]"`
-	Size        pq.Float32Array `gorm:"type:float[]"`
+	Size        pq.Float64Array `gorm:"type:float[]"`
 	Price       float64         `gorm:"NOT NULL"`
 	CreatedAt   time.Time       `gorm:"NOT NULL"`
 	UpdatedAt   time.Time       `gorm:"NOT NULL"`
