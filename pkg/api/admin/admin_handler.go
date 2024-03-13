@@ -46,7 +46,7 @@ func (handler *AdminHandler) CreateCategory(w http.ResponseWriter, r *http.Reque
 	if res {
 		err = fmt.Errorf("category already exist: %s", req.Category_Name)
 		handler.log.LogError("Error ", err)
-		helpers.ErrorJson(w, http.StatusConflict, err.Error())
+		helpers.ErrorJson(w, http.StatusNotFound, err.Error())
 		return
 	}
 

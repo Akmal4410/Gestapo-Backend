@@ -53,7 +53,7 @@ func (handler *MerchantHandler) GetProfile(w http.ResponseWriter, r *http.Reques
 	if !res {
 		err = fmt.Errorf("account does'nt exist using %s", userId)
 		handler.log.LogError(err)
-		helpers.ErrorJson(w, http.StatusConflict, err.Error())
+		helpers.ErrorJson(w, http.StatusNotFound, err.Error())
 		return
 	}
 
@@ -178,7 +178,7 @@ func (handler *MerchantHandler) InsertProduct(w http.ResponseWriter, r *http.Req
 	if !res {
 		err = fmt.Errorf("category doesnt exist: %s", req.CategoryId)
 		handler.log.LogError("Error ", err)
-		helpers.ErrorJson(w, http.StatusConflict, err.Error())
+		helpers.ErrorJson(w, http.StatusNotFound, err.Error())
 		return
 	}
 
@@ -284,18 +284,18 @@ func (handler *MerchantHandler) GetProductById(w http.ResponseWriter, r *http.Re
 	if !res {
 		err = fmt.Errorf("product does'nt exist using %s", productId)
 		handler.log.LogError(err)
-		helpers.ErrorJson(w, http.StatusConflict, err.Error())
+		helpers.ErrorJson(w, http.StatusNotFound, err.Error())
 		return
 	}
 
 	product, err := handler.storage.GetProductById(productId)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			handler.log.LogError("Error while GetProfile", err)
+			handler.log.LogError("Error while GetProductById Not fount", err)
 			helpers.ErrorJson(w, http.StatusNotFound, "Not found")
 			return
 		}
-		handler.log.LogError("Error while GetProfile", err)
+		handler.log.LogError("Error while GetProductById", err)
 		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
 		return
 	}
@@ -312,4 +312,29 @@ func (handler *MerchantHandler) GetProductById(w http.ResponseWriter, r *http.Re
 		}
 	}
 	helpers.WriteJSON(w, http.StatusOK, product)
+}
+
+func (handler *MerchantHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
+	productId := mux.Vars(r)["id"]
+	res, err := handler.storage.CheckDataExist("products", "id", productId)
+	if err != nil {
+		handler.log.LogError("Error while CheckUserExist", err)
+		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		return
+	}
+
+	if !res {
+		err = fmt.Errorf("product does'nt exist using %s", productId)
+		handler.log.LogError(err)
+		helpers.ErrorJson(w, http.StatusNotFound, err.Error())
+		return
+	}
+
+	err = handler.storage.DeleteProduct(productId)
+	if err != nil {
+		handler.log.LogError("Error while DeleteProduct", err)
+		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		return
+	}
+	helpers.WriteJSON(w, http.StatusOK, "Product deleted succesfully")
 }

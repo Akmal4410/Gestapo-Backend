@@ -231,3 +231,35 @@ func (store *MarchantStore) GetProductById(productId string) (*entity.GetProduct
 	}
 	return &product, nil
 }
+
+func (store *MarchantStore) DeleteProduct(productId string) error {
+
+	// Execute raw SQL query to delete the product and its related records using JOINs
+	// deleteQuery := `
+	//     DELETE p, i, d
+	//     FROM products p
+	//     LEFT JOIN inventories i ON p.inventory_id = i.id
+	//     LEFT JOIN discounts d ON p.discount_id = d.id
+	//     WHERE p.id = ?;
+	// `
+	deleteQuery := `
+    DELETE FROM products
+    USING inventories, discounts
+    WHERE products.id = $1
+      AND products.inventory_id = inventories.id
+      AND products.discount_id = discounts.id;
+`
+
+	res, err := store.storage.DB.Exec(deleteQuery, productId)
+	if err != nil {
+		return err
+	}
+	n, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if n == 0 {
+		return fmt.Errorf("couldnot delete the product")
+	}
+	return nil
+}
