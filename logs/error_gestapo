@@ -156,3 +156,10 @@
 {"level":"error","msg":"[Error authorization header is not provided]","time":"2024-03-10T23:29:35+05:30"}
 {"level":"error","msg":"[Error while GetProducts sql: Scan error on column index 2, name \"images\": unsupported Scan, storing driver.Value type []uint8 into type *[]string]","time":"2024-03-10T23:29:51+05:30"}
 {"level":"error","msg":"[Error while GetProducts sql: Scan error on column index 2, name \"images\": unsupported Scan, storing driver.Value type []uint8 into type *[]string]","time":"2024-03-10T23:30:39+05:30"}
+{"level":"error","msg":"[Error token is expired]","time":"2024-03-11T23:48:35+05:30"}
+{"level":"error","msg":"[Error authorization header is not provided]","time":"2024-03-11T23:50:15+05:30"}
+{"level":"error","msg":"[product does'nt exist using 2435]","time":"2024-03-11T23:50:35+05:30"}
+{"level":"error","msg":"[Error while GetProfile sql: Scan error on column index 4, name \"size\": unsupported Scan, storing driver.Value type []uint8 into type *[]float64]","time":"2024-03-11T23:50:39+05:30"}
+{"level":"error","msg":"[Error while GetProfile sql: Scan error on column index 4, name \"size\": unsupported Scan, storing driver.Value type []uint8 into type *[]float64]","time":"2024-03-12T10:43:26+05:30"}
+{"level":"error","msg":"[Error while GetProfile sql: Scan error on column index 4, name \"size\": unsupported Scan, storing driver.Value type []uint8 into type *[]float64]","time":"2024-03-13T07:19:00+05:30"}
+{"level":"error","msg":"[Error while GetProfile sql: Scan error on column index 4, name \"size\": unsupported Scan, storing driver.Value type []uint8 into type *[]float64]","time":"2024-03-13T07:22:08+05:30"}

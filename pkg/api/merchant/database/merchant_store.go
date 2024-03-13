@@ -20,8 +20,8 @@ func NewMarchantStore(storage *database.Storage) *MarchantStore {
 
 }
 
-func (store *MarchantStore) CheckUserExist(id, value string) (bool, error) {
-	checkQuery := fmt.Sprintf(`SELECT * FROM user_data WHERE %s = $1;`, id)
+func (store MarchantStore) CheckDataExist(table, column, value string) (bool, error) {
+	checkQuery := fmt.Sprintf(`SELECT * FROM %s WHERE %s = $1;`, table, column)
 	res, err := store.storage.DB.Exec(checkQuery, value)
 	if err != nil {
 		return false, err
@@ -42,7 +42,7 @@ func (store *MarchantStore) GetProfile(userId string) (*entity.GetMerchantRes, e
 	`
 	rows := store.storage.DB.QueryRow(selectQuery, userId)
 	if rows.Err() != nil {
-		return &entity.GetMerchantRes{}, rows.Err()
+		return nil, rows.Err()
 	}
 	var user entity.GetMerchantRes
 	err := rows.Scan(
@@ -57,7 +57,7 @@ func (store *MarchantStore) GetProfile(userId string) (*entity.GetMerchantRes, e
 		&user.UserType,
 	)
 	if err != nil {
-		return &entity.GetMerchantRes{}, err
+		return nil, err
 	}
 	return &user, nil
 }
@@ -81,21 +81,6 @@ func (store *MarchantStore) UpdateProfile(id string, req *entity.EditMerchantReq
 		return fmt.Errorf("couldnot update the user")
 	}
 	return nil
-}
-
-func (store *MarchantStore) CheckCategoryExist(categoryId string) (bool, error) {
-	checkQuery := `SELECT * FROM categories WHERE id = $1;`
-	res, err := store.storage.DB.Exec(checkQuery, categoryId)
-	if err != nil {
-		return false, err
-	}
-
-	result, err := res.RowsAffected()
-	if err != nil {
-		return false, err
-	}
-
-	return result != 0, nil
 }
 
 func (store *MarchantStore) InsertProduct(id string, req *entity.AddProductReq) error {
@@ -191,4 +176,58 @@ func (store *MarchantStore) GetProducts() ([]entity.GetProductRes, error) {
 	}
 
 	return products, nil
+}
+
+func (store *MarchantStore) GetProductById(productId string) (*entity.GetProductRes, error) {
+	selectQuery := `
+	SELECT
+    p.id AS id,
+    p.product_name AS product_name,
+    p.description AS description,
+    c.category_name AS category_name,
+    p.size AS size,
+    p.price AS price,
+    (p.price - (p.price * d.percent / 100)) AS discount_price,
+    p.images AS product_images
+	FROM
+    products p
+	LEFT JOIN
+    categories c ON p.category_id = c.id
+	LEFT JOIN
+    discounts d ON p.discount_id = d.id
+	WHERE
+    p.id = $1;
+	`
+	rows := store.storage.DB.QueryRow(selectQuery, productId)
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+
+	var product entity.GetProductRes
+
+	var images pq.StringArray
+	var sizes pq.Float64Array
+
+	err := rows.Scan(
+		&product.ID,
+		&product.ProductName,
+		&product.Description,
+		&product.CategoryName,
+		&sizes,
+		&product.Price,
+		&product.DiscountPrice,
+		&images,
+	)
+	product.ProductImages = []string(images)
+	// Convert pq.Float64Array to []float64
+	var sizeList []float64
+	for _, v := range sizes {
+		sizeList = append(sizeList, float64(v))
+	}
+	product.Size = &sizeList
+
+	if err != nil {
+		return nil, err
+	}
+	return &product, nil
 }

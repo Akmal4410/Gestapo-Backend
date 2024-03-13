@@ -43,7 +43,7 @@ func NewMerchentHandler(storage *database.MarchantStore, logger logger.Logger, s
 func (handler *MerchantHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	userId := mux.Vars(r)["id"]
 
-	res, err := handler.storage.CheckUserExist("id", userId)
+	res, err := handler.storage.CheckDataExist("user_data", "id", userId)
 	if err != nil {
 		handler.log.LogError("Error while CheckUserExist", err)
 		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
@@ -169,7 +169,7 @@ func (handler *MerchantHandler) InsertProduct(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	res, err := handler.storage.CheckCategoryExist(req.CategoryId)
+	res, err := handler.storage.CheckDataExist("categories", "id", req.CategoryId)
 	if err != nil {
 		handler.log.LogError("Error while CheckCategoryExist", err)
 		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
@@ -269,4 +269,47 @@ func (handler *MerchantHandler) GetProducts(w http.ResponseWriter, r *http.Reque
 	}
 
 	helpers.WriteJSON(w, http.StatusOK, res)
+}
+
+func (handler *MerchantHandler) GetProductById(w http.ResponseWriter, r *http.Request) {
+	productId := mux.Vars(r)["id"]
+
+	res, err := handler.storage.CheckDataExist("products", "id", productId)
+	if err != nil {
+		handler.log.LogError("Error while CheckUserExist", err)
+		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		return
+	}
+
+	if !res {
+		err = fmt.Errorf("product does'nt exist using %s", productId)
+		handler.log.LogError(err)
+		helpers.ErrorJson(w, http.StatusConflict, err.Error())
+		return
+	}
+
+	product, err := handler.storage.GetProductById(productId)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			handler.log.LogError("Error while GetProfile", err)
+			helpers.ErrorJson(w, http.StatusNotFound, "Not found")
+			return
+		}
+		handler.log.LogError("Error while GetProfile", err)
+		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		return
+	}
+
+	if product.ProductImages != nil {
+		for i, image := range product.ProductImages {
+			url, err := handler.s3Service.GetPreSignedURL(image)
+			if err != nil {
+				handler.log.LogError("Error while GetPreSignedURL", err)
+				helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+				return
+			}
+			product.ProductImages[i] = url
+		}
+	}
+	helpers.WriteJSON(w, http.StatusOK, product)
 }

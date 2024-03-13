@@ -43,4 +43,7 @@ func (server *Server) merchantRoutes() {
 
 	//GetProducts
 	merchantRoutes.Handle("/product", middleware.AccessMiddleware(tokenMaker, server.log, http.HandlerFunc(handler.GetProducts))).Methods("GET")
+
+	//GetProductsById
+	merchantRoutes.Handle("/product/{id}", middleware.AccessMiddleware(tokenMaker, server.log, http.HandlerFunc(handler.GetProductById))).Methods("GET")
 }
