@@ -2,6 +2,7 @@ package merchant
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -237,7 +238,7 @@ func (handler *MerchantHandler) InsertProduct(w http.ResponseWriter, r *http.Req
 		req.ProductImages = uploadedFileKeys
 	}
 
-	err = handler.storage.InsertProduct(uuId.String(), req)
+	err = handler.storage.InsertProduct(payload.UserID, uuId.String(), req)
 	if err != nil {
 		handler.log.LogError("Error while InsertProduct", err)
 		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
@@ -315,18 +316,32 @@ func (handler *MerchantHandler) GetProductById(w http.ResponseWriter, r *http.Re
 }
 
 func (handler *MerchantHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
-	productId := mux.Vars(r)["id"]
-	res, err := handler.storage.CheckDataExist("products", "id", productId)
-	if err != nil {
-		handler.log.LogError("Error while CheckUserExist", err)
+	payload, ok := r.Context().Value(utils.AuthorizationPayloadKey).(*token.AccessPayload)
+	if !ok {
+		err := errors.New("unable to retrieve user payload from context")
+		handler.log.LogError("Error", err)
 		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
 		return
 	}
 
-	if !res {
-		err = fmt.Errorf("product does'nt exist using %s", productId)
-		handler.log.LogError(err)
-		helpers.ErrorJson(w, http.StatusNotFound, err.Error())
+	productId := mux.Vars(r)["id"]
+
+	product, err := handler.storage.GetProductById(productId)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			handler.log.LogError("Error while GetProductById Not fount", err)
+			helpers.ErrorJson(w, http.StatusNotFound, "Not found")
+			return
+		}
+		handler.log.LogError("Error while retrieving product", err)
+		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		return
+	}
+
+	if product.MerchantID != payload.UserID {
+		err := errors.New("unauthorized: product does not belong to the authenticated merchant")
+		handler.log.LogError("Error", err)
+		helpers.ErrorJson(w, http.StatusForbidden, err.Error())
 		return
 	}
 

@@ -83,7 +83,7 @@ func (store *MarchantStore) UpdateProfile(id string, req *entity.EditMerchantReq
 	return nil
 }
 
-func (store *MarchantStore) InsertProduct(id string, req *entity.AddProductReq) error {
+func (store *MarchantStore) InsertProduct(userId, productId string, req *entity.AddProductReq) error {
 	createdAt := time.Now()
 	updatedAt := time.Now()
 
@@ -92,23 +92,6 @@ func (store *MarchantStore) InsertProduct(id string, req *entity.AddProductReq) 
 	tx, err := store.storage.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return err
-	}
-	var discountId string = ""
-	if req.DiscountName != "" {
-		uuId, err := uuid.NewRandom()
-		if err != nil {
-			return err
-		}
-		discountId = uuId.String()
-		insertQuery := `INSERT INTO discounts
-		(id, name, percent, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5);
-		`
-		_, err = tx.Exec(insertQuery, discountId, req.DiscountName, req.Percent, createdAt, updatedAt)
-		if err != nil {
-			tx.Rollback()
-			return err
-		}
 	}
 	inventoryId, err := uuid.NewRandom()
 	if err != nil {
@@ -125,13 +108,13 @@ func (store *MarchantStore) InsertProduct(id string, req *entity.AddProductReq) 
 	}
 
 	insertProductQuery := `INSERT INTO products
-		(id, category_id, product_name, description, images, size, price, inventory_id, discount_id, created_at, updated_at)
+		(id, merchent_id, category_id, product_name, description, images, size, price, inventory_id, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);
 		`
 	productImages := pq.StringArray(req.ProductImages)
 	productSizes := pq.Float64Array(req.Sizes)
 
-	_, err = tx.Exec(insertProductQuery, id, req.CategoryId, req.ProductName, req.Description, productImages, productSizes, req.Price, inventoryId, discountId, createdAt, updatedAt)
+	_, err = tx.Exec(insertProductQuery, productId, userId, req.CategoryId, req.ProductName, req.Description, productImages, productSizes, req.Price, inventoryId, createdAt, updatedAt)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -248,7 +231,7 @@ func (store *MarchantStore) DeleteProduct(productId string) error {
     WHERE products.id = $1
       AND products.inventory_id = inventories.id
       AND products.discount_id = discounts.id;
-`
+	`
 
 	res, err := store.storage.DB.Exec(deleteQuery, productId)
 	if err != nil {

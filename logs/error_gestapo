@@ -172,3 +172,16 @@
 {"level":"error","msg":"[Error while DeleteProduct couldnot delete the product]","time":"2024-03-13T08:35:34+05:30"}
 {"level":"error","msg":"[product does'nt exist using 45383ae1-ced9-4900-b0b2-31ad4aa03d]","time":"2024-03-13T08:36:34+05:30"}
 {"level":"error","msg":"[product does'nt exist using 45383ae1-ced9-4900-b0b2-31ad4aa03d5d]","time":"2024-03-13T08:36:52+05:30"}
+{"level":"error","msg":"[product does'nt exist using 45383ae1-ced9-4900-b0b2-31ad4aa03d5d]","time":"2024-03-13T22:13:24+05:30"}
+{"level":"error","msg":"[Error token is expired]","time":"2024-03-13T23:39:15+05:30"}
+{"level":"error","msg":"[Error token is expired]","time":"2024-03-14T19:58:56+05:30"}
+{"level":"error","msg":"[Error while ValidateBody EOF]","time":"2024-03-14T20:00:13+05:30"}
+{"level":"error","msg":"[Error while ValidateBody EOF]","time":"2024-03-14T20:00:25+05:30"}
+{"level":"error","msg":"[Error while InsertProduct pq: null value in column \"discount_id\" of relation \"products\" violates not-null constraint]","time":"2024-03-14T20:01:32+05:30"}
+{"level":"error","msg":"[Error while InsertProduct pq: null value in column \"discount_id\" of relation \"products\" violates not-null constraint]","time":"2024-03-14T20:02:46+05:30"}
+{"level":"error","msg":"[Error while InsertProduct pq: null value in column \"discount_id\" of relation \"products\" violates not-null constraint]","time":"2024-03-14T20:03:29+05:30"}
+{"level":"error","msg":"[Error while InsertProduct pq: null value in column \"discount_id\" of relation \"products\" violates not-null constraint]","time":"2024-03-14T20:04:00+05:30"}
+{"level":"error","msg":"[Error while InsertProduct pq: null value in column \"discount_id\" of relation \"products\" violates not-null constraint]","time":"2024-03-14T20:04:50+05:30"}
+{"level":"error","msg":"[Error while InsertProduct pq: null value in column \"discount_id\" of relation \"products\" violates not-null constraint]","time":"2024-03-14T20:07:43+05:30"}
+{"level":"error","msg":"[Error token is expired]","time":"2024-03-14T20:10:24+05:30"}
+{"level":"error","msg":"[Error while GetProductById Not fount sql: no rows in result set]","time":"2024-03-14T20:10:43+05:30"}

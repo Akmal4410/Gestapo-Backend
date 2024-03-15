@@ -51,13 +51,14 @@ type Discounts struct {
 }
 
 type Products struct {
-	ID          uuid.UUID       `gorm:"NOT NULL;PRIMARY_KEY"`
-	Category    Categories      `gorm:"foreignKey:CategoryID;references:ID"`
-	CategoryID  uuid.UUID       `gorm:"NOT NULL;index"`
-	Inventory   Inventories     `gorm:"foreignKey:InventoryID;references:ID"`
-	InventoryID uuid.UUID       `gorm:"NOT NULL;index"`
-	Discount    Discounts       `gorm:"foreignKey:DiscountID;references:ID"`
-	DiscountID  uuid.UUID       `gorm:"NOT NULL;index"`
+	ID          uuid.UUID   `gorm:"NOT NULL;PRIMARY_KEY"`
+	MerchentID  uuid.UUID   `gorm:"NOT NULL"`
+	Category    Categories  `gorm:"foreignKey:CategoryID;references:ID"`
+	CategoryID  uuid.UUID   `gorm:"NOT NULL;index"`
+	Inventory   Inventories `gorm:"foreignKey:InventoryID;references:ID"`
+	InventoryID uuid.UUID   `gorm:"NOT NULL;index"`
+	Discount    Discounts   `gorm:"foreignKey:DiscountID;references:ID"`
+	DiscountID  *uuid.UUID
 	ProductName string          `gorm:"NOT NULL"`
 	Description string          `gorm:"NOT NULL"`
 	Images      pq.StringArray  `gorm:"type:text[]"`
