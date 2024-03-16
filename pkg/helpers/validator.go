@@ -24,7 +24,6 @@ func ValidateBody(body io.Reader, data any) error {
 		if _, ok := err.(*validator.InvalidValidationError); ok {
 			return err
 		}
-
 		var errorMessage strings.Builder
 		for _, err := range err.(validator.ValidationErrors) {
 			fieldName := err.Field()
@@ -33,7 +32,6 @@ func ValidateBody(body io.Reader, data any) error {
 
 		return fmt.Errorf("validation errors: %s", errorMessage.String())
 	}
-
 	return nil
 }
 

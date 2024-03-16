@@ -353,15 +353,14 @@ func (handler *MerchantHandler) DeleteProduct(w http.ResponseWriter, r *http.Req
 	helpers.WriteJSON(w, http.StatusOK, "Product deleted succesfully")
 }
 
-func (handler *MerchantHandler) ApplyProductDiscount(w http.ResponseWriter, r *http.Request) {
-	req := new(entity.ApplyDiscountReq)
+func (handler *MerchantHandler) AddProductDiscount(w http.ResponseWriter, r *http.Request) {
+	req := new(entity.AddDiscountReq)
 	err := helpers.ValidateBody(r.Body, req)
 	if err != nil {
 		handler.log.LogError("Error while ValidateBody", err)
 		helpers.ErrorJson(w, http.StatusBadRequest, InvalidBody)
 		return
 	}
-
 	_, err = handler.storage.GetProductById(req.ProductId)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -374,7 +373,7 @@ func (handler *MerchantHandler) ApplyProductDiscount(w http.ResponseWriter, r *h
 		return
 	}
 
-	err = handler.storage.ApplyProductDiscount(req)
+	err = handler.storage.AddProductDiscount(req)
 	if err != nil {
 		handler.log.LogError("Error while ApplyProductDiscount", err)
 		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
@@ -382,4 +381,38 @@ func (handler *MerchantHandler) ApplyProductDiscount(w http.ResponseWriter, r *h
 	}
 
 	helpers.WriteJSON(w, http.StatusOK, "Discount added successfully")
+}
+
+func (handler *MerchantHandler) EditProductDiscount(w http.ResponseWriter, r *http.Request) {
+
+	req := new(entity.EditDiscountReq)
+	err := helpers.ValidateBody(r.Body, req)
+	if err != nil {
+		handler.log.LogError("Error while ValidateBody", err)
+		helpers.ErrorJson(w, http.StatusBadRequest, InvalidBody)
+		return
+	}
+
+	id := mux.Vars(r)["id"]
+	res, err := handler.storage.CheckDataExist("discounts", "id", id)
+	if err != nil {
+		handler.log.LogError("Error while CheckDataExist", err)
+		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		return
+	}
+	if !res {
+		err = fmt.Errorf("discounts doesnt exist: %s", id)
+		handler.log.LogError("Error ", err)
+		helpers.ErrorJson(w, http.StatusNotFound, err.Error())
+		return
+	}
+
+	err = handler.storage.EditProductDiscount(id, req)
+	if err != nil {
+		handler.log.LogError("Error while ApplyProductDiscount", err)
+		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		return
+	}
+
+	helpers.WriteJSON(w, http.StatusOK, "Discount updated successfully")
 }

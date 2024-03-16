@@ -158,6 +158,10 @@ func (store *MarchantStore) GetProducts() ([]entity.GetProductRes, error) {
 		return nil, err
 	}
 
+	if len(products) == 0 {
+		return []entity.GetProductRes{}, nil
+	}
+
 	return products, nil
 }
 
@@ -170,7 +174,10 @@ func (store *MarchantStore) GetProductById(productId string) (*entity.GetProduct
     c.category_name AS category_name,
     p.size AS size,
     p.price AS price,
-    (p.price - (p.price * d.percent / 100)) AS discount_price,
+    CASE
+        WHEN d.end_time IS NOT NULL AND d.end_time > NOW() THEN p.price - (p.price * d.percent / 100) 
+        ELSE NULL
+    END AS discount_price,
     p.images AS product_images
 	FROM
     products p
@@ -178,8 +185,8 @@ func (store *MarchantStore) GetProductById(productId string) (*entity.GetProduct
     categories c ON p.category_id = c.id
 	LEFT JOIN
     discounts d ON p.discount_id = d.id
-	WHERE
-    p.id = $1;
+	WHERE 
+	p.id = $1;
 	`
 	rows := store.storage.DB.QueryRow(selectQuery, productId)
 	if rows.Err() != nil {
@@ -238,7 +245,7 @@ func (store *MarchantStore) DeleteProduct(productId string) error {
 	return nil
 }
 
-func (store *MarchantStore) ApplyProductDiscount(req *entity.ApplyDiscountReq) error {
+func (store *MarchantStore) AddProductDiscount(req *entity.AddDiscountReq) error {
 	ctx := context.Background()
 	tx, err := store.storage.DB.BeginTx(ctx, nil)
 	if err != nil {
@@ -249,21 +256,24 @@ func (store *MarchantStore) ApplyProductDiscount(req *entity.ApplyDiscountReq) e
 	if err != nil {
 		return err
 	}
+	createdAt := time.Now()
+	updatedAt := time.Now()
+
 	insertQuery := `
 	INSERT INTO discounts
-	(id, name, percent, start_time, endt_time)
-	VALUES ($1, $2, $3, $4, $5);
+	(id, name, percent, start_time, end_time, created_at, updated_at)
+	VALUES ($1, $2, $3, $4, $5, $6, $7);
 	`
 
-	_, err = tx.Exec(insertQuery, discountId.String(), req.DiscountName, req.Percentage, req.StartTime, req.EndTime)
+	_, err = tx.Exec(insertQuery, discountId.String(), req.DiscountName, req.Percentage, req.StartTime, req.EndTime, createdAt, updatedAt)
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
-	updatedAt := time.Now()
 
 	updateQuery := `UPDATE products
-	SET discount_id = $2, updated_at = $3 WHERE id = $1;
+	SET discount_id = $2, updated_at = $3 
+	WHERE id = $1;
 	`
 	res, err := tx.Exec(updateQuery, req.ProductId, discountId.String(), updatedAt)
 	if err != nil {
@@ -279,5 +289,27 @@ func (store *MarchantStore) ApplyProductDiscount(req *entity.ApplyDiscountReq) e
 		return fmt.Errorf("couldnot update the products")
 	}
 	tx.Commit()
+	return nil
+}
+
+func (store *MarchantStore) EditProductDiscount(discountId string, req *entity.EditDiscountReq) error {
+	updateQuery := `
+	UPDATE discounts
+	SET name = $2, percent = $3 , start_time = $4, end_time = $5, updated_at = $6
+	WHERE id = $1;
+	`
+
+	updatedAt := time.Now()
+	res, err := store.storage.DB.Exec(updateQuery, discountId, req.DiscountName, req.Percentage, req.StartTime, req.EndTime, updatedAt)
+	if err != nil {
+		return err
+	}
+	n, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if n == 0 {
+		return fmt.Errorf("couldnot update the discount")
+	}
 	return nil
 }

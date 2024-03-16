@@ -205,3 +205,34 @@
 {"level":"error","msg":"[Error while ValidateBody invalid character 'd' after object key:value pair]","time":"2024-03-15T23:31:08+05:30"}
 {"level":"error","msg":"[Error while ApplyProductDiscount couldnot add the discount or update the products]","time":"2024-03-15T23:31:58+05:30"}
 {"level":"error","msg":"[product does'nt exist using c1632104-c244-483b-9e33-d3dfbb45bf20]","time":"2024-03-15T23:33:36+05:30"}
+{"level":"error","msg":"[Error while GetProductById pq: column d.end_time does not exist]","time":"2024-03-16T10:12:35+05:30"}
+{"level":"error","msg":"[Error while GetProductById Not fount sql: no rows in result set]","time":"2024-03-16T10:16:00+05:30"}
+{"level":"error","msg":"[Error while GetProductById Not fount sql: no rows in result set]","time":"2024-03-16T10:16:21+05:30"}
+{"level":"error","msg":"[Error while ApplyProductDiscount pq: column \"endt_time\" of relation \"discounts\" does not exist]","time":"2024-03-16T10:22:54+05:30"}
+{"level":"error","msg":"[Error authorization header is not provided]","time":"2024-03-16T10:33:45+05:30"}
+{"level":"error","msg":"[Error  discounts doesnt exist: 9d49ee79-c3fd-4e94-a07d-01c352ddb150]","time":"2024-03-16T12:15:31+05:30"}
+{"level":"error","msg":"[product does'nt exist using 9d49ee79-c3fd-4e94-a07d-01c352ddb150]","time":"2024-03-16T12:15:39+05:30"}
+{"level":"error","msg":"[product does'nt exist using 9d49ee79-c3fd-4e94-a07d-01c352ddb150]","time":"2024-03-16T12:19:57+05:30"}
+{"level":"error","msg":"[Error while GetProductById Not fount sql: no rows in result set]","time":"2024-03-16T12:20:12+05:30"}
+{"level":"error","msg":"[Error while GetProductById Not fount sql: no rows in result set]","time":"2024-03-16T12:20:28+05:30"}
+{"level":"error","msg":"[Error while GetProductById Not fount sql: no rows in result set]","time":"2024-03-16T12:20:35+05:30"}
+{"level":"error","msg":"[Error while GetProductById Not fount sql: no rows in result set]","time":"2024-03-16T12:21:04+05:30"}
+{"level":"error","msg":"[Error while GetProductById Not fount sql: no rows in result set]","time":"2024-03-16T12:22:30+05:30"}
+{"level":"error","msg":"[Error while GetProductById Not fount sql: no rows in result set]","time":"2024-03-16T12:23:18+05:30"}
+{"level":"error","msg":"[Error while GetProductById Not fount sql: no rows in result set]","time":"2024-03-16T12:23:54+05:30"}
+{"level":"error","msg":"[Error while GetProductById Not fount sql: no rows in result set]","time":"2024-03-16T12:24:09+05:30"}
+{"level":"error","msg":"[Error while ValidateBody EOF]","time":"2024-03-16T12:25:28+05:30"}
+{"level":"error","msg":"[Error while ValidateBody EOF]","time":"2024-03-16T12:26:41+05:30"}
+{"level":"error","msg":"[Error while ValidateBody EOF]","time":"2024-03-16T12:26:50+05:30"}
+{"level":"error","msg":"[Error while GetProductById Not fount sql: no rows in result set]","time":"2024-03-16T12:27:00+05:30"}
+{"level":"error","msg":"[Error  discounts doesnt exist: 9d49ee79-c3fd-4e94-a07d-01c352ddb150]","time":"2024-03-16T12:31:10+05:30"}
+{"level":"error","msg":"[Error while ValidateBody invalid character '}' looking for beginning of object key string]","time":"2024-03-16T12:32:40+05:30"}
+{"level":"error","msg":"[Error while ValidateBody validation errors: Field 'Percentage' failed validation. ]","time":"2024-03-16T12:36:55+05:30"}
+{"level":"error","msg":"[Error while GetProductById Not fount sql: no rows in result set]","time":"2024-03-16T12:37:19+05:30"}
+{"level":"error","msg":"[Error while ValidateBody EOF]","time":"2024-03-16T12:38:25+05:30"}
+{"level":"error","msg":"[Error while ValidateBody EOF]","time":"2024-03-16T12:40:16+05:30"}
+{"level":"error","msg":"[Error while ValidateBody EOF]","time":"2024-03-16T12:40:36+05:30"}
+{"level":"error","msg":"[Error while ValidateBody EOF]","time":"2024-03-16T12:40:37+05:30"}
+{"level":"error","msg":"[Error  discounts doesnt exist: 9d49ee79-c3fd-4e94-a07d-01c352ddb150]","time":"2024-03-16T12:47:29+05:30"}
+{"level":"error","msg":"[Error while ValidateBody validation errors: Field 'DiscountName' failed validation. ]","time":"2024-03-16T12:48:31+05:30"}
+{"level":"error","msg":"[Error while ValidateBody validation errors: Field 'Percentage' failed validation. ]","time":"2024-03-16T13:15:20+05:30"}
