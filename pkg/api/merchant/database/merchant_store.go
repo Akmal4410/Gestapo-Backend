@@ -83,7 +83,7 @@ func (store *MarchantStore) UpdateProfile(id string, req *entity.EditMerchantReq
 	return nil
 }
 
-func (store *MarchantStore) InsertProduct(id string, req *entity.AddProductReq) error {
+func (store *MarchantStore) InsertProduct(userId, productId string, req *entity.AddProductReq) error {
 	createdAt := time.Now()
 	updatedAt := time.Now()
 
@@ -92,23 +92,6 @@ func (store *MarchantStore) InsertProduct(id string, req *entity.AddProductReq) 
 	tx, err := store.storage.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return err
-	}
-	var discountId string = ""
-	if req.DiscountName != "" {
-		uuId, err := uuid.NewRandom()
-		if err != nil {
-			return err
-		}
-		discountId = uuId.String()
-		insertQuery := `INSERT INTO discounts
-		(id, name, percent, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5);
-		`
-		_, err = tx.Exec(insertQuery, discountId, req.DiscountName, req.Percent, createdAt, updatedAt)
-		if err != nil {
-			tx.Rollback()
-			return err
-		}
 	}
 	inventoryId, err := uuid.NewRandom()
 	if err != nil {
@@ -125,13 +108,13 @@ func (store *MarchantStore) InsertProduct(id string, req *entity.AddProductReq) 
 	}
 
 	insertProductQuery := `INSERT INTO products
-		(id, category_id, product_name, description, images, size, price, inventory_id, discount_id, created_at, updated_at)
+		(id, merchent_id, category_id, product_name, description, images, size, price, inventory_id, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);
 		`
 	productImages := pq.StringArray(req.ProductImages)
 	productSizes := pq.Float64Array(req.Sizes)
 
-	_, err = tx.Exec(insertProductQuery, id, req.CategoryId, req.ProductName, req.Description, productImages, productSizes, req.Price, inventoryId, discountId, createdAt, updatedAt)
+	_, err = tx.Exec(insertProductQuery, productId, userId, req.CategoryId, req.ProductName, req.Description, productImages, productSizes, req.Price, inventoryId, createdAt, updatedAt)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -142,12 +125,12 @@ func (store *MarchantStore) InsertProduct(id string, req *entity.AddProductReq) 
 
 func (store *MarchantStore) GetProducts() ([]entity.GetProductRes, error) {
 	var products []entity.GetProductRes
-	insertQuery := `
+	selectQuery := `
 		SELECT id, product_name, images, price
 		FROM products;
 	`
 
-	rows, err := store.storage.DB.Query(insertQuery)
+	rows, err := store.storage.DB.Query(selectQuery)
 	if err != nil {
 		return nil, err
 	}
@@ -233,22 +216,13 @@ func (store *MarchantStore) GetProductById(productId string) (*entity.GetProduct
 }
 
 func (store *MarchantStore) DeleteProduct(productId string) error {
-
-	// Execute raw SQL query to delete the product and its related records using JOINs
-	// deleteQuery := `
-	//     DELETE p, i, d
-	//     FROM products p
-	//     LEFT JOIN inventories i ON p.inventory_id = i.id
-	//     LEFT JOIN discounts d ON p.discount_id = d.id
-	//     WHERE p.id = ?;
-	// `
 	deleteQuery := `
     DELETE FROM products
     USING inventories, discounts
     WHERE products.id = $1
       AND products.inventory_id = inventories.id
       AND products.discount_id = discounts.id;
-`
+	`
 
 	res, err := store.storage.DB.Exec(deleteQuery, productId)
 	if err != nil {
@@ -261,5 +235,49 @@ func (store *MarchantStore) DeleteProduct(productId string) error {
 	if n == 0 {
 		return fmt.Errorf("couldnot delete the product")
 	}
+	return nil
+}
+
+func (store *MarchantStore) ApplyProductDiscount(req *entity.ApplyDiscountReq) error {
+	ctx := context.Background()
+	tx, err := store.storage.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	discountId, err := uuid.NewRandom()
+	if err != nil {
+		return err
+	}
+	insertQuery := `
+	INSERT INTO discounts
+	(id, name, percent, start_time, endt_time)
+	VALUES ($1, $2, $3, $4, $5);
+	`
+
+	_, err = tx.Exec(insertQuery, discountId.String(), req.DiscountName, req.Percentage, req.StartTime, req.EndTime)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	updatedAt := time.Now()
+
+	updateQuery := `UPDATE products
+	SET discount_id = $2, updated_at = $3 WHERE id = $1;
+	`
+	res, err := tx.Exec(updateQuery, req.ProductId, discountId.String(), updatedAt)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	n, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if n == 0 {
+		return fmt.Errorf("couldnot update the products")
+	}
+	tx.Commit()
 	return nil
 }

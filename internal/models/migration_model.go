@@ -44,20 +44,20 @@ type Inventories struct {
 type Discounts struct {
 	ID        uuid.UUID `gorm:"NOT NULL; PRIMARY_KEY"`
 	Name      string    `gorm:"NOT NULL"`
-	Percent   int32     `gorm:"NOT NULL"`
-	CreatedAt time.Time `gorm:"NOT NULL"`
-	UpdatedAt time.Time `gorm:"NOT NULL"`
-	DeletedAt gorm.DeletedAt
+	Percent   float64   `gorm:"NOT NULL"`
+	StartTime time.Time `gorm:"NOT NULL"`
+	EndtTime  time.Time `gorm:"NOT NULL"`
 }
 
 type Products struct {
-	ID          uuid.UUID       `gorm:"NOT NULL;PRIMARY_KEY"`
-	Category    Categories      `gorm:"foreignKey:CategoryID;references:ID"`
-	CategoryID  uuid.UUID       `gorm:"NOT NULL;index"`
-	Inventory   Inventories     `gorm:"foreignKey:InventoryID;references:ID"`
-	InventoryID uuid.UUID       `gorm:"NOT NULL;index"`
-	Discount    Discounts       `gorm:"foreignKey:DiscountID;references:ID"`
-	DiscountID  uuid.UUID       `gorm:"NOT NULL;index"`
+	ID          uuid.UUID   `gorm:"NOT NULL;PRIMARY_KEY"`
+	MerchentID  uuid.UUID   `gorm:"NOT NULL"`
+	Category    Categories  `gorm:"foreignKey:CategoryID;references:ID"`
+	CategoryID  uuid.UUID   `gorm:"NOT NULL;index"`
+	Inventory   Inventories `gorm:"foreignKey:InventoryID;references:ID"`
+	InventoryID uuid.UUID   `gorm:"NOT NULL;index"`
+	Discount    Discounts   `gorm:"foreignKey:DiscountID;references:ID"`
+	DiscountID  *uuid.UUID
 	ProductName string          `gorm:"NOT NULL"`
 	Description string          `gorm:"NOT NULL"`
 	Images      pq.StringArray  `gorm:"type:text[]"`

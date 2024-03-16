@@ -25,7 +25,7 @@ const (
 	FEMALE = "Female"
 )
 
-// IsSupportedSignupAction returns true if the usertype is supported
+// IsSupportedSignupAction returns true if the SignupAction is supported
 func IsSupportedSignupAction(action string) bool {
 	switch action {
 	case SIGN_UP, FORGOT_PASSWORD:
@@ -34,7 +34,7 @@ func IsSupportedSignupAction(action string) bool {
 	return false
 }
 
-// IsSupportedSSOAction returns true if the usertype is supported
+// IsSupportedSSOAction returns true if the SSOAction is supported
 func IsSupportedSSOAction(action string) bool {
 	switch action {
 	case SSO_ANDROID, SSO_IOS:
@@ -52,10 +52,18 @@ func IsSupportedUsers(usertType string) bool {
 	return false
 }
 
-// IsSupportedUsers returns true if the USER_TYPE is supported
+// IsSupportedUsers returns true if the Gender is supported
 func IsSupportedGender(gender string) bool {
 	switch gender {
 	case MALE, FEMALE:
+		return true
+	}
+	return false
+}
+
+// IsSupportedPercentage returns true if the percentage is supported
+func IsSupportedPercentage(percentage float64) bool {
+	if percentage > 1 && percentage < 100 {
 		return true
 	}
 	return false
