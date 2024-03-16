@@ -12,3 +12,6 @@
 {"level":"fatal","msg":"fatal [Cannot connect to Database pq: role \"root\" does not exist]","time":"2024-03-11T23:00:31+05:30"}
 {"level":"fatal","msg":"fatal [Cannot connect to Database pq: role \"root\" does not exist]","time":"2024-03-11T23:01:21+05:30"}
 {"level":"fatal","msg":"fatal [Cannot connect to Database pq: role \"root\" does not exist]","time":"2024-03-11T23:01:31+05:30"}
+{"level":"fatal","msg":"fatal [Cannot connect to Database pq: role \"root\" does not exist]","time":"2024-03-15T21:58:11+05:30"}
+{"level":"fatal","msg":"fatal [Cannot connect to Database dial tcp [::1]:5432: connect: connection refused]","time":"2024-03-15T21:58:24+05:30"}
+{"level":"fatal","msg":"fatal [Cannot connect to Database pq: database \"gestapo\" does not exist]","time":"2024-03-15T23:20:07+05:30"}

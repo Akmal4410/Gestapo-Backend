@@ -316,16 +316,7 @@ func (handler *MerchantHandler) GetProductById(w http.ResponseWriter, r *http.Re
 }
 
 func (handler *MerchantHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
-	payload, ok := r.Context().Value(utils.AuthorizationPayloadKey).(*token.AccessPayload)
-	if !ok {
-		err := errors.New("unable to retrieve user payload from context")
-		handler.log.LogError("Error", err)
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
-		return
-	}
-
 	productId := mux.Vars(r)["id"]
-
 	product, err := handler.storage.GetProductById(productId)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -334,6 +325,14 @@ func (handler *MerchantHandler) DeleteProduct(w http.ResponseWriter, r *http.Req
 			return
 		}
 		handler.log.LogError("Error while retrieving product", err)
+		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		return
+	}
+
+	payload, ok := r.Context().Value(utils.AuthorizationPayloadKey).(*token.AccessPayload)
+	if !ok {
+		err := errors.New("unable to retrieve user payload from context")
+		handler.log.LogError("Error", err)
 		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
 		return
 	}
@@ -352,4 +351,35 @@ func (handler *MerchantHandler) DeleteProduct(w http.ResponseWriter, r *http.Req
 		return
 	}
 	helpers.WriteJSON(w, http.StatusOK, "Product deleted succesfully")
+}
+
+func (handler *MerchantHandler) ApplyProductDiscount(w http.ResponseWriter, r *http.Request) {
+	req := new(entity.ApplyDiscountReq)
+	err := helpers.ValidateBody(r.Body, req)
+	if err != nil {
+		handler.log.LogError("Error while ValidateBody", err)
+		helpers.ErrorJson(w, http.StatusBadRequest, InvalidBody)
+		return
+	}
+
+	_, err = handler.storage.GetProductById(req.ProductId)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			handler.log.LogError("Error while GetProductById Not fount", err)
+			helpers.ErrorJson(w, http.StatusNotFound, "Product Not found")
+			return
+		}
+		handler.log.LogError("Error while retrieving product", err)
+		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		return
+	}
+
+	err = handler.storage.ApplyProductDiscount(req)
+	if err != nil {
+		handler.log.LogError("Error while ApplyProductDiscount", err)
+		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		return
+	}
+
+	helpers.WriteJSON(w, http.StatusOK, "Discount added successfully")
 }

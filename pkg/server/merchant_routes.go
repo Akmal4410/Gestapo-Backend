@@ -50,4 +50,9 @@ func (server *Server) merchantRoutes() {
 	//DeleteProduct
 	deleteProduct := middleware.ApplyAccessRoleMiddleware(tokenMaker, server.log, utils.MERCHANT, http.HandlerFunc(handler.DeleteProduct))
 	merchantRoutes.Handle("/product/{id}", deleteProduct).Methods("DELETE")
+
+	//ApplyProductDiscount
+	productDiscount := middleware.ApplyAccessRoleMiddleware(tokenMaker, server.log, utils.MERCHANT, http.HandlerFunc(handler.ApplyProductDiscount))
+	merchantRoutes.Handle("/product/discount", productDiscount).Methods("PATCH")
+
 }

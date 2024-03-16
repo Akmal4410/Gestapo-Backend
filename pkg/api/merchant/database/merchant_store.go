@@ -125,12 +125,12 @@ func (store *MarchantStore) InsertProduct(userId, productId string, req *entity.
 
 func (store *MarchantStore) GetProducts() ([]entity.GetProductRes, error) {
 	var products []entity.GetProductRes
-	insertQuery := `
+	selectQuery := `
 		SELECT id, product_name, images, price
 		FROM products;
 	`
 
-	rows, err := store.storage.DB.Query(insertQuery)
+	rows, err := store.storage.DB.Query(selectQuery)
 	if err != nil {
 		return nil, err
 	}
@@ -216,15 +216,6 @@ func (store *MarchantStore) GetProductById(productId string) (*entity.GetProduct
 }
 
 func (store *MarchantStore) DeleteProduct(productId string) error {
-
-	// Execute raw SQL query to delete the product and its related records using JOINs
-	// deleteQuery := `
-	//     DELETE p, i, d
-	//     FROM products p
-	//     LEFT JOIN inventories i ON p.inventory_id = i.id
-	//     LEFT JOIN discounts d ON p.discount_id = d.id
-	//     WHERE p.id = ?;
-	// `
 	deleteQuery := `
     DELETE FROM products
     USING inventories, discounts
@@ -244,5 +235,49 @@ func (store *MarchantStore) DeleteProduct(productId string) error {
 	if n == 0 {
 		return fmt.Errorf("couldnot delete the product")
 	}
+	return nil
+}
+
+func (store *MarchantStore) ApplyProductDiscount(req *entity.ApplyDiscountReq) error {
+	ctx := context.Background()
+	tx, err := store.storage.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	discountId, err := uuid.NewRandom()
+	if err != nil {
+		return err
+	}
+	insertQuery := `
+	INSERT INTO discounts
+	(id, name, percent, start_time, endt_time)
+	VALUES ($1, $2, $3, $4, $5);
+	`
+
+	_, err = tx.Exec(insertQuery, discountId.String(), req.DiscountName, req.Percentage, req.StartTime, req.EndTime)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	updatedAt := time.Now()
+
+	updateQuery := `UPDATE products
+	SET discount_id = $2, updated_at = $3 WHERE id = $1;
+	`
+	res, err := tx.Exec(updateQuery, req.ProductId, discountId.String(), updatedAt)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	n, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if n == 0 {
+		return fmt.Errorf("couldnot update the products")
+	}
+	tx.Commit()
 	return nil
 }

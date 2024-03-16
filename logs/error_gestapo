@@ -185,3 +185,23 @@
 {"level":"error","msg":"[Error while InsertProduct pq: null value in column \"discount_id\" of relation \"products\" violates not-null constraint]","time":"2024-03-14T20:07:43+05:30"}
 {"level":"error","msg":"[Error token is expired]","time":"2024-03-14T20:10:24+05:30"}
 {"level":"error","msg":"[Error while GetProductById Not fount sql: no rows in result set]","time":"2024-03-14T20:10:43+05:30"}
+{"level":"error","msg":"[account already exist using this email]","time":"2024-03-15T22:04:28+05:30"}
+{"level":"error","msg":"[Error while GetPreSignedURL failed to sign request: InvalidParameter: 1 validation error(s) found.\n- minimum field size of 1, GetObjectInput.Key.\n]","time":"2024-03-15T22:04:34+05:30"}
+{"level":"error","msg":"[product does'nt exist using baecd96d-b0e2-4fa3-9b92-7a45d6f65bd0]","time":"2024-03-15T22:05:10+05:30"}
+{"level":"error","msg":"[Error authorization header is not provided]","time":"2024-03-15T22:06:33+05:30"}
+{"level":"error","msg":"[Error while ValidateBody EOF]","time":"2024-03-15T22:06:58+05:30"}
+{"level":"error","msg":"[Error while retrieving product sql: Scan error on column index 6, name \"discount_price\": converting NULL to float64 is unsupported]","time":"2024-03-15T23:14:08+05:30"}
+{"level":"error","msg":"[product does'nt exist using baecd96d-b0e2-4fa3-9b92-7a45d6f65bd0]","time":"2024-03-15T23:15:01+05:30"}
+{"level":"error","msg":"[Error while GetProductById sql: Scan error on column index 6, name \"discount_price\": converting NULL to float64 is unsupported]","time":"2024-03-15T23:15:12+05:30"}
+{"level":"error","msg":"[Error while ApplyProductDiscount pq: got 4 parameters but the statement requires 5]","time":"2024-03-15T23:16:33+05:30"}
+{"level":"error","msg":"[Error while ApplyProductDiscount pq: null value in column \"created_at\" of relation \"discounts\" violates not-null constraint]","time":"2024-03-15T23:17:43+05:30"}
+{"level":"error","msg":"[product does'nt exist using c1632104-c244-483b-9e33-d3dfbb45bf20]","time":"2024-03-15T23:20:48+05:30"}
+{"level":"error","msg":"[Error token is expired]","time":"2024-03-15T23:22:47+05:30"}
+{"level":"error","msg":"[Forbidden Forbidden]","time":"2024-03-15T23:23:32+05:30"}
+{"level":"error","msg":"[Forbidden Forbidden]","time":"2024-03-15T23:23:58+05:30"}
+{"level":"error","msg":"[Error  category doesnt exist: e664f714-3de6-4daf-954d-3250d5ca4208]","time":"2024-03-15T23:27:11+05:30"}
+{"level":"error","msg":"[Error token is expired]","time":"2024-03-15T23:30:11+05:30"}
+{"level":"error","msg":"[Error token is expired]","time":"2024-03-15T23:30:30+05:30"}
+{"level":"error","msg":"[Error while ValidateBody invalid character 'd' after object key:value pair]","time":"2024-03-15T23:31:08+05:30"}
+{"level":"error","msg":"[Error while ApplyProductDiscount couldnot add the discount or update the products]","time":"2024-03-15T23:31:58+05:30"}
+{"level":"error","msg":"[product does'nt exist using c1632104-c244-483b-9e33-d3dfbb45bf20]","time":"2024-03-15T23:33:36+05:30"}

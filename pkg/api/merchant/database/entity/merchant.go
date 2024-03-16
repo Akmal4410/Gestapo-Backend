@@ -42,5 +42,13 @@ type GetProductRes struct {
 	CategoryName  *string    `json:"category_name,omitempty"`
 	Size          *[]float64 `json:"size,omitempty"`
 	Price         float64    `json:"price,omitempty"`
-	DiscountPrice float64    `json:"discount_price,omitempty"`
+	DiscountPrice *float64   `json:"discount_price,omitempty"`
+}
+
+type ApplyDiscountReq struct {
+	ProductId    string    `json:"product_id"`
+	DiscountName string    `json:"name"`
+	Percentage   float64   `json:"percentage" validate:"percentage"`
+	StartTime    time.Time `json:"start_time"`
+	EndTime      time.Time `json:"end_time"`
 }

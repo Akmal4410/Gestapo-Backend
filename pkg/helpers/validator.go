@@ -58,11 +58,14 @@ func RegisterValidator() {
 	if err != nil {
 		fmt.Println("Error registering validate_date:", err.Error())
 	}
+	err = validate.RegisterValidation("percentage", validatePercentage)
+	if err != nil {
+		fmt.Println("Error registering percentage:", err.Error())
+	}
 }
 
 var validateUserType validator.Func = func(fl validator.FieldLevel) bool {
 	if userType, ok := fl.Field().Interface().(string); ok {
-		// Check userType is supported or not
 		return utils.IsSupportedUsers(userType)
 	}
 	return false
@@ -70,7 +73,6 @@ var validateUserType validator.Func = func(fl validator.FieldLevel) bool {
 
 var validateSignupAction validator.Func = func(fl validator.FieldLevel) bool {
 	if signupAction, ok := fl.Field().Interface().(string); ok {
-		// Check signupAction is supported or not
 		return utils.IsSupportedSignupAction(signupAction)
 	}
 	return false
@@ -78,7 +80,6 @@ var validateSignupAction validator.Func = func(fl validator.FieldLevel) bool {
 
 var validateSSOAction validator.Func = func(fl validator.FieldLevel) bool {
 	if signupAction, ok := fl.Field().Interface().(string); ok {
-		// Check sso-action is supported or not
 		return utils.IsSupportedSSOAction(signupAction)
 	}
 	return false
@@ -86,7 +87,6 @@ var validateSSOAction validator.Func = func(fl validator.FieldLevel) bool {
 
 var validateGender validator.Func = func(fl validator.FieldLevel) bool {
 	if signupAction, ok := fl.Field().Interface().(string); ok {
-		// Check gender is supported or not
 		return utils.IsSupportedGender(signupAction)
 	}
 	return false
@@ -96,4 +96,11 @@ var validateDate validator.Func = func(fl validator.FieldLevel) bool {
 	dateStr := fl.Field().String()
 	_, err := time.Parse("2006-01-02", dateStr)
 	return err == nil
+}
+
+var validatePercentage validator.Func = func(fl validator.FieldLevel) bool {
+	if perentage, ok := fl.Field().Interface().(float64); ok {
+		return utils.IsSupportedPercentage(perentage)
+	}
+	return false
 }

@@ -44,10 +44,9 @@ type Inventories struct {
 type Discounts struct {
 	ID        uuid.UUID `gorm:"NOT NULL; PRIMARY_KEY"`
 	Name      string    `gorm:"NOT NULL"`
-	Percent   int32     `gorm:"NOT NULL"`
-	CreatedAt time.Time `gorm:"NOT NULL"`
-	UpdatedAt time.Time `gorm:"NOT NULL"`
-	DeletedAt gorm.DeletedAt
+	Percent   float64   `gorm:"NOT NULL"`
+	StartTime time.Time `gorm:"NOT NULL"`
+	EndtTime  time.Time `gorm:"NOT NULL"`
 }
 
 type Products struct {
