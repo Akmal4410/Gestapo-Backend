@@ -41,6 +41,10 @@ func (server *Server) merchantRoutes() {
 	addProduct := middleware.ApplyAccessRoleMiddleware(tokenMaker, server.log, utils.MERCHANT, http.HandlerFunc(handler.InsertProduct))
 	merchantRoutes.Handle("/product", addProduct).Methods("POST")
 
+	//EditProduct
+	editProduct := middleware.ApplyAccessRoleMiddleware(tokenMaker, server.log, utils.MERCHANT, http.HandlerFunc(handler.EditProduct))
+	merchantRoutes.Handle("/product/{id}", editProduct).Methods("PATCH")
+
 	//GetProducts
 	merchantRoutes.Handle("/product", middleware.AccessMiddleware(tokenMaker, server.log, http.HandlerFunc(handler.GetProducts))).Methods("GET")
 

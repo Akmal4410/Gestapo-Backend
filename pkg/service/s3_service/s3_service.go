@@ -34,7 +34,7 @@ func NewS3Service(bucketName, region, accessKey, secretKey string) *S3Service {
 	}
 }
 
-// UploadFileToS3 uploads a file to Amazon S3 and returns the URL
+// UploadFileToS3 uploads a file to Amazon S3 and returns the key
 func (s3Service *S3Service) UploadFileToS3(file io.Reader, folderPath, filename string) (string, error) {
 	sess, err := session.NewSession(&aws.Config{
 		Region:      aws.String(s3Service.Region),
@@ -92,4 +92,26 @@ func (s3Service *S3Service) GetPreSignedURL(key string) (string, error) {
 	}
 
 	return urlStr, err
+}
+func (s3Service *S3Service) DeleteKey(key string) error {
+	sess, err := session.NewSession(&aws.Config{
+		Region:      aws.String(s3Service.Region),
+		Credentials: credentials.NewStaticCredentials(s3Service.AccessKey, s3Service.SecretKey, ""),
+	})
+
+	if err != nil {
+		return fmt.Errorf("error creating AWS session: %s", err)
+	}
+
+	// Create S3 service client
+	svc := s3.New(sess)
+	_, err = svc.DeleteObject(&s3.DeleteObjectInput{
+		Bucket: aws.String(s3Service.BucketName),
+		Key:    aws.String(key),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to sign request: %s", err)
+	}
+
+	return err
 }

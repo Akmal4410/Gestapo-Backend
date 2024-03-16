@@ -32,10 +32,18 @@ type AddProductReq struct {
 	CategoryId    string    `json:"category_id" validate:"required"`
 	Quantity      int       `json:"quantity" validate:"required"`
 }
+type EditProductReq struct {
+	ProductName   string    `json:"product_name" validate:"required"`
+	Description   string    `json:"description" validate:"required"`
+	ProductImages []string  `json:"product_images" validate:"omitempty"`
+	Sizes         []float64 `json:"sizes" validate:"required"`
+	Price         float64   `json:"price" validate:"required"`
+	ClearImages   bool      `json:"clear_images"`
+}
 
 type GetProductRes struct {
 	ID            string     `json:"id"`
-	MerchantID    string     `json:"merchant_id"`
+	MerchantID    string     `json:"merchant_id,omitempty"`
 	ProductImages []string   `json:"product_images,omitempty"`
 	ProductName   *string    `json:"product_name"`
 	Description   *string    `json:"description,omitempty"`
