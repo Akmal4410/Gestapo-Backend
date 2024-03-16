@@ -41,6 +41,10 @@ func (server *Server) merchantRoutes() {
 	addProduct := middleware.ApplyAccessRoleMiddleware(tokenMaker, server.log, utils.MERCHANT, http.HandlerFunc(handler.InsertProduct))
 	merchantRoutes.Handle("/product", addProduct).Methods("POST")
 
+	//EditProduct
+	editProduct := middleware.ApplyAccessRoleMiddleware(tokenMaker, server.log, utils.MERCHANT, http.HandlerFunc(handler.EditProduct))
+	merchantRoutes.Handle("/product/{id}", editProduct).Methods("PATCH")
+
 	//GetProducts
 	merchantRoutes.Handle("/product", middleware.AccessMiddleware(tokenMaker, server.log, http.HandlerFunc(handler.GetProducts))).Methods("GET")
 
@@ -51,8 +55,10 @@ func (server *Server) merchantRoutes() {
 	deleteProduct := middleware.ApplyAccessRoleMiddleware(tokenMaker, server.log, utils.MERCHANT, http.HandlerFunc(handler.DeleteProduct))
 	merchantRoutes.Handle("/product/{id}", deleteProduct).Methods("DELETE")
 
-	//ApplyProductDiscount
-	productDiscount := middleware.ApplyAccessRoleMiddleware(tokenMaker, server.log, utils.MERCHANT, http.HandlerFunc(handler.ApplyProductDiscount))
-	merchantRoutes.Handle("/product/discount", productDiscount).Methods("PATCH")
+	//AddProductDiscount
+	addProductDiscount := middleware.ApplyAccessRoleMiddleware(tokenMaker, server.log, utils.MERCHANT, http.HandlerFunc(handler.AddProductDiscount))
+	merchantRoutes.Handle("/product/discount", addProductDiscount).Methods("POST")
 
+	editProductDiscount := middleware.ApplyAccessRoleMiddleware(tokenMaker, server.log, utils.MERCHANT, http.HandlerFunc(handler.EditProductDiscount))
+	merchantRoutes.Handle("/product/discount/{id}", editProductDiscount).Methods("PATCH")
 }

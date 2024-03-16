@@ -46,7 +46,9 @@ type Discounts struct {
 	Name      string    `gorm:"NOT NULL"`
 	Percent   float64   `gorm:"NOT NULL"`
 	StartTime time.Time `gorm:"NOT NULL"`
-	EndtTime  time.Time `gorm:"NOT NULL"`
+	EndTime   time.Time `gorm:"NOT NULL"`
+	CreatedAt time.Time `gorm:"NOT NULL"`
+	UpdatedAt time.Time `gorm:"NOT NULL"`
 }
 
 type Products struct {

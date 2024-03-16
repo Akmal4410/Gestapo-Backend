@@ -32,10 +32,18 @@ type AddProductReq struct {
 	CategoryId    string    `json:"category_id" validate:"required"`
 	Quantity      int       `json:"quantity" validate:"required"`
 }
+type EditProductReq struct {
+	ProductName   string    `json:"product_name" validate:"required"`
+	Description   string    `json:"description" validate:"required"`
+	ProductImages []string  `json:"product_images" validate:"omitempty"`
+	Sizes         []float64 `json:"sizes" validate:"required"`
+	Price         float64   `json:"price" validate:"required"`
+	ClearImages   bool      `json:"clear_images"`
+}
 
 type GetProductRes struct {
 	ID            string     `json:"id"`
-	MerchantID    string     `json:"merchant_id"`
+	MerchantID    string     `json:"merchant_id,omitempty"`
 	ProductImages []string   `json:"product_images,omitempty"`
 	ProductName   *string    `json:"product_name"`
 	Description   *string    `json:"description,omitempty"`
@@ -45,10 +53,16 @@ type GetProductRes struct {
 	DiscountPrice *float64   `json:"discount_price,omitempty"`
 }
 
-type ApplyDiscountReq struct {
-	ProductId    string    `json:"product_id"`
-	DiscountName string    `json:"name"`
+type AddDiscountReq struct {
+	ProductId    string    `json:"product_id" validate:"required"`
+	DiscountName string    `json:"name" validate:"required"`
 	Percentage   float64   `json:"percentage" validate:"percentage"`
-	StartTime    time.Time `json:"start_time"`
-	EndTime      time.Time `json:"end_time"`
+	StartTime    time.Time `json:"start_time" validate:"required"`
+	EndTime      time.Time `json:"end_time" validate:"required"`
+}
+type EditDiscountReq struct {
+	DiscountName string    `json:"name" validate:"required"`
+	Percentage   float64   `json:"percentage" validate:"required"`
+	StartTime    time.Time `json:"start_time" validate:"required"`
+	EndTime      time.Time `json:"end_time" validate:"required"`
 }
