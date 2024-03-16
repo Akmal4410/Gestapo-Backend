@@ -396,24 +396,10 @@ func (handler *MerchantHandler) GetProducts(w http.ResponseWriter, r *http.Reque
 func (handler *MerchantHandler) GetProductById(w http.ResponseWriter, r *http.Request) {
 	productId := mux.Vars(r)["id"]
 
-	res, err := handler.storage.CheckDataExist("products", "id", productId)
-	if err != nil {
-		handler.log.LogError("Error while CheckUserExist", err)
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
-		return
-	}
-
-	if !res {
-		err = fmt.Errorf("product does'nt exist using %s", productId)
-		handler.log.LogError(err)
-		helpers.ErrorJson(w, http.StatusNotFound, err.Error())
-		return
-	}
-
 	product, err := handler.storage.GetProductById(productId)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			handler.log.LogError("Error while GetProductById Not fount", err)
+			handler.log.LogError("Error while GetProductById Not found", err)
 			helpers.ErrorJson(w, http.StatusNotFound, "Not found")
 			return
 		}
@@ -543,6 +529,5 @@ func (handler *MerchantHandler) EditProductDiscount(w http.ResponseWriter, r *ht
 		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
 		return
 	}
-
 	helpers.WriteJSON(w, http.StatusOK, "Discount updated successfully")
 }

@@ -264,3 +264,5 @@
 {"level":"error","msg":"[Error while ValidateBody validation errors: Field 'ClearImages' failed validation. ]","time":"2024-03-16T17:28:54+05:30"}
 {"level":"error","msg":"[Error while GetProductById Not fount sql: no rows in result set]","time":"2024-03-16T17:49:58+05:30"}
 {"level":"error","msg":"[Error while GetProductById Not fount sql: no rows in result set]","time":"2024-03-16T17:55:09+05:30"}
+{"level":"error","msg":"[Error authorization header is not provided]","time":"2024-03-16T19:34:17+05:30"}
+{"level":"error","msg":"[Error while GetProductById Not found sql: no rows in result set]","time":"2024-03-16T19:59:43+05:30"}

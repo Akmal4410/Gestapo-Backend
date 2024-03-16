@@ -267,3 +267,5 @@
 {"level":"info","msg":"[Go Bank Running on port : 0.0.0.0:8080]","time":"2024-03-16T17:49:49+05:30"}
 {"level":"info","msg":"[File uploaded to S3 successfully FileURL: products/265b0e5a-7310-40b8-9fb5-0f50a2261f95/10553133-bc3c-461a-a7ed-8a4a0e15adae/1.jpg]","time":"2024-03-16T17:54:08+05:30"}
 {"level":"info","msg":"[File uploaded to S3 successfully FileURL: products/265b0e5a-7310-40b8-9fb5-0f50a2261f95/10553133-bc3c-461a-a7ed-8a4a0e15adae/coop_card.png]","time":"2024-03-16T17:55:23+05:30"}
+{"level":"info","msg":"[Go Bank Running on port : 0.0.0.0:8080]","time":"2024-03-16T19:34:12+05:30"}
+{"level":"info","msg":"[Go Bank Running on port : 0.0.0.0:8080]","time":"2024-03-16T19:59:32+05:30"}
