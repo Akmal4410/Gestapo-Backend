@@ -71,3 +71,16 @@ type Products struct {
 	UpdatedAt   time.Time       `gorm:"NOT NULL"`
 	DeletedAt   gorm.DeletedAt
 }
+
+type Carts struct {
+	ID        uuid.UUID `gorm:"NOT NULL;PRIMARY_KEY"`
+	User      User_Data `gorm:"foreignKey:UserID;references:ID"`
+	UserID    uuid.UUID `gorm:"NOT NULL"`
+	Product   Products  `gorm:"foreignKey:ProductID;references:ID"`
+	ProductID uuid.UUID `gorm:"NOT NULL;index"`
+	Quantity  int       `gorm:"NOT NULL"`
+	Size      float64   `gorm:"NOT NULL"`
+	CreatedAt time.Time `gorm:"NOT NULL"`
+	UpdatedAt time.Time `gorm:"NOT NULL"`
+	DeletedAt gorm.DeletedAt
+}
