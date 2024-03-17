@@ -42,13 +42,15 @@ type Inventories struct {
 }
 
 type Discounts struct {
-	ID        uuid.UUID `gorm:"NOT NULL; PRIMARY_KEY"`
-	Name      string    `gorm:"NOT NULL"`
-	Percent   float64   `gorm:"NOT NULL"`
-	StartTime time.Time `gorm:"NOT NULL"`
-	EndTime   time.Time `gorm:"NOT NULL"`
-	CreatedAt time.Time `gorm:"NOT NULL"`
-	UpdatedAt time.Time `gorm:"NOT NULL"`
+	ID          uuid.UUID `gorm:"NOT NULL; PRIMARY_KEY"`
+	Name        string    `gorm:"NOT NULL"`
+	Description string    `gorm:"NOT NULL"`
+	Percent     float64   `gorm:"NOT NULL"`
+	CardColor   string    `gorm:"NOT NULL; default:0xFF808080"`
+	StartTime   time.Time `gorm:"NOT NULL"`
+	EndTime     time.Time `gorm:"NOT NULL"`
+	CreatedAt   time.Time `gorm:"NOT NULL"`
+	UpdatedAt   time.Time `gorm:"NOT NULL"`
 }
 
 type Products struct {

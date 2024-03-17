@@ -200,7 +200,8 @@ func (store *MarchantStore) GetProductById(productId string) (*entity.GetProduct
     p.size AS size,
     p.price AS price,
     CASE
-        WHEN d.end_time IS NOT NULL AND d.end_time > NOW() THEN p.price - (p.price * d.percent / 100) 
+        WHEN d.end_time IS NOT NULL AND d.end_time > NOW()
+		THEN p.price - (p.price * d.percent / 100) 
         ELSE NULL
     END AS discount_price,
     p.images AS product_images
@@ -286,13 +287,17 @@ func (store *MarchantStore) AddProductDiscount(req *entity.AddDiscountReq) error
 	createdAt := time.Now()
 	updatedAt := time.Now()
 
+	if req.CardColor == "" {
+		req.CardColor = "0xFF808080"
+	}
+
 	insertQuery := `
 	INSERT INTO discounts
-	(id, name, percent, start_time, end_time, created_at, updated_at)
-	VALUES ($1, $2, $3, $4, $5, $6, $7);
+	(id, name, description, percent, card_color, start_time, end_time, created_at, updated_at)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);
 	`
 
-	res, err := tx.Exec(insertQuery, discountId.String(), req.DiscountName, req.Percentage, req.StartTime, req.EndTime, createdAt, updatedAt)
+	res, err := tx.Exec(insertQuery, discountId.String(), req.DiscountName, req.Description, req.Percentage, req.CardColor, req.StartTime, req.EndTime, createdAt, updatedAt)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -332,12 +337,17 @@ func (store *MarchantStore) AddProductDiscount(req *entity.AddDiscountReq) error
 func (store *MarchantStore) EditProductDiscount(discountId string, req *entity.EditDiscountReq) error {
 	updateQuery := `
 	UPDATE discounts
-	SET name = $2, percent = $3 , start_time = $4, end_time = $5, updated_at = $6
+	SET name = COALESCE($2, name),
+		description = COALESCE($3, description),
+		percent = COALESCE($4, percent),
+		card_color = COALESCE($5, card_color),
+		start_time = COALESCE($6, start_time),
+		end_time = COALESCE($7, end_time),
+		updated_at = $8
 	WHERE id = $1;
 	`
-
 	updatedAt := time.Now()
-	res, err := store.storage.DB.Exec(updateQuery, discountId, req.DiscountName, req.Percentage, req.StartTime, req.EndTime, updatedAt)
+	res, err := store.storage.DB.Exec(updateQuery, discountId, req.DiscountName, req.Description, req.Percentage, req.CardColor, req.StartTime, req.EndTime, updatedAt)
 	if err != nil {
 		return err
 	}
