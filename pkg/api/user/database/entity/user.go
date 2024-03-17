@@ -5,10 +5,10 @@ type GetHomeRes struct {
 }
 
 type DiscountRes struct {
+	ProductID    string  `json:"product_id"`
 	Name         string  `json:"name"`
 	Description  string  `json:"description"`
 	Percentage   float64 `json:"percentage"`
-	ProductID    string  `json:"product_id"`
 	ProductImage string  `json:"product_image"`
 	CardColor    uint32  `json:"card_color"`
 }
