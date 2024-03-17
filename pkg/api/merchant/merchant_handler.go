@@ -12,6 +12,7 @@ import (
 
 	"github.com/akmal4410/gestapo/pkg/api/merchant/database"
 	"github.com/akmal4410/gestapo/pkg/api/merchant/database/entity"
+	db "github.com/akmal4410/gestapo/pkg/database"
 	"github.com/akmal4410/gestapo/pkg/helpers"
 	"github.com/akmal4410/gestapo/pkg/service/logger"
 	s3 "github.com/akmal4410/gestapo/pkg/service/s3_service"
@@ -28,15 +29,17 @@ const (
 )
 
 type MerchantHandler struct {
-	storage   *database.MarchantStore
 	log       logger.Logger
+	storage   *database.MarchantStore
+	dbStorage *db.DBStore
 	s3Service *s3.S3Service
 }
 
-func NewMerchentHandler(storage *database.MarchantStore, logger logger.Logger, s3Service *s3.S3Service) *MerchantHandler {
+func NewMerchentHandler(logger logger.Logger, storage *database.MarchantStore, dbStorage *db.DBStore, s3Service *s3.S3Service) *MerchantHandler {
 	return &MerchantHandler{
-		storage:   storage,
 		log:       logger,
+		storage:   storage,
+		dbStorage: dbStorage,
 		s3Service: s3Service,
 	}
 }
@@ -280,7 +283,7 @@ func (handler *MerchantHandler) EditProduct(w http.ResponseWriter, r *http.Reque
 	}
 
 	id := mux.Vars(r)["id"]
-	product, err := handler.storage.GetProductById(id)
+	product, err := handler.dbStorage.GetProductById(id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			handler.log.LogError("Error while GetProductById Not fount", err)
@@ -370,7 +373,7 @@ func (handler *MerchantHandler) EditProduct(w http.ResponseWriter, r *http.Reque
 }
 
 func (handler *MerchantHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
-	res, err := handler.storage.GetProducts()
+	res, err := handler.dbStorage.GetProducts()
 	if err != nil {
 		handler.log.LogError("Error while GetProducts", err)
 		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
@@ -396,7 +399,7 @@ func (handler *MerchantHandler) GetProducts(w http.ResponseWriter, r *http.Reque
 func (handler *MerchantHandler) GetProductById(w http.ResponseWriter, r *http.Request) {
 	productId := mux.Vars(r)["id"]
 
-	product, err := handler.storage.GetProductById(productId)
+	product, err := handler.dbStorage.GetProductById(productId)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			handler.log.LogError("Error while GetProductById Not found", err)
@@ -424,7 +427,7 @@ func (handler *MerchantHandler) GetProductById(w http.ResponseWriter, r *http.Re
 
 func (handler *MerchantHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	productId := mux.Vars(r)["id"]
-	product, err := handler.storage.GetProductById(productId)
+	product, err := handler.dbStorage.GetProductById(productId)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			handler.log.LogError("Error while GetProductById Not fount", err)
@@ -477,7 +480,7 @@ func (handler *MerchantHandler) AddProductDiscount(w http.ResponseWriter, r *htt
 		helpers.ErrorJson(w, http.StatusBadRequest, InvalidBody)
 		return
 	}
-	_, err = handler.storage.GetProductById(req.ProductId)
+	_, err = handler.dbStorage.GetProductById(req.ProductId)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			handler.log.LogError("Error while GetProductById Not fount", err)

@@ -3,6 +3,7 @@ package database
 import (
 	"github.com/akmal4410/gestapo/internal/database"
 	"github.com/akmal4410/gestapo/pkg/api/user/database/entity"
+	"github.com/akmal4410/gestapo/pkg/utils"
 )
 
 type UserStore struct {
@@ -46,4 +47,36 @@ func (store *UserStore) GetDiscount() (*entity.DiscountRes, error) {
 		return nil, err
 	}
 	return &discount, nil
+}
+
+func (store *UserStore) GetMerchants() ([]entity.MerchantRes, error) {
+	selectQuery := `
+	SELECT id, full_name, profile_image 
+	FROM user_data
+	WHERE user_type = $1
+	LIMIT 7;
+	`
+	rows, err := store.storage.DB.Query(selectQuery, utils.MERCHANT)
+	if err != nil {
+		return nil, err
+	}
+	var merchants []entity.MerchantRes
+	defer rows.Close()
+	for rows.Next() {
+		var merchant entity.MerchantRes
+
+		err := rows.Scan(
+			&merchant.MerchantID,
+			&merchant.Name,
+			&merchant.ImageURL,
+		)
+		if err != nil {
+			return nil, err
+		}
+		merchants = append(merchants, merchant)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return merchants, nil
 }

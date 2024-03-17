@@ -5,6 +5,7 @@ import (
 
 	"github.com/akmal4410/gestapo/pkg/api/user"
 	"github.com/akmal4410/gestapo/pkg/api/user/database"
+	db "github.com/akmal4410/gestapo/pkg/database"
 	"github.com/akmal4410/gestapo/pkg/server/middleware"
 	"github.com/akmal4410/gestapo/pkg/service/token"
 )
@@ -18,7 +19,8 @@ func (server *Server) userRoutes() {
 	userRoute := server.router.PathPrefix("/user").Subrouter()
 
 	store := database.NewUserStore(server.storage)
-	handler := user.NewUserHandler(store)
+	dbStore := db.NewDBStore(server.storage)
+	handler := user.NewUserHandler(server.log, store, dbStore, server.s3)
 
 	//GetHome
 	userRoute.Handle("/home", middleware.AccessMiddleware(tokenMaker, server.log, http.HandlerFunc(handler.GetHome))).Methods("GET")

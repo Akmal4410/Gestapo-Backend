@@ -38,8 +38,8 @@ func (store AuthStore) InsertUser(user *entity.SignupReq) (id string, err error)
 	}
 
 	insertQuery := fmt.Sprintf(`
-	INSERT INTO user_data (id, user_name, %s, user_type, password, created_at, updated_at)
-	VALUES ($1, $2, $3, $4, $5, $6, $7);
+	INSERT INTO user_data (id, full_name, user_name, %s, user_type, password, created_at, updated_at)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
 	`, column)
 
 	uuId, err := uuid.NewRandom()
@@ -47,7 +47,7 @@ func (store AuthStore) InsertUser(user *entity.SignupReq) (id string, err error)
 		return "", err
 	}
 
-	_, err = store.storage.DB.Exec(insertQuery, uuId, user.UserName, value, user.UserType, user.Password, createdAt, updatedAt)
+	_, err = store.storage.DB.Exec(insertQuery, uuId, user.FullName, user.UserName, value, user.UserType, user.Password, createdAt, updatedAt)
 	if err != nil {
 		return "", err
 	}
