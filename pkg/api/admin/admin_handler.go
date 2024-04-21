@@ -7,7 +7,7 @@ import (
 	"github.com/akmal4410/gestapo/pkg/api/admin/database"
 	"github.com/akmal4410/gestapo/pkg/api/admin/database/entity"
 	"github.com/akmal4410/gestapo/pkg/helpers"
-	"github.com/akmal4410/gestapo/pkg/service/logger"
+	"github.com/akmal4410/gestapo/pkg/helpers/logger"
 )
 
 const (

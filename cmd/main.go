@@ -3,8 +3,8 @@ package main
 import (
 	"github.com/akmal4410/gestapo/internal/config"
 	"github.com/akmal4410/gestapo/internal/database"
+	"github.com/akmal4410/gestapo/pkg/helpers/logger"
 	"github.com/akmal4410/gestapo/pkg/server"
-	"github.com/akmal4410/gestapo/pkg/service/logger"
 	s3 "github.com/akmal4410/gestapo/pkg/service/s3_service"
 	_ "github.com/lib/pq"
 )

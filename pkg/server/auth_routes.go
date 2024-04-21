@@ -5,9 +5,9 @@ import (
 
 	"github.com/akmal4410/gestapo/pkg/api/auth"
 	"github.com/akmal4410/gestapo/pkg/api/auth/database"
+	"github.com/akmal4410/gestapo/pkg/helpers/token"
 	"github.com/akmal4410/gestapo/pkg/service/cache"
 	"github.com/akmal4410/gestapo/pkg/service/mail"
-	"github.com/akmal4410/gestapo/pkg/service/token"
 	"github.com/akmal4410/gestapo/pkg/service/twilio"
 )
 

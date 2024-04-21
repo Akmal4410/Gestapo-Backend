@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"github.com/akmal4410/gestapo/pkg/helpers"
-	"github.com/akmal4410/gestapo/pkg/service/logger"
-	"github.com/akmal4410/gestapo/pkg/service/token"
+	"github.com/akmal4410/gestapo/pkg/helpers/logger"
+	"github.com/akmal4410/gestapo/pkg/helpers/token"
 	"github.com/akmal4410/gestapo/pkg/utils"
 )
 

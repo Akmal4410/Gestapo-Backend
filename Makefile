@@ -10,5 +10,14 @@ dropdb:
 server:
 	go run cmd/main.go
 
+proto:
+	@echo deleting generated files if exist..
+	rm -f pkg/api/proto/*.go
+	@echo Generating all proto pb files..
+	protoc -I . \
+	--go_out pkg/ --go_opt=paths=source_relative \
+	--go-grpc_out pkg/ --go-grpc_opt=paths=source_relative \
+	api/proto/*.proto
+	@echo done..
 
-.PHONY: postgres createdb dropdb server
+.PHONY: postgres createdb dropdb server proto

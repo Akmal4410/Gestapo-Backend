@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package pb;
+
+import "api/proto/error_info.proto";
+
+option go_package = "api/proto";
+
+message Response {
+    ErrorInfo error_info = 1;
+    int32 status_code = 2;
+    bool status = 3;
+    string message = 4;
+}

@@ -11,14 +11,18 @@ import (
 // Config stores all configuration of the application.
 // The values are read by viper from a config file or environment variable.
 type Config struct {
-	Database          *Database `mapstructure:"DATABASE" json:"DATABASE"`
-	ServerAddress     string    `mapstructure:"SERVER_ADDRESS" json:"SERVER_ADDRESS"`
-	TokenSymmetricKey string    `mapstructure:"TOKEN_SYMMETRIC_KEY" json:"TOKEN_SYMMETRIC_KEY"`
-	Twilio            *Twilio   `mapstructure:"TWILIO" json:"TWILIO"`
-	Email             *Email    `mapstructure:"EMAIL" json:"EMAIL"`
-	Redis             *Redis    `mapstructure:"REDIS_SERVER" json:"REDIS_SERVER"`
-	OAuth             *OAuth    `mapstructure:"OAUTH" json:"OAUTH"`
-	AwsS3             *AWSS3    `mapstructure:"AWSS3" json:"AWSS3"`
+	Database          *Database      `mapstructure:"DATABASE" json:"DATABASE"`
+	ServerAddress     *ServerAddress `mapstructure:"SERVER_ADDRESS" json:"SERVER_ADDRESS"`
+	TokenSymmetricKey string         `mapstructure:"TOKEN_SYMMETRIC_KEY" json:"TOKEN_SYMMETRIC_KEY"`
+	Twilio            *Twilio        `mapstructure:"TWILIO" json:"TWILIO"`
+	Email             *Email         `mapstructure:"EMAIL" json:"EMAIL"`
+	Redis             *Redis         `mapstructure:"REDIS_SERVER" json:"REDIS_SERVER"`
+	OAuth             *OAuth         `mapstructure:"OAUTH" json:"OAUTH"`
+	AwsS3             *AWSS3         `mapstructure:"AWSS3" json:"AWSS3"`
+}
+
+type ServerAddress struct {
+	Authentication string `mapstructure:"AUTHENTICATION" json:"AUTHENTICATION"`
 }
 
 type Database struct {
@@ -98,20 +102,6 @@ func EnvServiceSid() string {
 	}
 	return os.Getenv("TWILIO_SERVICE_SID")
 }
-
-// OLD Config
-// type Config struct {
-// 	DBServer            string `mapstructure:"DB_DRIVER"`
-// 	DBSource            string `mapstructure:"DB_SOURCE"`
-// 	ServerAddress       string `mapstructure:"SERVER_ADDRESS"`
-// 	TokenSymmetricKey   string `mapstructure:"TOKEN_SYMMETRIC_KEY"`
-// 	TwilioAccountSid    string `mapstructure:"TWILIO_ACCOUNT_SID"`
-// 	TwilioAuthToken     string `mapstructure:"TWILIO_AUTH_TOKEN"`
-// 	TwilioServiceSid    string `mapstructure:"TWILIO_SERVICE_SID"`
-// 	SenderName          string `mapstructure:"SENDER_NAME"`
-// 	SenderEmailAddress  string `mapstructure:"SENDER_EMAIL_ADDRESS"`
-// 	SemderEmailPassword string `mapstructure:"SENDER_PASSWORD"`
-// }
 
 // OLD Config using app.env file
 // func LoadConfig(path string) (config Config, err error) {

@@ -6,8 +6,8 @@ import (
 	"github.com/akmal4410/gestapo/pkg/api/merchant"
 	"github.com/akmal4410/gestapo/pkg/api/merchant/database"
 	db "github.com/akmal4410/gestapo/pkg/database"
+	"github.com/akmal4410/gestapo/pkg/helpers/token"
 	"github.com/akmal4410/gestapo/pkg/server/middleware"
-	"github.com/akmal4410/gestapo/pkg/service/token"
 	"github.com/akmal4410/gestapo/pkg/utils"
 )
 

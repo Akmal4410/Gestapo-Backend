@@ -5,7 +5,7 @@ import (
 
 	"github.com/akmal4410/gestapo/internal/config"
 	"github.com/akmal4410/gestapo/internal/database"
-	"github.com/akmal4410/gestapo/pkg/service/logger"
+	"github.com/akmal4410/gestapo/pkg/helpers/logger"
 	s3 "github.com/akmal4410/gestapo/pkg/service/s3_service"
 	"github.com/gorilla/mux"
 )
@@ -39,7 +39,7 @@ func (server *Server) Start() error {
 
 	server.setupRouter()
 	server.log.LogInfo("Go Bank Running on port :", server.config.ServerAddress)
-	return http.ListenAndServe(server.config.ServerAddress, router)
+	return http.ListenAndServe("", router)
 }
 
 func (server *Server) setupRouter() {

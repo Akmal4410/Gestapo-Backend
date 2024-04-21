@@ -5,8 +5,9 @@ import (
 
 	"github.com/akmal4410/gestapo/pkg/api/admin"
 	"github.com/akmal4410/gestapo/pkg/api/admin/database"
+	"github.com/akmal4410/gestapo/pkg/helpers/token"
 	"github.com/akmal4410/gestapo/pkg/server/middleware"
-	"github.com/akmal4410/gestapo/pkg/service/token"
+
 	"github.com/akmal4410/gestapo/pkg/utils"
 )
 

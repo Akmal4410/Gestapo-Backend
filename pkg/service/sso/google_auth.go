@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/akmal4410/gestapo/pkg/service/logger"
+	"github.com/akmal4410/gestapo/pkg/helpers/logger"
 	"google.golang.org/api/idtoken"
 )
 

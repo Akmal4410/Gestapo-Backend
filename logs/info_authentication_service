@@ -1,0 +1,7 @@
+{"level":"info","msg":"[Authentication Service has started]","time":"2024-04-21T19:03:44+05:30"}
+{"level":"info","msg":"[Config file loaded.]","time":"2024-04-21T19:03:44+05:30"}
+{"level":"info","msg":"[Database connection successful]","time":"2024-04-21T19:03:45+05:30"}
+{"level":"info","msg":"[Authentication Service has started]","time":"2024-04-21T19:07:39+05:30"}
+{"level":"info","msg":"[Config file loaded.]","time":"2024-04-21T19:07:39+05:30"}
+{"level":"info","msg":"[Database connection successful]","time":"2024-04-21T19:07:39+05:30"}
+{"level":"info","msg":"[Start gRPC server at : %s [::]:8080]","time":"2024-04-21T19:07:39+05:30"}

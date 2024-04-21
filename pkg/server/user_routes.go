@@ -6,8 +6,8 @@ import (
 	"github.com/akmal4410/gestapo/pkg/api/user"
 	"github.com/akmal4410/gestapo/pkg/api/user/database"
 	db "github.com/akmal4410/gestapo/pkg/database"
+	"github.com/akmal4410/gestapo/pkg/helpers/token"
 	"github.com/akmal4410/gestapo/pkg/server/middleware"
-	"github.com/akmal4410/gestapo/pkg/service/token"
 )
 
 func (server *Server) userRoutes() {
