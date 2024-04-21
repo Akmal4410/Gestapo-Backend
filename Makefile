@@ -20,4 +20,20 @@ proto:
 	api/proto/*.proto
 	@echo done..
 
-.PHONY: postgres createdb dropdb server proto
+AUTH_BINARY=authenticationServiceApp
+
+build_authentication:
+	@echo Building authentication binary...
+	cd cmd/authentication_service && go build -o ${AUTH_BINARY} .
+	@echo Moving file..
+	mv cmd/authentication_service/${AUTH_BINARY} deploy/build
+	@echo Done!
+
+run: build_authentication
+	@echo Stopping docker images if running...
+	sudo docker compose down --remove-orphans
+	@echo Building when required and starting docker images...
+	sudo docker compose up --build -d
+	@echo Docker images built and started!
+
+.PHONY: postgres createdb dropdb server proto build_authentication run
