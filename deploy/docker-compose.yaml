@@ -1,11 +1,9 @@
 version: "3.8"
 
 services:
-  server:
+  authentication-service:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ./
+      dockerfile: ./authentication-service.dockerfile
     ports:
-      - 3000:3000
-    volumes:
-      - .:/usr/src/app
+      - 8080:8080

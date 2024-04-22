@@ -8,7 +8,7 @@ dropdb:
 	docker exec -it postgres16 dropdb gestapo
 
 server:
-	go run cmd/main.go
+	go run cmd/authentication_service/main.go  
 
 proto:
 	@echo deleting generated files if exist..
@@ -19,6 +19,21 @@ proto:
 	--go-grpc_out pkg/ --go-grpc_opt=paths=source_relative \
 	api/proto/*.proto
 	@echo done..
+
+compose_down: 
+	@echo Stopping docker containers
+	cd deploy && sudo docker compose down --remove-orphans
+	@echo done
+
+compose_up:
+	@echo Start docker compose
+	cd deploy && sudo docker compose up --build -d 
+	@echo done
+
+prune_images:
+	@echo prune all images 
+	cd deploy && sudo docker image prune -a
+	@echo done 
 
 AUTH_BINARY=authenticationServiceApp
 
@@ -31,9 +46,13 @@ build_authentication:
 
 run: build_authentication
 	@echo Stopping docker images if running...
-	sudo docker compose down --remove-orphans
+	cd deploy && docker compose down --remove-orphans
 	@echo Building when required and starting docker images...
-	sudo docker compose up --build -d
+	cd deploy && sudo docker compose up --build -d
 	@echo Docker images built and started!
+
+
+ 
+
 
 .PHONY: postgres createdb dropdb server proto build_authentication run
