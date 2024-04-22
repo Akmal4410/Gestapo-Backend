@@ -1,13 +1,16 @@
 postgres:
+	@echo Creating a new container for postgres
 	docker run --name postgres16 -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -d postgres:16-alpine
 
 createdb:
+	@echo Creating gestapo db
 	docker exec -it postgres16 createdb --username=root --owner=root gestapo
 
 dropdb:
 	docker exec -it postgres16 dropdb gestapo
 
 server:
+	@echo Running authentication service
 	go run cmd/authentication_service/main.go  
 
 proto:
@@ -19,6 +22,12 @@ proto:
 	--go-grpc_out pkg/ --go-grpc_opt=paths=source_relative \
 	api/proto/*.proto
 	@echo done..
+
+evans:
+	@echo Starting evans gRPC client..
+	evans --host localhost --port 8080 -r repl      
+
+AUTH_BINARY=authenticationServiceApp
 
 compose_down: 
 	@echo Stopping docker containers
@@ -34,8 +43,6 @@ prune_images:
 	@echo prune all images 
 	cd deploy && sudo docker image prune -a
 	@echo done 
-
-AUTH_BINARY=authenticationServiceApp
 
 build_authentication:
 	@echo Building authentication binary...

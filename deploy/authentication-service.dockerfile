@@ -4,9 +4,7 @@ RUN mkdir /app
 
 WORKDIR /app
 
-
 COPY ./build/authenticationServiceApp /app
-
 
 EXPOSE 8080
 
