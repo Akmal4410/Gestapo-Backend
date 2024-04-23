@@ -46,7 +46,7 @@ prune_images:
 
 build_authentication:
 	@echo Building authentication binary...
-	cd cmd/authentication_service && go build -o ${AUTH_BINARY} .
+	cd cmd/authentication_service && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o ${AUTH_BINARY} .
 	@echo Moving file..
 	mv cmd/authentication_service/${AUTH_BINARY} deploy/build
 	@echo Done!

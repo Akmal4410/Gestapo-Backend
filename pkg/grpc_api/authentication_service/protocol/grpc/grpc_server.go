@@ -22,6 +22,7 @@ func RunGRPCService(ctx context.Context, storage *database.Storage, config *conf
 	service := service.NewAuthenticationService(storage, config, log)
 
 	proto.RegisterAuthenticationServiceServer(grpcServer, service)
+	log.LogInfo("Registreing for reflection")
 	reflection.Register(grpcServer)
 	lis, err := net.Listen("tcp", config.ServerAddress.Authentication)
 	if err != nil {

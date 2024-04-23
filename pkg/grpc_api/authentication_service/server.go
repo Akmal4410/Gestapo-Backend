@@ -31,6 +31,7 @@ func RunServer() error {
 		log.LogFatal("Cannot start server :", err)
 		return err
 	}
+
 	select {
 	case <-ctx.Done():
 		log.LogInfo(ctx.Err())

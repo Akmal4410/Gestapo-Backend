@@ -72,3 +72,25 @@
 {"level":"info","msg":"[shutting down grpc server....]","time":"2024-04-23T07:23:22+05:30"}
 {"level":"info","msg":"[context canceled]","time":"2024-04-23T07:23:22+05:30"}
 {"level":"info","msg":"[Authentication Service shutdown]","time":"2024-04-23T07:23:22+05:30"}
+{"level":"info","msg":"[Authentication Service has started]","time":"2024-04-23T07:26:47+05:30"}
+{"level":"info","msg":"[Config file loaded.]","time":"2024-04-23T07:26:47+05:30"}
+{"level":"info","msg":"[Database connection successful]","time":"2024-04-23T07:26:47+05:30"}
+{"level":"info","msg":"[Start gRPC server at : %s [::]:8080]","time":"2024-04-23T07:26:47+05:30"}
+{"level":"info","msg":"[shutting down grpc server....]","time":"2024-04-23T07:41:11+05:30"}
+{"level":"info","msg":"[Authentication Service has started]","time":"2024-04-23T07:41:35+05:30"}
+{"level":"info","msg":"[Config file loaded.]","time":"2024-04-23T07:41:35+05:30"}
+{"level":"info","msg":"[Database connection successful]","time":"2024-04-23T07:41:35+05:30"}
+{"level":"info","msg":"[Registreing for reflection]","time":"2024-04-23T07:41:35+05:30"}
+{"level":"info","msg":"[Start gRPC server at : %s [::]:8080]","time":"2024-04-23T07:41:35+05:30"}
+{"level":"info","msg":"[Authentication Service has started]","time":"2024-04-23T07:48:36+05:30"}
+{"level":"info","msg":"[Config file loaded.]","time":"2024-04-23T07:48:36+05:30"}
+{"level":"info","msg":"[Database connection successful]","time":"2024-04-23T07:48:37+05:30"}
+{"level":"info","msg":"[Registreing for reflection]","time":"2024-04-23T07:48:37+05:30"}
+{"level":"info","msg":"[Authentication Service has started]","time":"2024-04-23T09:16:38+05:30"}
+{"level":"info","msg":"[Config file loaded.]","time":"2024-04-23T09:16:38+05:30"}
+{"level":"info","msg":"[Database connection successful]","time":"2024-04-23T09:16:39+05:30"}
+{"level":"info","msg":"[Registreing for reflection]","time":"2024-04-23T09:16:39+05:30"}
+{"level":"info","msg":"[Start gRPC server at : %s [::]:8080]","time":"2024-04-23T09:16:39+05:30"}
+{"level":"info","msg":"[shutting down grpc server....]","time":"2024-04-23T09:51:05+05:30"}
+{"level":"info","msg":"[context canceled]","time":"2024-04-23T09:51:05+05:30"}
+{"level":"info","msg":"[Authentication Service shutdown]","time":"2024-04-23T09:51:05+05:30"}
