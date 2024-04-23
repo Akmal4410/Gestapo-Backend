@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  # TODO:fix it later
+
   postgres:
     image: postgres:16-alpine
     container_name: postgres16
@@ -17,15 +17,26 @@ services:
     ports:
       - 5432:5432
 
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis7.2
+    restart: always  
+    ports:
+      - 6379:6379
+    depends_on:
+      postgres:
+        condition: service_healthy        
+
   authentication-service:
     build:
       context: ./
       dockerfile: ./authentication-service.dockerfile    
     ports:
-      - "8080:8080"
-    environment:
-      - DB_SOURCE=postgresql://root:secret@postgres:5432/gestapo?sslmode=disable        
-    restart: always  
+      - 8080:8080
+    # TODO:fix it later  
+    # environment:
+    #   - DB_SOURCE=postgresql://root:secret@postgres:5432/gestapo?sslmode=disable        
+    # restart: always  
     depends_on:
       postgres:
         condition: service_healthy  
