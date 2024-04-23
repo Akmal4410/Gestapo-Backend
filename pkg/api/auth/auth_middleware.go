@@ -19,7 +19,7 @@ func AuthMiddleware(tokenMaker token.Maker, log logger.Logger, next http.Handler
 		if len(authorizationHeader) == 0 {
 			err := errors.New("authorization header is not provided")
 			log.LogError("Error", err)
-			helpers.ErrorJson(w, http.StatusUnauthorized, err.Error())
+			helpers.ErrorJson(http.StatusUnauthorized, err.Error())
 			return
 		}
 
@@ -27,7 +27,7 @@ func AuthMiddleware(tokenMaker token.Maker, log logger.Logger, next http.Handler
 		if len(fields) < 2 {
 			err := errors.New("invalid authorization header format")
 			log.LogError("Error", err)
-			helpers.ErrorJson(w, http.StatusUnauthorized, err.Error())
+			helpers.ErrorJson(http.StatusUnauthorized, err.Error())
 			return
 		}
 
@@ -35,7 +35,7 @@ func AuthMiddleware(tokenMaker token.Maker, log logger.Logger, next http.Handler
 		if authorizationType != utils.AuthorizationTypeBearer {
 			err := fmt.Errorf("unsupported authorization type: %s", authorizationType)
 			log.LogError("Error", err)
-			helpers.ErrorJson(w, http.StatusUnauthorized, err.Error())
+			helpers.ErrorJson(http.StatusUnauthorized, err.Error())
 			return
 		}
 
@@ -44,7 +44,7 @@ func AuthMiddleware(tokenMaker token.Maker, log logger.Logger, next http.Handler
 		payload, err := tokenMaker.VerifySessionToken(token)
 		if err != nil {
 			log.LogError("Error", err)
-			helpers.ErrorJson(w, http.StatusUnauthorized, err.Error())
+			helpers.ErrorJson(http.StatusUnauthorized, err.Error())
 			return
 		}
 		ctx := context.WithValue(r.Context(), utils.AuthorizationPayloadKey, payload)
@@ -58,7 +58,7 @@ func SsoMiddleware(log logger.Logger, next http.Handler) http.Handler {
 		if len(authorizationHeader) == 0 {
 			err := errors.New("authorization header is not provided")
 			log.LogError("Error", err)
-			helpers.ErrorJson(w, http.StatusUnauthorized, err.Error())
+			helpers.ErrorJson(http.StatusUnauthorized, err.Error())
 			return
 		}
 
@@ -66,7 +66,7 @@ func SsoMiddleware(log logger.Logger, next http.Handler) http.Handler {
 		if len(fields) < 2 {
 			err := errors.New("invalid authorization header format")
 			log.LogError("Error", err)
-			helpers.ErrorJson(w, http.StatusUnauthorized, err.Error())
+			helpers.ErrorJson(http.StatusUnauthorized, err.Error())
 			return
 		}
 
@@ -74,7 +74,7 @@ func SsoMiddleware(log logger.Logger, next http.Handler) http.Handler {
 		if authorizationType != utils.AuthorizationTypeBearer {
 			err := fmt.Errorf("unsupported authorization type: %s", authorizationType)
 			log.LogError("Error", err)
-			helpers.ErrorJson(w, http.StatusUnauthorized, err.Error())
+			helpers.ErrorJson(http.StatusUnauthorized, err.Error())
 			return
 		}
 

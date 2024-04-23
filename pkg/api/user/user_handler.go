@@ -40,14 +40,14 @@ func (handler *UserHandler) GetHome(w http.ResponseWriter, r *http.Request) {
 	res.Discount, err = handler.storage.GetDiscount()
 	if err != nil {
 		handler.log.LogError("Error while GetDiscount", err)
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
 		return
 	}
 	//Converting the key to presigned url
 	url, err := handler.s3Service.GetPreSignedURL(res.Discount.ProductImage)
 	if err != nil {
 		handler.log.LogError("Error while GetPreSignedURL", err)
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
 		return
 	}
 	res.Discount.ProductImage = url
@@ -55,7 +55,7 @@ func (handler *UserHandler) GetHome(w http.ResponseWriter, r *http.Request) {
 	res.Merchants, err = handler.storage.GetMerchants()
 	if err != nil {
 		handler.log.LogError("Error while GetMerchants", err)
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
 		return
 	}
 	for _, merchant := range res.Merchants {
@@ -63,7 +63,7 @@ func (handler *UserHandler) GetHome(w http.ResponseWriter, r *http.Request) {
 			url, err := handler.s3Service.GetPreSignedURL(*merchant.ImageURL)
 			if err != nil {
 				handler.log.LogError("Error while GetPreSignedURL", err)
-				helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+				helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
 				return
 			}
 			merchant.ImageURL = &url
@@ -73,7 +73,7 @@ func (handler *UserHandler) GetHome(w http.ResponseWriter, r *http.Request) {
 	res.Products, err = handler.dbStorage.GetProducts()
 	if err != nil {
 		handler.log.LogError("Error while GetProducts", err)
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
 		return
 	}
 	for _, product := range res.Products {
@@ -81,7 +81,7 @@ func (handler *UserHandler) GetHome(w http.ResponseWriter, r *http.Request) {
 			url, err := handler.s3Service.GetPreSignedURL(image)
 			if err != nil {
 				handler.log.LogError("Error while GetPreSignedURL", err)
-				helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+				helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
 				return
 			}
 			product.ProductImages[i] = url

@@ -3,6 +3,8 @@ package helpers
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/akmal4410/gestapo/pkg/api/proto"
 )
 
 type jsonResponse struct {
@@ -27,14 +29,9 @@ func WriteJSON(w http.ResponseWriter, status int, data any) error {
 	})
 }
 
-func ErrorJson(w http.ResponseWriter, status int, err string) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	return json.NewEncoder(w).Encode(jsonResponse{
-		Status: false,
-		ErrorInfo: &errorInfo{
-			StatusCode: status,
-			Message:    err,
-		},
-	})
+func ErrorJson(statusCode int, errMsg string) *proto.ErrorInfo {
+	return &proto.ErrorInfo{
+		StatusCode: int32(statusCode),
+		Message:    errMsg,
+	}
 }

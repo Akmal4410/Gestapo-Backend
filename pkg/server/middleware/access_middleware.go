@@ -19,7 +19,7 @@ func AccessMiddleware(tokenMaker token.Maker, log logger.Logger, next http.Handl
 		if len(authorizationHeader) == 0 {
 			err := errors.New("authorization header is not provided")
 			log.LogError("Error", err)
-			helpers.ErrorJson(w, http.StatusUnauthorized, err.Error())
+			helpers.ErrorJson(http.StatusUnauthorized, err.Error())
 			return
 		}
 
@@ -27,7 +27,7 @@ func AccessMiddleware(tokenMaker token.Maker, log logger.Logger, next http.Handl
 		if len(fields) < 2 {
 			err := errors.New("invalid authorization header format")
 			log.LogError("Error", err)
-			helpers.ErrorJson(w, http.StatusUnauthorized, err.Error())
+			helpers.ErrorJson(http.StatusUnauthorized, err.Error())
 			return
 		}
 
@@ -35,7 +35,7 @@ func AccessMiddleware(tokenMaker token.Maker, log logger.Logger, next http.Handl
 		if authorizationType != utils.AuthorizationTypeBearer {
 			err := fmt.Errorf("unsupported authorization type: %s", authorizationType)
 			log.LogError("Error", err)
-			helpers.ErrorJson(w, http.StatusUnauthorized, err.Error())
+			helpers.ErrorJson(http.StatusUnauthorized, err.Error())
 			return
 		}
 
@@ -44,14 +44,14 @@ func AccessMiddleware(tokenMaker token.Maker, log logger.Logger, next http.Handl
 		payload, err := tokenMaker.VerifyAccessToken(token)
 		if err != nil {
 			log.LogError("Error", err)
-			helpers.ErrorJson(w, http.StatusUnauthorized, err.Error())
+			helpers.ErrorJson(http.StatusUnauthorized, err.Error())
 			return
 		}
 
 		if payload.TokenType != "access-token" {
 			err := fmt.Errorf("invalid token type: %s", payload.TokenType)
 			log.LogError("Error", err)
-			helpers.ErrorJson(w, http.StatusUnauthorized, err.Error())
+			helpers.ErrorJson(http.StatusUnauthorized, err.Error())
 			return
 		}
 
@@ -68,14 +68,14 @@ func RoleMiddleware(requiredRole string, log logger.Logger, next http.Handler) h
 		if !ok {
 			err := errors.New("unable to retrieve user payload from context")
 			log.LogError("Error", err)
-			helpers.ErrorJson(w, http.StatusInternalServerError, err.Error())
+			helpers.ErrorJson(http.StatusInternalServerError, err.Error())
 			return
 		}
 
 		if requiredRole != "" && payload.UserType != requiredRole {
 			err := fmt.Errorf("user does not have required role: %s", requiredRole)
 			log.LogError("Error", err)
-			helpers.ErrorJson(w, http.StatusForbidden, err.Error())
+			helpers.ErrorJson(http.StatusForbidden, err.Error())
 			return
 		}
 		ctx := context.WithValue(r.Context(), utils.AuthorizationPayloadKey, payload)

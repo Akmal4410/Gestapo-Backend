@@ -4,25 +4,33 @@ import (
 	"github.com/akmal4410/gestapo/internal/config"
 	"github.com/akmal4410/gestapo/internal/database"
 	"github.com/akmal4410/gestapo/pkg/api/proto"
+	"github.com/akmal4410/gestapo/pkg/grpc_api/authentication_service/db"
 	"github.com/akmal4410/gestapo/pkg/helpers/logger"
+	"github.com/akmal4410/gestapo/pkg/helpers/token"
+	"github.com/akmal4410/gestapo/pkg/service/cache"
+	"github.com/akmal4410/gestapo/pkg/service/mail"
 	s3 "github.com/akmal4410/gestapo/pkg/service/s3_service"
+	"github.com/akmal4410/gestapo/pkg/service/twilio"
 )
 
-// AuthenticationService serves gRPC requests for our e-commerce service.
-type AuthenticationService struct {
+// authenticationService serves gRPC requests for our e-commerce service.
+type authenticationService struct {
 	proto.UnimplementedAuthenticationServiceServer
-	storage *database.Storage
-	config  *config.Config
-	log     logger.Logger
-	s3      *s3.S3Service
+	config        *config.Config
+	log           logger.Logger
+	s3            *s3.S3Service
+	twilioService twilio.TwilioService
+	emailService  mail.EmailService
+	storage       *db.AuthStore
+	token         token.Maker
+	redis         cache.Cache
 }
 
-// NewAuthenticationService creates a new gRPC server and sets up routing.
-func NewAuthenticationService(storage *database.Storage, config *config.Config, log logger.Logger) *AuthenticationService {
-	server := &AuthenticationService{
-		storage: storage,
-		config:  config,
-		log:     log,
+// NewAuthenticationService creates a new gRPC server.
+func NewAuthenticationService(storage *database.Storage, config *config.Config, log logger.Logger) *authenticationService {
+	server := &authenticationService{
+		config: config,
+		log:    log,
 	}
 	s3 := s3.NewS3Service(
 		config.AwsS3.BucketName,
@@ -30,6 +38,23 @@ func NewAuthenticationService(storage *database.Storage, config *config.Config, 
 		config.AwsS3.AccessKey,
 		config.AwsS3.SecretKey,
 	)
+	twilio := twilio.NewOTPService()
+	email := mail.NewGmailService(server.config.Email)
+	authStore := db.NewAuthStore(storage)
+	tokenMaker, err := token.NewJWTMaker(server.config.TokenSymmetricKey)
+	if err != nil {
+		server.log.LogFatal("Error while Initializing NewJWTMaker %w", err)
+	}
+	redis, err := cache.NewRedisCache(server.config.Redis)
+	if err != nil {
+		server.log.LogFatal("Error while Initializing NewRedisCache %w", err)
+	}
+
+	server.twilioService = twilio
 	server.s3 = s3
+	server.emailService = email
+	server.storage = authStore
+	server.token = tokenMaker
+	server.redis = redis
 	return server
 }
