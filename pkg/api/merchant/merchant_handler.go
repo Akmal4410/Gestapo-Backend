@@ -12,10 +12,11 @@ import (
 
 	"github.com/akmal4410/gestapo/pkg/api/merchant/database"
 	"github.com/akmal4410/gestapo/pkg/api/merchant/database/entity"
+	db "github.com/akmal4410/gestapo/pkg/database"
 	"github.com/akmal4410/gestapo/pkg/helpers"
-	"github.com/akmal4410/gestapo/pkg/service/logger"
+	"github.com/akmal4410/gestapo/pkg/helpers/logger"
+	"github.com/akmal4410/gestapo/pkg/helpers/token"
 	s3 "github.com/akmal4410/gestapo/pkg/service/s3_service"
-	"github.com/akmal4410/gestapo/pkg/service/token"
 	"github.com/akmal4410/gestapo/pkg/utils"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -28,15 +29,17 @@ const (
 )
 
 type MerchantHandler struct {
-	storage   *database.MarchantStore
 	log       logger.Logger
+	storage   *database.MarchantStore
+	dbStorage *db.DBStore
 	s3Service *s3.S3Service
 }
 
-func NewMerchentHandler(storage *database.MarchantStore, logger logger.Logger, s3Service *s3.S3Service) *MerchantHandler {
+func NewMerchentHandler(logger logger.Logger, storage *database.MarchantStore, dbStorage *db.DBStore, s3Service *s3.S3Service) *MerchantHandler {
 	return &MerchantHandler{
-		storage:   storage,
 		log:       logger,
+		storage:   storage,
+		dbStorage: dbStorage,
 		s3Service: s3Service,
 	}
 }
@@ -47,14 +50,14 @@ func (handler *MerchantHandler) GetProfile(w http.ResponseWriter, r *http.Reques
 	res, err := handler.storage.CheckDataExist("user_data", "id", userId)
 	if err != nil {
 		handler.log.LogError("Error while CheckUserExist", err)
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
 		return
 	}
 
 	if !res {
 		err = fmt.Errorf("account does'nt exist using %s", userId)
 		handler.log.LogError(err)
-		helpers.ErrorJson(w, http.StatusNotFound, err.Error())
+		helpers.ErrorJson(http.StatusNotFound, err.Error())
 		return
 	}
 
@@ -62,11 +65,11 @@ func (handler *MerchantHandler) GetProfile(w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		if err == sql.ErrNoRows {
 			handler.log.LogError("Error while GetProfile", err)
-			helpers.ErrorJson(w, http.StatusNotFound, "Not found")
+			helpers.ErrorJson(http.StatusNotFound, "Not found")
 			return
 		}
 		handler.log.LogError("Error while GetProfile", err)
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
 		return
 	}
 
@@ -74,7 +77,7 @@ func (handler *MerchantHandler) GetProfile(w http.ResponseWriter, r *http.Reques
 		url, err := handler.s3Service.GetPreSignedURL(*userData.ProfileImage)
 		if err != nil {
 			handler.log.LogError("Error while GetPreSignedURL", err)
-			helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+			helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
 			return
 		}
 		userData.ProfileImage = &url
@@ -97,14 +100,14 @@ func (handler *MerchantHandler) EditProfile(w http.ResponseWriter, r *http.Reque
 	err := helpers.ValidateBody(reader, req)
 	if err != nil {
 		handler.log.LogError("Error while ValidateBody", err)
-		helpers.ErrorJson(w, http.StatusBadRequest, InvalidBody)
+		helpers.ErrorJson(http.StatusBadRequest, InvalidBody)
 		return
 	}
 
 	err = r.ParseMultipartForm(thirtyTwoMB)
 	if err != nil {
 		handler.log.LogError("Unable to parse form", err.Error())
-		helpers.ErrorJson(w, http.StatusBadRequest, StatusBadRequest)
+		helpers.ErrorJson(http.StatusBadRequest, StatusBadRequest)
 		return
 	}
 
@@ -114,7 +117,7 @@ func (handler *MerchantHandler) EditProfile(w http.ResponseWriter, r *http.Reque
 	if len(files) > maxFileCount {
 		handler.log.LogError("Too many files uploaded", "Max allowed: %d", maxFileCount)
 		errMsg := fmt.Sprintf("too many files uploaded. Max allowed: %s", strconv.Itoa(maxFileCount))
-		helpers.ErrorJson(w, http.StatusBadRequest, errMsg)
+		helpers.ErrorJson(http.StatusBadRequest, errMsg)
 		return
 	}
 
@@ -123,7 +126,7 @@ func (handler *MerchantHandler) EditProfile(w http.ResponseWriter, r *http.Reque
 		file, err := fileHeader.Open()
 		if err != nil {
 			handler.log.LogError("Unable to open file", err)
-			helpers.ErrorJson(w, http.StatusInternalServerError, "Unable to open file")
+			helpers.ErrorJson(http.StatusInternalServerError, "Unable to open file")
 			return
 		}
 		defer file.Close()
@@ -132,7 +135,7 @@ func (handler *MerchantHandler) EditProfile(w http.ResponseWriter, r *http.Reque
 		fileURL, err := handler.s3Service.UploadFileToS3(file, folderPath, fileHeader.Filename)
 		if err != nil {
 			handler.log.LogError("Error uploading file to S3", err)
-			helpers.ErrorJson(w, http.StatusInternalServerError, "Error uploading file to S3")
+			helpers.ErrorJson(http.StatusInternalServerError, "Error uploading file to S3")
 			return
 		}
 
@@ -146,7 +149,7 @@ func (handler *MerchantHandler) EditProfile(w http.ResponseWriter, r *http.Reque
 	err = handler.storage.UpdateProfile(payload.UserID, req)
 	if err != nil {
 		handler.log.LogError("Error while UpdateProfile", err)
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
 		return
 	}
 
@@ -166,27 +169,27 @@ func (handler *MerchantHandler) InsertProduct(w http.ResponseWriter, r *http.Req
 	err := helpers.ValidateBody(reader, req)
 	if err != nil {
 		handler.log.LogError("Error while ValidateBody", err)
-		helpers.ErrorJson(w, http.StatusBadRequest, err.Error())
+		helpers.ErrorJson(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	res, err := handler.storage.CheckDataExist("categories", "id", req.CategoryId)
 	if err != nil {
 		handler.log.LogError("Error while CheckCategoryExist", err)
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
 		return
 	}
 	if !res {
 		err = fmt.Errorf("category doesnt exist: %s", req.CategoryId)
 		handler.log.LogError("Error ", err)
-		helpers.ErrorJson(w, http.StatusNotFound, err.Error())
+		helpers.ErrorJson(http.StatusNotFound, err.Error())
 		return
 	}
 
 	err = r.ParseMultipartForm(thirtyTwoMB)
 	if err != nil {
 		handler.log.LogError("Unable to parse form", err.Error())
-		helpers.ErrorJson(w, http.StatusBadRequest, StatusBadRequest)
+		helpers.ErrorJson(http.StatusBadRequest, StatusBadRequest)
 		return
 	}
 
@@ -194,13 +197,13 @@ func (handler *MerchantHandler) InsertProduct(w http.ResponseWriter, r *http.Req
 	if len(files) == 0 {
 		handler.log.LogError("There should be atleast one image")
 		errMsg := "There should be atleast one image"
-		helpers.ErrorJson(w, http.StatusBadRequest, errMsg)
+		helpers.ErrorJson(http.StatusBadRequest, errMsg)
 		return
 	}
 	if len(files) > maxFileCount {
 		handler.log.LogError("Too many files uploaded", "Max allowed: %d", maxFileCount)
 		errMsg := fmt.Sprintf("too many files uploaded. Max allowed: %s", strconv.Itoa(maxFileCount))
-		helpers.ErrorJson(w, http.StatusBadRequest, errMsg)
+		helpers.ErrorJson(http.StatusBadRequest, errMsg)
 		return
 	}
 
@@ -208,13 +211,13 @@ func (handler *MerchantHandler) InsertProduct(w http.ResponseWriter, r *http.Req
 	if !ok {
 		err := errors.New("unable to retrieve user payload from context")
 		handler.log.LogError("Error", err)
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
 		return
 	}
 	uuId, err := uuid.NewRandom()
 	if err != nil {
 		handler.log.LogError("error while uuid NewRandom", err.Error())
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
 		return
 	}
 
@@ -223,7 +226,7 @@ func (handler *MerchantHandler) InsertProduct(w http.ResponseWriter, r *http.Req
 		file, err := fileHeader.Open()
 		if err != nil {
 			handler.log.LogError("Unable to open file", err)
-			helpers.ErrorJson(w, http.StatusInternalServerError, "Unable to open file")
+			helpers.ErrorJson(http.StatusInternalServerError, "Unable to open file")
 			return
 		}
 		defer file.Close()
@@ -233,7 +236,7 @@ func (handler *MerchantHandler) InsertProduct(w http.ResponseWriter, r *http.Req
 		fileURL, err := handler.s3Service.UploadFileToS3(file, folderPath, fileHeader.Filename)
 		if err != nil {
 			handler.log.LogError("Error uploading file to S3", err)
-			helpers.ErrorJson(w, http.StatusInternalServerError, "Error uploading file to S3")
+			helpers.ErrorJson(http.StatusInternalServerError, "Error uploading file to S3")
 			return
 		}
 
@@ -247,7 +250,7 @@ func (handler *MerchantHandler) InsertProduct(w http.ResponseWriter, r *http.Req
 	err = handler.storage.InsertProduct(payload.UserID, uuId.String(), req)
 	if err != nil {
 		handler.log.LogError("Error while InsertProduct", err)
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
 		return
 	}
 
@@ -267,7 +270,7 @@ func (handler *MerchantHandler) EditProduct(w http.ResponseWriter, r *http.Reque
 	err := helpers.ValidateBody(reader, req)
 	if err != nil {
 		handler.log.LogError("Error while ValidateBody", err)
-		helpers.ErrorJson(w, http.StatusBadRequest, err.Error())
+		helpers.ErrorJson(http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -275,27 +278,27 @@ func (handler *MerchantHandler) EditProduct(w http.ResponseWriter, r *http.Reque
 	if !ok {
 		err := errors.New("unable to retrieve user payload from context")
 		handler.log.LogError("Error", err)
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
 		return
 	}
 
 	id := mux.Vars(r)["id"]
-	product, err := handler.storage.GetProductById(id)
+	product, err := handler.dbStorage.GetProductById(id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			handler.log.LogError("Error while GetProductById Not fount", err)
-			helpers.ErrorJson(w, http.StatusNotFound, "Product Not found")
+			helpers.ErrorJson(http.StatusNotFound, "Product Not found")
 			return
 		}
 		handler.log.LogError("Error while retrieving product", err)
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
 		return
 	}
 
 	if product.MerchantID != payload.UserID {
 		err := errors.New("unauthorized: product does not belong to the authenticated merchant")
 		handler.log.LogError("Error", err)
-		helpers.ErrorJson(w, http.StatusForbidden, err.Error())
+		helpers.ErrorJson(http.StatusForbidden, err.Error())
 		return
 	}
 
@@ -304,7 +307,7 @@ func (handler *MerchantHandler) EditProduct(w http.ResponseWriter, r *http.Reque
 			err := handler.s3Service.DeleteKey(key)
 			if err != nil {
 				handler.log.LogError("Error deleting file from S3", err)
-				helpers.ErrorJson(w, http.StatusInternalServerError, "Error deleting file from")
+				helpers.ErrorJson(http.StatusInternalServerError, "Error deleting file from")
 				return
 			}
 		}
@@ -314,7 +317,7 @@ func (handler *MerchantHandler) EditProduct(w http.ResponseWriter, r *http.Reque
 	err = r.ParseMultipartForm(thirtyTwoMB)
 	if err != nil {
 		handler.log.LogError("Unable to parse form", err.Error())
-		helpers.ErrorJson(w, http.StatusBadRequest, StatusBadRequest)
+		helpers.ErrorJson(http.StatusBadRequest, StatusBadRequest)
 		return
 	}
 
@@ -322,13 +325,13 @@ func (handler *MerchantHandler) EditProduct(w http.ResponseWriter, r *http.Reque
 	if len(files) == 0 {
 		handler.log.LogError("There should be atleast one image")
 		errMsg := "There should be atleast one image"
-		helpers.ErrorJson(w, http.StatusBadRequest, errMsg)
+		helpers.ErrorJson(http.StatusBadRequest, errMsg)
 		return
 	}
 	if len(files) > maxFileCount {
 		handler.log.LogError("Too many files uploaded", "Max allowed: %d", maxFileCount)
 		errMsg := fmt.Sprintf("too many files uploaded. Max allowed: %s", strconv.Itoa(maxFileCount))
-		helpers.ErrorJson(w, http.StatusBadRequest, errMsg)
+		helpers.ErrorJson(http.StatusBadRequest, errMsg)
 		return
 	}
 
@@ -337,7 +340,7 @@ func (handler *MerchantHandler) EditProduct(w http.ResponseWriter, r *http.Reque
 		file, err := fileHeader.Open()
 		if err != nil {
 			handler.log.LogError("Unable to open file", err)
-			helpers.ErrorJson(w, http.StatusInternalServerError, "Unable to open file")
+			helpers.ErrorJson(http.StatusInternalServerError, "Unable to open file")
 			return
 		}
 		defer file.Close()
@@ -347,7 +350,7 @@ func (handler *MerchantHandler) EditProduct(w http.ResponseWriter, r *http.Reque
 		fileURL, err := handler.s3Service.UploadFileToS3(file, folderPath, fileHeader.Filename)
 		if err != nil {
 			handler.log.LogError("Error uploading file to S3", err)
-			helpers.ErrorJson(w, http.StatusInternalServerError, "Error uploading file to S3")
+			helpers.ErrorJson(http.StatusInternalServerError, "Error uploading file to S3")
 			return
 		}
 
@@ -362,7 +365,7 @@ func (handler *MerchantHandler) EditProduct(w http.ResponseWriter, r *http.Reque
 	err = handler.storage.UpdateProduct(id, req)
 	if err != nil {
 		handler.log.LogError("Error while UpdateProduct", err)
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
 		return
 	}
 
@@ -370,10 +373,10 @@ func (handler *MerchantHandler) EditProduct(w http.ResponseWriter, r *http.Reque
 }
 
 func (handler *MerchantHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
-	res, err := handler.storage.GetProducts()
+	res, err := handler.dbStorage.GetProducts()
 	if err != nil {
 		handler.log.LogError("Error while GetProducts", err)
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
 		return
 	}
 	for _, product := range res {
@@ -382,7 +385,7 @@ func (handler *MerchantHandler) GetProducts(w http.ResponseWriter, r *http.Reque
 				url, err := handler.s3Service.GetPreSignedURL(image)
 				if err != nil {
 					handler.log.LogError("Error while GetPreSignedURL", err)
-					helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+					helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
 					return
 				}
 				product.ProductImages[i] = url
@@ -396,29 +399,15 @@ func (handler *MerchantHandler) GetProducts(w http.ResponseWriter, r *http.Reque
 func (handler *MerchantHandler) GetProductById(w http.ResponseWriter, r *http.Request) {
 	productId := mux.Vars(r)["id"]
 
-	res, err := handler.storage.CheckDataExist("products", "id", productId)
-	if err != nil {
-		handler.log.LogError("Error while CheckUserExist", err)
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
-		return
-	}
-
-	if !res {
-		err = fmt.Errorf("product does'nt exist using %s", productId)
-		handler.log.LogError(err)
-		helpers.ErrorJson(w, http.StatusNotFound, err.Error())
-		return
-	}
-
-	product, err := handler.storage.GetProductById(productId)
+	product, err := handler.dbStorage.GetProductById(productId)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			handler.log.LogError("Error while GetProductById Not fount", err)
-			helpers.ErrorJson(w, http.StatusNotFound, "Not found")
+			handler.log.LogError("Error while GetProductById Not found", err)
+			helpers.ErrorJson(http.StatusNotFound, "Not found")
 			return
 		}
 		handler.log.LogError("Error while GetProductById", err)
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
 		return
 	}
 
@@ -427,7 +416,7 @@ func (handler *MerchantHandler) GetProductById(w http.ResponseWriter, r *http.Re
 			url, err := handler.s3Service.GetPreSignedURL(image)
 			if err != nil {
 				handler.log.LogError("Error while GetPreSignedURL", err)
-				helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+				helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
 				return
 			}
 			product.ProductImages[i] = url
@@ -438,15 +427,15 @@ func (handler *MerchantHandler) GetProductById(w http.ResponseWriter, r *http.Re
 
 func (handler *MerchantHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	productId := mux.Vars(r)["id"]
-	product, err := handler.storage.GetProductById(productId)
+	product, err := handler.dbStorage.GetProductById(productId)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			handler.log.LogError("Error while GetProductById Not fount", err)
-			helpers.ErrorJson(w, http.StatusNotFound, "Not found")
+			helpers.ErrorJson(http.StatusNotFound, "Not found")
 			return
 		}
 		handler.log.LogError("Error while retrieving product", err)
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
 		return
 	}
 
@@ -454,21 +443,21 @@ func (handler *MerchantHandler) DeleteProduct(w http.ResponseWriter, r *http.Req
 	if !ok {
 		err := errors.New("unable to retrieve user payload from context")
 		handler.log.LogError("Error", err)
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
 		return
 	}
 
 	if product.MerchantID != payload.UserID {
 		err := errors.New("unauthorized: product does not belong to the authenticated merchant")
 		handler.log.LogError("Error", err)
-		helpers.ErrorJson(w, http.StatusForbidden, err.Error())
+		helpers.ErrorJson(http.StatusForbidden, err.Error())
 		return
 	}
 
 	err = handler.storage.DeleteProduct(productId)
 	if err != nil {
 		handler.log.LogError("Error while DeleteProduct", err)
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
 		return
 	}
 
@@ -476,7 +465,7 @@ func (handler *MerchantHandler) DeleteProduct(w http.ResponseWriter, r *http.Req
 		err := handler.s3Service.DeleteKey(key)
 		if err != nil {
 			handler.log.LogError("Error deleting file from S3", err)
-			helpers.ErrorJson(w, http.StatusInternalServerError, "Error deleting file from")
+			helpers.ErrorJson(http.StatusInternalServerError, "Error deleting file from")
 			return
 		}
 	}
@@ -488,25 +477,25 @@ func (handler *MerchantHandler) AddProductDiscount(w http.ResponseWriter, r *htt
 	err := helpers.ValidateBody(r.Body, req)
 	if err != nil {
 		handler.log.LogError("Error while ValidateBody", err)
-		helpers.ErrorJson(w, http.StatusBadRequest, InvalidBody)
+		helpers.ErrorJson(http.StatusBadRequest, InvalidBody)
 		return
 	}
-	_, err = handler.storage.GetProductById(req.ProductId)
+	_, err = handler.dbStorage.GetProductById(req.ProductId)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			handler.log.LogError("Error while GetProductById Not fount", err)
-			helpers.ErrorJson(w, http.StatusNotFound, "Product Not found")
+			helpers.ErrorJson(http.StatusNotFound, "Product Not found")
 			return
 		}
 		handler.log.LogError("Error while retrieving product", err)
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
 		return
 	}
 
 	err = handler.storage.AddProductDiscount(req)
 	if err != nil {
 		handler.log.LogError("Error while ApplyProductDiscount", err)
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
 		return
 	}
 
@@ -519,7 +508,7 @@ func (handler *MerchantHandler) EditProductDiscount(w http.ResponseWriter, r *ht
 	err := helpers.ValidateBody(r.Body, req)
 	if err != nil {
 		handler.log.LogError("Error while ValidateBody", err)
-		helpers.ErrorJson(w, http.StatusBadRequest, InvalidBody)
+		helpers.ErrorJson(http.StatusBadRequest, InvalidBody)
 		return
 	}
 
@@ -527,22 +516,21 @@ func (handler *MerchantHandler) EditProductDiscount(w http.ResponseWriter, r *ht
 	res, err := handler.storage.CheckDataExist("discounts", "id", id)
 	if err != nil {
 		handler.log.LogError("Error while CheckDataExist", err)
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
 		return
 	}
 	if !res {
 		err = fmt.Errorf("discounts doesnt exist: %s", id)
 		handler.log.LogError("Error ", err)
-		helpers.ErrorJson(w, http.StatusNotFound, err.Error())
+		helpers.ErrorJson(http.StatusNotFound, err.Error())
 		return
 	}
 
 	err = handler.storage.EditProductDiscount(id, req)
 	if err != nil {
 		handler.log.LogError("Error while ApplyProductDiscount", err)
-		helpers.ErrorJson(w, http.StatusInternalServerError, InternalServerError)
+		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
 		return
 	}
-
 	helpers.WriteJSON(w, http.StatusOK, "Discount updated successfully")
 }

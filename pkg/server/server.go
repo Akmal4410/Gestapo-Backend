@@ -5,7 +5,8 @@ import (
 
 	"github.com/akmal4410/gestapo/internal/config"
 	"github.com/akmal4410/gestapo/internal/database"
-	"github.com/akmal4410/gestapo/pkg/service/logger"
+	"github.com/akmal4410/gestapo/pkg/helpers/logger"
+	s3 "github.com/akmal4410/gestapo/pkg/service/s3_service"
 	"github.com/gorilla/mux"
 )
 
@@ -15,14 +16,16 @@ type Server struct {
 	router  *mux.Router
 	config  *config.Config
 	log     logger.Logger
+	s3      *s3.S3Service
 }
 
 // NewServer creates a new HTTP server and sets up routing.
-func NewServer(storage *database.Storage, config *config.Config, log logger.Logger) *Server {
+func NewServer(storage *database.Storage, config *config.Config, log logger.Logger, s3 *s3.S3Service) *Server {
 	server := &Server{
 		storage: storage,
 		config:  config,
 		log:     log,
+		s3:      s3,
 	}
 	return server
 }
@@ -36,12 +39,12 @@ func (server *Server) Start() error {
 
 	server.setupRouter()
 	server.log.LogInfo("Go Bank Running on port :", server.config.ServerAddress)
-	return http.ListenAndServe(server.config.ServerAddress, router)
+	return http.ListenAndServe("", router)
 }
 
 func (server *Server) setupRouter() {
 	server.authRoutes()
 	server.adminRoutes()
 	server.merchantRoutes()
-
+	server.userRoutes()
 }

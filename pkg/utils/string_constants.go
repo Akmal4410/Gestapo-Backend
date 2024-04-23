@@ -10,4 +10,5 @@ const (
 	AuthorizationKey        string     = "Authorization"
 	AuthorizationTypeBearer string     = "bearer"
 	AuthorizationPayloadKey contextKey = "authorization_payload"
+	InternalServerError     string     = "Internal server error"
 )

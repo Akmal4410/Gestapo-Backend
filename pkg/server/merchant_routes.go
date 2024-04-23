@@ -5,9 +5,9 @@ import (
 
 	"github.com/akmal4410/gestapo/pkg/api/merchant"
 	"github.com/akmal4410/gestapo/pkg/api/merchant/database"
+	db "github.com/akmal4410/gestapo/pkg/database"
+	"github.com/akmal4410/gestapo/pkg/helpers/token"
 	"github.com/akmal4410/gestapo/pkg/server/middleware"
-	s3service "github.com/akmal4410/gestapo/pkg/service/s3_service"
-	"github.com/akmal4410/gestapo/pkg/service/token"
 	"github.com/akmal4410/gestapo/pkg/utils"
 )
 
@@ -17,16 +17,10 @@ func (server *Server) merchantRoutes() {
 	if err != nil {
 		server.log.LogFatal("%w", err)
 	}
-	s3 := s3service.NewS3Service(
-		server.config.AwsS3.BucketName,
-		server.config.AwsS3.Region,
-		server.config.AwsS3.AccessKey,
-		server.config.AwsS3.SecretKey,
-	)
 
 	store := database.NewMarchantStore(server.storage)
-
-	handler := merchant.NewMerchentHandler(store, server.log, s3)
+	dbStore := db.NewDBStore(server.storage)
+	handler := merchant.NewMerchentHandler(server.log, store, dbStore, server.s3)
 
 	merchantRoutes := server.router.PathPrefix("/merchant").Subrouter()
 

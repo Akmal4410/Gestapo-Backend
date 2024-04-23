@@ -4,10 +4,10 @@ import (
 	"net/http"
 
 	"github.com/akmal4410/gestapo/pkg/api/auth"
-	"github.com/akmal4410/gestapo/pkg/api/auth/database"
+	"github.com/akmal4410/gestapo/pkg/grpc_api/authentication_service/db"
+	"github.com/akmal4410/gestapo/pkg/helpers/token"
 	"github.com/akmal4410/gestapo/pkg/service/cache"
 	"github.com/akmal4410/gestapo/pkg/service/mail"
-	"github.com/akmal4410/gestapo/pkg/service/token"
 	"github.com/akmal4410/gestapo/pkg/service/twilio"
 )
 
@@ -23,7 +23,7 @@ func (server *Server) authRoutes() {
 		server.log.LogFatal("%w", err)
 	}
 
-	authStore := database.NewAuthStore(server.storage)
+	authStore := db.NewAuthStore(server.storage)
 
 	handler := auth.NewAuthHandler(twilio, email, authStore, tokenMaker, redis, server.log, server.config)
 

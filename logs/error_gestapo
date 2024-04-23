@@ -264,3 +264,24 @@
 {"level":"error","msg":"[Error while ValidateBody validation errors: Field 'ClearImages' failed validation. ]","time":"2024-03-16T17:28:54+05:30"}
 {"level":"error","msg":"[Error while GetProductById Not fount sql: no rows in result set]","time":"2024-03-16T17:49:58+05:30"}
 {"level":"error","msg":"[Error while GetProductById Not fount sql: no rows in result set]","time":"2024-03-16T17:55:09+05:30"}
+{"level":"error","msg":"[Error authorization header is not provided]","time":"2024-03-16T19:34:17+05:30"}
+{"level":"error","msg":"[Error while GetProductById Not found sql: no rows in result set]","time":"2024-03-16T19:59:43+05:30"}
+{"level":"error","msg":"[Error token is expired]","time":"2024-03-16T21:43:05+05:30"}
+{"level":"error","msg":"[Error invalid token type: sign-up]","time":"2024-03-16T21:43:14+05:30"}
+{"level":"error","msg":"[Error  category doesnt exist: d7132a02-c403-46b7-9df2-2781d717620a]","time":"2024-03-16T21:45:04+05:30"}
+{"level":"error","msg":"[Error  category doesnt exist: d7132a02-c403-46b7-9df2-2781d717620a]","time":"2024-03-16T21:52:38+05:30"}
+{"level":"error","msg":"[Error while GetProductById Not found sql: no rows in result set]","time":"2024-03-16T21:53:12+05:30"}
+{"level":"error","msg":"[Error while ValidateBody validation errors: Field 'Description' failed validation. ]","time":"2024-03-16T21:55:29+05:30"}
+{"level":"error","msg":"[Error while ValidateBody validation errors: Field 'Description' failed validation. ]","time":"2024-03-16T21:55:38+05:30"}
+{"level":"error","msg":"[Error while GetProductById Not fount sql: no rows in result set]","time":"2024-03-16T21:56:24+05:30"}
+{"level":"error","msg":"[Error while ApplyProductDiscount pq: null value in column \"description\" of relation \"discounts\" violates not-null constraint]","time":"2024-03-16T21:56:37+05:30"}
+{"level":"error","msg":"[Error token is expired]","time":"2024-03-16T21:59:29+05:30"}
+{"level":"error","msg":"[Error while InsertUser error while inserting user pq: duplicate key value violates unique constraint \"uni_user_data_user_name\"]","time":"2024-03-16T22:51:17+05:30"}
+{"level":"error","msg":"[Invalid OTP invalid OTP]","time":"2024-03-16T22:51:46+05:30"}
+{"level":"error","msg":"[Error while ValidateBody json: cannot unmarshal string into Go struct field AddDiscountReq.card_color of type uint32]","time":"2024-03-16T22:58:47+05:30"}
+{"level":"error","msg":"[Error while GetProductById Not fount sql: no rows in result set]","time":"2024-03-16T23:15:05+05:30"}
+{"level":"error","msg":"[Error while GetProductById Not found sql: no rows in result set]","time":"2024-03-16T23:15:19+05:30"}
+{"level":"error","msg":"[Error  discounts doesnt exist: 143b7e74-2fd1-463b-8885-0dc6c4e38694]","time":"2024-03-17T09:07:01+05:30"}
+{"level":"error","msg":"[Error while ApplyProductDiscount pq: null value in column \"card_color\" of relation \"discounts\" violates not-null constraint]","time":"2024-03-17T09:07:36+05:30"}
+{"level":"error","msg":"[account already exist using this email]","time":"2024-04-21T13:37:28+05:30"}
+{"level":"error","msg":"[account already exist using this email]","time":"2024-04-21T13:38:07+05:30"}

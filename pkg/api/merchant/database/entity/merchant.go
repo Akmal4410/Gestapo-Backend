@@ -41,28 +41,20 @@ type EditProductReq struct {
 	ClearImages   bool      `json:"clear_images"`
 }
 
-type GetProductRes struct {
-	ID            string     `json:"id"`
-	MerchantID    string     `json:"merchant_id,omitempty"`
-	ProductImages []string   `json:"product_images,omitempty"`
-	ProductName   *string    `json:"product_name"`
-	Description   *string    `json:"description,omitempty"`
-	CategoryName  *string    `json:"category_name,omitempty"`
-	Size          *[]float64 `json:"size,omitempty"`
-	Price         float64    `json:"price,omitempty"`
-	DiscountPrice *float64   `json:"discount_price,omitempty"`
-}
-
 type AddDiscountReq struct {
 	ProductId    string    `json:"product_id" validate:"required"`
 	DiscountName string    `json:"name" validate:"required"`
+	Description  string    `json:"description" validate:"required"`
 	Percentage   float64   `json:"percentage" validate:"percentage"`
+	CardColor    string    `json:"card_color" validate:"omitempty"`
 	StartTime    time.Time `json:"start_time" validate:"required"`
 	EndTime      time.Time `json:"end_time" validate:"required"`
 }
 type EditDiscountReq struct {
-	DiscountName string    `json:"name" validate:"required"`
-	Percentage   float64   `json:"percentage" validate:"required"`
-	StartTime    time.Time `json:"start_time" validate:"required"`
-	EndTime      time.Time `json:"end_time" validate:"required"`
+	DiscountName *string    `json:"name" validate:"omitempty"`
+	Description  *string    `json:"description" validate:"omitempty"`
+	Percentage   float64    `json:"percentage" validate:"required"`
+	CardColor    *string    `json:"card_color" validate:"omitempty"`
+	StartTime    *time.Time `json:"start_time" validate:"omitempty"`
+	EndTime      *time.Time `json:"end_time" validate:"omitempty"`
 }

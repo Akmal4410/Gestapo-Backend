@@ -11,6 +11,7 @@ type DBMigration struct {
 	user_data  models.User_Data
 	categories models.Categories
 	products   models.Products
+	carts      models.Carts
 }
 
 var migrate DBMigration
@@ -24,6 +25,9 @@ func AutoMigrateTables(gormDB *gorm.DB) {
 		&migrate.categories,
 		&migrate.products,
 	); err != nil {
+		fmt.Println(err.Error())
+	}
+	if err := gormDB.AutoMigrate(&migrate.carts); err != nil {
 		fmt.Println(err.Error())
 	}
 

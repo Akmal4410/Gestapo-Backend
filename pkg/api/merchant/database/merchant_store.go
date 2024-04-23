@@ -147,107 +147,6 @@ func (store *MarchantStore) UpdateProduct(id string, req *entity.EditProductReq)
 	return nil
 }
 
-func (store *MarchantStore) GetProducts() ([]entity.GetProductRes, error) {
-	var products []entity.GetProductRes
-	selectQuery := `
-		SELECT id, product_name, images, price
-		FROM products;
-	`
-
-	rows, err := store.storage.DB.Query(selectQuery)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var product entity.GetProductRes
-		var images pq.StringArray
-
-		err := rows.Scan(
-			&product.ID,
-			&product.ProductName,
-			&images,
-			&product.Price,
-		)
-		if err != nil {
-			return nil, err
-		}
-		product.ProductImages = []string(images)
-		products = append(products, product)
-	}
-
-	err = rows.Err()
-	if err != nil {
-		return nil, err
-	}
-
-	if len(products) == 0 {
-		return []entity.GetProductRes{}, nil
-	}
-
-	return products, nil
-}
-
-func (store *MarchantStore) GetProductById(productId string) (*entity.GetProductRes, error) {
-	selectQuery := `
-	SELECT
-    p.id AS id,
-	p.merchent_id AS merchent_id,
-    p.product_name AS product_name,
-    p.description AS description,
-    c.category_name AS category_name,
-    p.size AS size,
-    p.price AS price,
-    CASE
-        WHEN d.end_time IS NOT NULL AND d.end_time > NOW() THEN p.price - (p.price * d.percent / 100) 
-        ELSE NULL
-    END AS discount_price,
-    p.images AS product_images
-	FROM
-    products p
-	LEFT JOIN
-    categories c ON p.category_id = c.id
-	LEFT JOIN
-    discounts d ON p.discount_id = d.id
-	WHERE 
-	p.id = $1;
-	`
-	rows := store.storage.DB.QueryRow(selectQuery, productId)
-	if rows.Err() != nil {
-		return nil, rows.Err()
-	}
-
-	var product entity.GetProductRes
-
-	var images pq.StringArray
-	var sizes pq.Float64Array
-
-	err := rows.Scan(
-		&product.ID,
-		&product.MerchantID,
-		&product.ProductName,
-		&product.Description,
-		&product.CategoryName,
-		&sizes,
-		&product.Price,
-		&product.DiscountPrice,
-		&images,
-	)
-	product.ProductImages = []string(images)
-	// Convert pq.Float64Array to []float64
-	var sizeList []float64
-	for _, v := range sizes {
-		sizeList = append(sizeList, float64(v))
-	}
-	product.Size = &sizeList
-
-	if err != nil {
-		return nil, err
-	}
-	return &product, nil
-}
-
 func (store *MarchantStore) DeleteProduct(productId string) error {
 	deleteQuery := `
         DELETE FROM products
@@ -286,13 +185,17 @@ func (store *MarchantStore) AddProductDiscount(req *entity.AddDiscountReq) error
 	createdAt := time.Now()
 	updatedAt := time.Now()
 
+	if req.CardColor == "" {
+		req.CardColor = "0xFF808080"
+	}
+
 	insertQuery := `
 	INSERT INTO discounts
-	(id, name, percent, start_time, end_time, created_at, updated_at)
-	VALUES ($1, $2, $3, $4, $5, $6, $7);
+	(id, name, description, percent, card_color, start_time, end_time, created_at, updated_at)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);
 	`
 
-	res, err := tx.Exec(insertQuery, discountId.String(), req.DiscountName, req.Percentage, req.StartTime, req.EndTime, createdAt, updatedAt)
+	res, err := tx.Exec(insertQuery, discountId.String(), req.DiscountName, req.Description, req.Percentage, req.CardColor, req.StartTime, req.EndTime, createdAt, updatedAt)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -332,12 +235,17 @@ func (store *MarchantStore) AddProductDiscount(req *entity.AddDiscountReq) error
 func (store *MarchantStore) EditProductDiscount(discountId string, req *entity.EditDiscountReq) error {
 	updateQuery := `
 	UPDATE discounts
-	SET name = $2, percent = $3 , start_time = $4, end_time = $5, updated_at = $6
+	SET name = COALESCE($2, name),
+		description = COALESCE($3, description),
+		percent = COALESCE($4, percent),
+		card_color = COALESCE($5, card_color),
+		start_time = COALESCE($6, start_time),
+		end_time = COALESCE($7, end_time),
+		updated_at = $8
 	WHERE id = $1;
 	`
-
 	updatedAt := time.Now()
-	res, err := store.storage.DB.Exec(updateQuery, discountId, req.DiscountName, req.Percentage, req.StartTime, req.EndTime, updatedAt)
+	res, err := store.storage.DB.Exec(updateQuery, discountId, req.DiscountName, req.Description, req.Percentage, req.CardColor, req.StartTime, req.EndTime, updatedAt)
 	if err != nil {
 		return err
 	}

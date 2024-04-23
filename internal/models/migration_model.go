@@ -42,13 +42,15 @@ type Inventories struct {
 }
 
 type Discounts struct {
-	ID        uuid.UUID `gorm:"NOT NULL; PRIMARY_KEY"`
-	Name      string    `gorm:"NOT NULL"`
-	Percent   float64   `gorm:"NOT NULL"`
-	StartTime time.Time `gorm:"NOT NULL"`
-	EndTime   time.Time `gorm:"NOT NULL"`
-	CreatedAt time.Time `gorm:"NOT NULL"`
-	UpdatedAt time.Time `gorm:"NOT NULL"`
+	ID          uuid.UUID `gorm:"NOT NULL; PRIMARY_KEY"`
+	Name        string    `gorm:"NOT NULL"`
+	Description string    `gorm:"NOT NULL"`
+	Percent     float64   `gorm:"NOT NULL"`
+	CardColor   string    `gorm:"NOT NULL; default:0xFF808080"`
+	StartTime   time.Time `gorm:"NOT NULL"`
+	EndTime     time.Time `gorm:"NOT NULL"`
+	CreatedAt   time.Time `gorm:"NOT NULL"`
+	UpdatedAt   time.Time `gorm:"NOT NULL"`
 }
 
 type Products struct {
@@ -68,4 +70,17 @@ type Products struct {
 	CreatedAt   time.Time       `gorm:"NOT NULL"`
 	UpdatedAt   time.Time       `gorm:"NOT NULL"`
 	DeletedAt   gorm.DeletedAt
+}
+
+type Carts struct {
+	ID        uuid.UUID `gorm:"NOT NULL;PRIMARY_KEY"`
+	User      User_Data `gorm:"foreignKey:UserID;references:ID"`
+	UserID    uuid.UUID `gorm:"NOT NULL"`
+	Product   Products  `gorm:"foreignKey:ProductID;references:ID"`
+	ProductID uuid.UUID `gorm:"NOT NULL;index"`
+	Quantity  int       `gorm:"NOT NULL"`
+	Size      float64   `gorm:"NOT NULL"`
+	CreatedAt time.Time `gorm:"NOT NULL"`
+	UpdatedAt time.Time `gorm:"NOT NULL"`
+	DeletedAt gorm.DeletedAt
 }
