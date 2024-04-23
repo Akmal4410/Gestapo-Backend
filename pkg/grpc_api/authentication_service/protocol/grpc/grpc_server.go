@@ -1,7 +1,11 @@
 package grpc
 
 import (
+	"context"
 	"net"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/akmal4410/gestapo/internal/config"
 	"github.com/akmal4410/gestapo/internal/database"
@@ -12,7 +16,7 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
-func RunGRPCService(storage *database.Storage, config *config.Config, log logger.Logger) error {
+func RunGRPCService(ctx context.Context, storage *database.Storage, config *config.Config, log logger.Logger) error {
 
 	grpcServer := grpc.NewServer()
 	service := service.NewAuthenticationService(storage, config, log)
@@ -24,6 +28,16 @@ func RunGRPCService(storage *database.Storage, config *config.Config, log logger
 		log.LogError("error in listening to port", config.ServerAddress.Authentication, "error:", err)
 		return err
 	}
+	//graceful shutdown
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, syscall.SIGKILL, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		for range c {
+			log.LogInfo("shutting down grpc server....")
+			grpcServer.GracefulStop()
+			<-ctx.Done()
+		}
+	}()
 	log.LogInfo("Start gRPC server at : %s", lis.Addr().String())
 	return grpcServer.Serve(lis)
 }
