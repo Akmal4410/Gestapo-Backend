@@ -7,8 +7,11 @@ WORKDIR /app
 # Copy the binary into the container
 COPY ./build/authenticationServiceApp /app
 
-# # Copy the config.yaml file into the container
+# Copy the config.yaml file into the container
 COPY ./configs/config.yaml /app/configs/config.yaml
+
+# Copy the config.yaml file into the container
+COPY ./web/templates /app/web/templates
 
 # Expose the port on which the application will run
 EXPOSE 8080

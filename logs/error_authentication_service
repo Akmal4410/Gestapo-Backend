@@ -1,8 +1,0 @@
-{"level":"error","msg":"[error in listening to port 0.0.0.0:9001 error: listen tcp 0.0.0.0:9001: bind: address already in use]","time":"2024-04-21T19:03:45+05:30"}
-{"level":"error","msg":"[error in listening to port 0.0.0.0:8080 error: listen tcp 0.0.0.0:8080: bind: address already in use]","time":"2024-04-23T06:11:44+05:30"}
-{"level":"error","msg":"[error in listening to port 0.0.0.0:8080 error: listen tcp 0.0.0.0:8080: bind: address already in use]","time":"2024-04-23T06:18:00+05:30"}
-{"level":"error","msg":"[error in listening to port 0.0.0.0:8080 error: listen tcp 0.0.0.0:8080: bind: address already in use]","time":"2024-04-23T06:43:04+05:30"}
-{"level":"error","msg":"[error in listening to port 0.0.0.0:8080 error: listen tcp 0.0.0.0:8080: bind: address already in use]","time":"2024-04-23T07:05:54+05:30"}
-{"level":"error","msg":"[error in listening to port 0.0.0.0:8080 error: listen tcp 0.0.0.0:8080: bind: address already in use]","time":"2024-04-23T07:17:36+05:30"}
-{"level":"error","msg":"[Error while ValidateEmailOrPhone invalid email format]","time":"2024-04-23T07:47:13+05:30"}
-{"level":"error","msg":"[error in listening to port 0.0.0.0:8080 error: listen tcp 0.0.0.0:8080: bind: address already in use]","time":"2024-04-23T07:48:37+05:30"}

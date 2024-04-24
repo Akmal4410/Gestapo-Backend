@@ -36,7 +36,7 @@ services:
     # TODO:fix it later  
     # environment:
     #   - DB_SOURCE=postgresql://root:secret@postgres:5432/gestapo?sslmode=disable        
-    # restart: always  
+    restart: always  
     depends_on:
       postgres:
         condition: service_healthy  
