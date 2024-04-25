@@ -20,5 +20,4 @@ service AuthenticationService {
             body: "*"
         };
     }
-    // rpc SendOTP (SendOTPRequest) returns (Response);
 }

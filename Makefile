@@ -9,9 +9,18 @@ createdb:
 dropdb:
 	docker exec -it postgres16 dropdb gestapo
 
-server:
+redis:
+	@echo Creating a new container for postgres
+	docker run --name redis7.2 -p 6379:6379 -d redis:7.2-alpine
+
+
+authentication_server:
 	@echo Running authentication service
-	go run cmd/authentication_service/main.go  
+	go run cmd/authentication_service/main.go 
+
+grpc_gateway:
+	@echo Running grpc gateway
+	go run cmd/grpc_gateway/main.go
 
 proto:
 	@echo deleting generated files if exist..

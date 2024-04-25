@@ -39,6 +39,6 @@ func RunGRPCService(ctx context.Context, storage *database.Storage, config *conf
 			<-ctx.Done()
 		}
 	}()
-	log.LogInfo("Start gRPC server at : %s", lis.Addr().String())
+	log.LogInfo("Start gRPC server at ", lis.Addr().String())
 	return grpcServer.Serve(lis)
 }

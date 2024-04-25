@@ -1,0 +1,36 @@
+{"level":"info","msg":"[Authentication Service has started]","time":"2024-04-25T19:13:33+05:30"}
+{"level":"info","msg":"[Config file loaded.]","time":"2024-04-25T19:13:33+05:30"}
+{"level":"info","msg":"[Authentication Service has started]","time":"2024-04-25T19:14:35+05:30"}
+{"level":"info","msg":"[Config file loaded.]","time":"2024-04-25T19:14:35+05:30"}
+{"level":"info","msg":"[Database connection successful]","time":"2024-04-25T19:14:36+05:30"}
+{"level":"info","msg":"[Authentication Service has started]","time":"2024-04-25T19:15:33+05:30"}
+{"level":"info","msg":"[Config file loaded.]","time":"2024-04-25T19:15:33+05:30"}
+{"level":"info","msg":"[Database connection successful]","time":"2024-04-25T19:15:33+05:30"}
+{"level":"info","msg":"[Authentication Service has started]","time":"2024-04-25T19:16:14+05:30"}
+{"level":"info","msg":"[Config file loaded.]","time":"2024-04-25T19:16:14+05:30"}
+{"level":"info","msg":"[Database connection successful]","time":"2024-04-25T19:16:15+05:30"}
+{"level":"info","msg":"[Authentication Service has started]","time":"2024-04-25T19:17:31+05:30"}
+{"level":"info","msg":"[Config file loaded.]","time":"2024-04-25T19:17:31+05:30"}
+{"level":"info","msg":"[Database connection successful]","time":"2024-04-25T19:17:32+05:30"}
+{"level":"info","msg":"[Authentication Service has started]","time":"2024-04-25T19:18:38+05:30"}
+{"level":"info","msg":"[Config file loaded.]","time":"2024-04-25T19:18:38+05:30"}
+{"level":"info","msg":"[Database connection successful]","time":"2024-04-25T19:18:38+05:30"}
+{"level":"info","msg":"[Authentication Service has started]","time":"2024-04-25T19:18:49+05:30"}
+{"level":"info","msg":"[Config file loaded.]","time":"2024-04-25T19:18:49+05:30"}
+{"level":"info","msg":"[Database connection successful]","time":"2024-04-25T19:18:49+05:30"}
+{"level":"info","msg":"[Authentication Service has started]","time":"2024-04-25T19:22:38+05:30"}
+{"level":"info","msg":"[Config file loaded.]","time":"2024-04-25T19:22:38+05:30"}
+{"level":"info","msg":"[Database connection successful]","time":"2024-04-25T19:22:38+05:30"}
+{"level":"info","msg":"[Authentication Service has started]","time":"2024-04-25T19:25:27+05:30"}
+{"level":"info","msg":"[Config file loaded.]","time":"2024-04-25T19:25:27+05:30"}
+{"level":"info","msg":"[Database connection successful]","time":"2024-04-25T19:25:27+05:30"}
+{"level":"info","msg":"[Registreing for reflection]","time":"2024-04-25T19:25:27+05:30"}
+{"level":"info","msg":"[Start gRPC server at  127.0.0.1:9001]","time":"2024-04-25T19:25:27+05:30"}
+{"level":"info","msg":"[shutting down grpc server....]","time":"2024-04-25T19:30:38+05:30"}
+{"level":"info","msg":"[context canceled]","time":"2024-04-25T19:30:38+05:30"}
+{"level":"info","msg":"[Authentication Service shutdown]","time":"2024-04-25T19:30:38+05:30"}
+{"level":"info","msg":"[Authentication Service has started]","time":"2024-04-25T19:30:44+05:30"}
+{"level":"info","msg":"[Config file loaded.]","time":"2024-04-25T19:30:44+05:30"}
+{"level":"info","msg":"[Database connection successful]","time":"2024-04-25T19:30:45+05:30"}
+{"level":"info","msg":"[Registreing for reflection]","time":"2024-04-25T19:30:45+05:30"}
+{"level":"info","msg":"[Start gRPC server at  127.0.0.1:9001]","time":"2024-04-25T19:30:45+05:30"}
