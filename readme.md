@@ -9,3 +9,6 @@ kill -9 pid
 
 For showing logs inside any service
 docker logs deploy-authentication-service-1
+
+To list all in a folder
+ls -l

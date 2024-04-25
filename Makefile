@@ -20,14 +20,15 @@ proto:
 	protoc -I . \
 	--go_out pkg/ --go_opt=paths=source_relative \
 	--go-grpc_out pkg/ --go-grpc_opt=paths=source_relative \
+	--grpc-gateway_out pkg/ --grpc-gateway_opt=paths=source_relative \
 	api/proto/*.proto
 	@echo done..
 
 evans:
 	@echo Starting evans gRPC client..
-	evans --host localhost --port 8080 -r repl      
+	evans --host localhost --port 9001 -r repl      
 
-AUTH_BINARY=authenticationServiceApp
+
 
 compose_down: 
 	@echo Stopping docker containers
@@ -44,6 +45,9 @@ prune_images:
 	cd deploy && sudo docker image prune -a
 	@echo done 
 
+AUTH_BINARY=authenticationServiceApp
+GATEWAY_BINARY=gatewayApp
+
 build_authentication:
 	@echo Building authentication binary...
 	cd cmd/authentication_service && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o ${AUTH_BINARY} .
@@ -51,7 +55,15 @@ build_authentication:
 	mv cmd/authentication_service/${AUTH_BINARY} deploy/build
 	@echo Done!
 
-run: build_authentication
+build_gateway:
+	@echo Building gateway binary...
+	cd cmd/grpc_gateway && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o ${GATEWAY_BINARY} .
+	@echo Moving file..
+	mv cmd/grpc_gateway/${GATEWAY_BINARY} deploy/build
+	@echo Done!
+
+
+run: build_gateway build_authentication
 	@echo Stopping docker images if running...
 	cd deploy && docker compose down --remove-orphans
 	@echo Building when required and starting docker images...

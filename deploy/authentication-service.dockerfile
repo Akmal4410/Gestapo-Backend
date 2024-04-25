@@ -14,7 +14,7 @@ COPY ./configs/config.yaml /app/configs/config.yaml
 COPY ./web/templates /app/web/templates
 
 # Expose the port on which the application will run
-EXPOSE 8080
+EXPOSE 9001
 
 # Command to run the application
 CMD ["./authenticationServiceApp"]
