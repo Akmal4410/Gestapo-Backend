@@ -2,11 +2,11 @@ package grpc_gateway
 
 import (
 	"context"
-	"net"
 	"net/http"
 
 	"github.com/akmal4410/gestapo/internal/config"
 	"github.com/akmal4410/gestapo/pkg/helpers/logger"
+	"github.com/gorilla/handlers"
 )
 
 const (
@@ -33,21 +33,25 @@ func RunGateway() error {
 		log.LogError("error in newGateway :", err)
 		return err
 	}
-
 	mux := http.NewServeMux()
 	mux.Handle("/api/", http.StripPrefix("/api", gMux))
 
-	lis, err := net.Listen("tcp", config.ServerAddress.Gateway)
-	if err != nil {
-		log.LogError("error in listening to port", config.ServerAddress.Gateway, "error:", err)
-		return err
-	}
+	// lis, err := net.Listen("tcp", config.ServerAddress.Gateway)
+	// if err != nil {
+	// 	log.LogError("error in listening to port", config.ServerAddress.Gateway, "error:", err)
+	// 	return err
+	// }
+	// err = http.Serve(lis, mux)
+	// if err != nil {
+	// 	log.LogError("Cannot server gateway", config.ServerAddress.Gateway, "error:", err)
+	// 	return err
+	// }
 
-	err = http.Serve(lis, mux)
-	if err != nil {
-		log.LogError("Cannot server gateway", config.ServerAddress.Gateway, "error:", err)
-		return err
-	}
-	log.LogInfo("Start gRPC gateway at : %s", lis.Addr().String())
-	return nil
+	return http.ListenAndServe(":"+"9000",
+		handlers.CORS(handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization", "User-Agent"}),
+			handlers.ExposedHeaders([]string{"*"}),
+			handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE"}),
+			handlers.AllowedOrigins([]string{"*"}),
+		)(mux),
+	)
 }

@@ -14,12 +14,12 @@ import (
 func newGateway(ctx context.Context, log logger.Logger, config config.Config, opts ...runtime.ServeMuxOption) (*runtime.ServeMux, error) {
 	gMux := runtime.NewServeMux(opts...)
 	dialOpts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
-
 	errAuthentication := registerAuthenticationEndPoints(ctx, log, config, gMux, dialOpts)
 	if errAuthentication != nil {
 		log.LogError("error in registering Authentication Service.", errAuthentication)
 		return nil, errAuthentication
 	}
+
 	return gMux, nil
 }
 
