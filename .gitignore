@@ -1,7 +1,10 @@
-/Users/akmal/Documents/go-workspace/gestapo/config.yaml
-
-config.yaml
-app.env
-
+#config files
 configs/config.yaml
 configs/app.env
+deploy/configs/config.yaml
+
+
+# docker build folder
+deploy/build
+# logs - info,error,...
+logs

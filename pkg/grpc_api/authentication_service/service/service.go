@@ -47,7 +47,7 @@ func NewAuthenticationService(storage *database.Storage, config *config.Config, 
 	}
 	redis, err := cache.NewRedisCache(server.config.Redis)
 	if err != nil {
-		server.log.LogFatal("Error while Initializing NewRedisCache %w", err)
+		server.log.LogFatal("Error while Initializing NewRedisCache ", err)
 	}
 
 	server.twilioService = twilio

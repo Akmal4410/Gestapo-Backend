@@ -13,7 +13,7 @@ const (
 )
 
 func RunServer() error {
-	_, log := service_helper.InitializeService(serviceName, logFileName)
+	ctx, log := service_helper.InitializeService(serviceName, logFileName)
 	config, err := config.LoadConfig("configs")
 	if err != nil {
 		log.LogFatal("Cannot load configuration:", err)
@@ -26,16 +26,17 @@ func RunServer() error {
 	}
 	log.LogInfo("Database connection successful")
 
-	err = grpc.RunGRPCService(store, &config, log)
+	err = grpc.RunGRPCService(ctx, store, &config, log)
 	if err != nil {
 		log.LogFatal("Cannot start server :", err)
 		return err
 	}
-	// select {
-	// case <-ctx.Done():
-	// 	log.LogInfo(ctx.Err())
-	// 	break
-	// }
-	// log.LogInfo(serviceName, "shutdown")
+
+	select {
+	case <-ctx.Done():
+		log.LogInfo(ctx.Err())
+		break
+	}
+	log.LogInfo(serviceName, "shutdown")
 	return nil
 }

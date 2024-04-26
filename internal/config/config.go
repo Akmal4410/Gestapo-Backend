@@ -23,6 +23,7 @@ type Config struct {
 
 type ServerAddress struct {
 	Authentication string `mapstructure:"AUTHENTICATION" json:"AUTHENTICATION"`
+	Gateway        string `mapstructure:"GATEWAY" json:"GATEWAY"`
 }
 
 type Database struct {

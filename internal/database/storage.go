@@ -15,6 +15,7 @@ type Storage struct {
 }
 
 func NewStorage(database *config.Database) (*Storage, error) {
+	log.Print(database.DBSource)
 	db, err := sql.Open(database.DBDriver, database.DBSource)
 	if err != nil {
 		return nil, err
