@@ -30,8 +30,6 @@ func (server *Server) authRoutes() {
 	// server.router.HandleFunc("/", authRoute.auth.Home)
 	authRoutes := server.router.PathPrefix("/auth").Subrouter()
 
-	authRoutes.HandleFunc("/login", handler.LoginUser).Methods("POST")
-	authRoutes.HandleFunc("/send-otp", handler.SendOTP).Methods("POST")
 	// authRoutes.HandleFunc("/sso-callback", authRoute.auth.SSOCallback)
 	authRoutes.Handle("/sso-auth", auth.SsoMiddleware(server.log, http.HandlerFunc(handler.SSOAuth))).Methods("POST")
 	authRoutes.Handle("/signup", auth.AuthMiddleware(tokenMaker, server.log, http.HandlerFunc(handler.SignUpUser))).Methods("POST")

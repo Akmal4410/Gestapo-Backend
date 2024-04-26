@@ -27,10 +27,11 @@ type authenticationService struct {
 }
 
 // NewAuthenticationService creates a new gRPC server.
-func NewAuthenticationService(storage *database.Storage, config *config.Config, log logger.Logger) *authenticationService {
+func NewAuthenticationService(storage *database.Storage, config *config.Config, log logger.Logger, tokenMaker token.Maker) *authenticationService {
 	server := &authenticationService{
 		config: config,
 		log:    log,
+		token:  tokenMaker,
 	}
 	s3 := s3.NewS3Service(
 		config.AwsS3.BucketName,
@@ -41,10 +42,7 @@ func NewAuthenticationService(storage *database.Storage, config *config.Config, 
 	twilio := twilio.NewOTPService()
 	email := mail.NewGmailService(server.config.Email)
 	authStore := db.NewAuthStore(storage)
-	tokenMaker, err := token.NewJWTMaker(server.config.TokenSymmetricKey)
-	if err != nil {
-		server.log.LogFatal("Error while Initializing NewJWTMaker %w", err)
-	}
+
 	redis, err := cache.NewRedisCache(server.config.Redis)
 	if err != nil {
 		server.log.LogFatal("Error while Initializing NewRedisCache ", err)
@@ -54,7 +52,6 @@ func NewAuthenticationService(storage *database.Storage, config *config.Config, 
 	server.s3 = s3
 	server.emailService = email
 	server.storage = authStore
-	server.token = tokenMaker
 	server.redis = redis
 	return server
 }

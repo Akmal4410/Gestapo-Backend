@@ -55,70 +55,6 @@ func NewAuthHandler(
 	}
 }
 
-func (auth *AuthHandler) SendOTP(w http.ResponseWriter, r *http.Request) {
-	req := new(entity.SendOTPReq)
-
-	err := helpers.ValidateBody(r.Body, req)
-	if err != nil {
-		auth.log.LogError("Error while ValidateBody", err)
-		helpers.ErrorJson(http.StatusBadRequest, InvalidBody)
-		return
-	}
-
-	err = helpers.ValidateEmailOrPhone(req.Email, req.Phone)
-	if err != nil {
-		auth.log.LogError("Error while ValidateEmailOrPhone", err)
-		helpers.ErrorJson(http.StatusBadRequest, "Invalid Email or Phone")
-		return
-	}
-
-	column, value := helpers.IdentifiesColumnValue(req.Email, req.Phone)
-	if req.Action == utils.SIGN_UP {
-		if len(column) == 0 {
-			auth.log.LogError("Error while IdentifiesColumnValue", column)
-			helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
-			return
-		}
-		res, err := auth.storage.CheckDataExist(column, value)
-		if err != nil {
-			auth.log.LogError("Error while CheckDataExist", err)
-			helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
-			return
-		}
-		if res {
-			err = fmt.Errorf("account already exist using this %s", column)
-			auth.log.LogError(err)
-			helpers.ErrorJson(http.StatusNotFound, err.Error())
-			return
-		}
-	}
-
-	if !helpers.IsEmpty(req.Email) {
-		err = auth.emailService.SendOTP(req.Email, utils.EmailSubject, utils.EmailSubject, auth.redis)
-		if err != nil {
-			auth.log.LogError("Error while SendOTP", err)
-			helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
-			return
-		}
-	} else {
-		phoneNumber := fmt.Sprintf("+91%s", req.Phone)
-		err = auth.twilioService.SendOTP(phoneNumber)
-		if err != nil {
-			auth.log.LogError("Error while SendOTP", err)
-			helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
-			return
-		}
-	}
-	token, err := auth.token.CreateSessionToken(value, req.Action, time.Minute*5)
-	if err != nil {
-		auth.log.LogError("Error while CreateSessionToken", err)
-		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
-		return
-	}
-	w.Header().Set("session-token", token)
-	helpers.WriteJSON(w, http.StatusOK, "OTP sent successfully")
-}
-
 func (auth *AuthHandler) verifyOTP(w http.ResponseWriter, payload *token.SessionPayload, email, phone, code, action string) bool {
 	if payload.TokenType != action {
 		auth.log.LogError("Payload doesnot match")
@@ -229,58 +165,6 @@ func (auth *AuthHandler) SignUpUser(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("access-token", token)
 	helpers.WriteJSON(w, http.StatusOK, "User Signup Successfully")
-}
-
-func (auth *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
-	req := new(entity.LoginReq)
-
-	err := helpers.ValidateBody(r.Body, req)
-	if err != nil {
-		auth.log.LogError("Error while ValidateBody", err)
-		helpers.ErrorJson(http.StatusBadRequest, InvalidBody)
-		return
-	}
-
-	res, err := auth.storage.CheckDataExist("user_name", req.UserName)
-	if err != nil {
-		auth.log.LogError("Error while CheckDataExist", err)
-		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
-		return
-	}
-	if !res {
-		err = fmt.Errorf("user doesnt exist %w", err)
-		auth.log.LogError("User doesn't", err)
-		helpers.ErrorJson(http.StatusInternalServerError, "User doesnt exist")
-		return
-	}
-
-	res, err = auth.storage.CheckPassword(req.UserName, req.Password)
-	if err != nil {
-		auth.log.LogError("Error while CheckPassword", err)
-		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
-		return
-	}
-	if !res {
-		err = fmt.Errorf("wrong password %w", err)
-		auth.log.LogError("Wrong password", err)
-		helpers.ErrorJson(http.StatusForbidden, "User crediantials doesn't match")
-		return
-	}
-
-	payload, err := auth.storage.GetTokenPayload("user_name", req.UserName)
-	if err != nil {
-		auth.log.LogError("Error while GetTokenPayload", err)
-		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
-		return
-	}
-	token, err := auth.token.CreateAccessToken(payload.UserId, req.UserName, payload.UserType, time.Hour*48)
-	if err != nil {
-		auth.log.LogError("Error while CreateAccessToken", err)
-		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
-		return
-	}
-	w.Header().Set("access-token", token)
-	helpers.WriteJSON(w, http.StatusOK, "User loggedin Successfully")
 }
 
 func (auth *AuthHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) {

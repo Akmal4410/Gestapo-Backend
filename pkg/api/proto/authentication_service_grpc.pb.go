@@ -19,7 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	AuthenticationService_SendOTP_FullMethodName = "/pb.AuthenticationService/SendOTP"
+	AuthenticationService_SendOTP_FullMethodName   = "/pb.AuthenticationService/SendOTP"
+	AuthenticationService_LoginUser_FullMethodName = "/pb.AuthenticationService/LoginUser"
 )
 
 // AuthenticationServiceClient is the client API for AuthenticationService service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AuthenticationServiceClient interface {
 	SendOTP(ctx context.Context, in *SendOTPRequest, opts ...grpc.CallOption) (*Response, error)
+	LoginUser(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*Response, error)
 }
 
 type authenticationServiceClient struct {
@@ -46,11 +48,21 @@ func (c *authenticationServiceClient) SendOTP(ctx context.Context, in *SendOTPRe
 	return out, nil
 }
 
+func (c *authenticationServiceClient) LoginUser(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
+	err := c.cc.Invoke(ctx, AuthenticationService_LoginUser_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AuthenticationServiceServer is the server API for AuthenticationService service.
 // All implementations must embed UnimplementedAuthenticationServiceServer
 // for forward compatibility
 type AuthenticationServiceServer interface {
 	SendOTP(context.Context, *SendOTPRequest) (*Response, error)
+	LoginUser(context.Context, *LoginRequest) (*Response, error)
 	mustEmbedUnimplementedAuthenticationServiceServer()
 }
 
@@ -60,6 +72,9 @@ type UnimplementedAuthenticationServiceServer struct {
 
 func (UnimplementedAuthenticationServiceServer) SendOTP(context.Context, *SendOTPRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendOTP not implemented")
+}
+func (UnimplementedAuthenticationServiceServer) LoginUser(context.Context, *LoginRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LoginUser not implemented")
 }
 func (UnimplementedAuthenticationServiceServer) mustEmbedUnimplementedAuthenticationServiceServer() {}
 
@@ -92,6 +107,24 @@ func _AuthenticationService_SendOTP_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AuthenticationService_LoginUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LoginRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthenticationServiceServer).LoginUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthenticationService_LoginUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthenticationServiceServer).LoginUser(ctx, req.(*LoginRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AuthenticationService_ServiceDesc is the grpc.ServiceDesc for AuthenticationService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -102,6 +135,10 @@ var AuthenticationService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SendOTP",
 			Handler:    _AuthenticationService_SendOTP_Handler,
+		},
+		{
+			MethodName: "LoginUser",
+			Handler:    _AuthenticationService_LoginUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

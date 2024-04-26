@@ -10,16 +10,25 @@ import (
 	"github.com/akmal4410/gestapo/internal/config"
 	"github.com/akmal4410/gestapo/internal/database"
 	"github.com/akmal4410/gestapo/pkg/api/proto"
+	auth_interceptor "github.com/akmal4410/gestapo/pkg/grpc_api/authentication_service/interceptor"
 	"github.com/akmal4410/gestapo/pkg/grpc_api/authentication_service/service"
 	"github.com/akmal4410/gestapo/pkg/helpers/logger"
+	"github.com/akmal4410/gestapo/pkg/helpers/token"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
 func RunGRPCService(ctx context.Context, storage *database.Storage, config *config.Config, log logger.Logger) error {
+	tokenMaker, err := token.NewJWTMaker(config.TokenSymmetricKey)
+	if err != nil {
+		log.LogFatal("Error while Initializing NewJWTMaker %w", err)
+	}
+	service := service.NewAuthenticationService(storage, config, log, tokenMaker)
+	authInterceptor := auth_interceptor.NewAuthInterceptor(tokenMaker, log)
 
-	grpcServer := grpc.NewServer()
-	service := service.NewAuthenticationService(storage, config, log)
+	grpcServer := grpc.NewServer(
+		grpc.UnaryInterceptor(authInterceptor.AuthServerInterceptor()),
+	)
 
 	proto.RegisterAuthenticationServiceServer(grpcServer, service)
 	log.LogInfo("Registreing for reflection")

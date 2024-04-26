@@ -76,3 +76,55 @@ func (auth *authenticationService) SendOTP(ctx context.Context, req *proto.SendO
 	})
 	return response, grpc.SetHeader(ctx, mdOut)
 }
+
+func (auth *authenticationService) LoginUser(ctx context.Context, req *proto.LoginRequest) (*proto.Response, error) {
+	response := &proto.Response{}
+
+	res, err := auth.storage.CheckDataExist("user_name", req.GetUserName())
+	if err != nil {
+		auth.log.LogError("Error while CheckDataExist", err)
+		response.ErrorInfo = helpers.ErrorJson(http.StatusInternalServerError, utils.InternalServerError)
+		return response, nil
+	}
+	if !res {
+		err = fmt.Errorf("user doesnt exist %w", err)
+		auth.log.LogError("User doesn't", err)
+		response.ErrorInfo = helpers.ErrorJson(http.StatusInternalServerError, "User doesnt exist")
+		return response, nil
+	}
+
+	res, err = auth.storage.CheckPassword(req.UserName, req.Password)
+	if err != nil {
+		auth.log.LogError("Error while CheckPassword", err)
+		response.ErrorInfo = helpers.ErrorJson(http.StatusInternalServerError, utils.InternalServerError)
+		return response, nil
+	}
+	if !res {
+		err = fmt.Errorf("wrong password %w", err)
+		auth.log.LogError("Wrong password", err)
+		response.ErrorInfo = helpers.ErrorJson(http.StatusForbidden, "User crediantials doesn't match")
+		return response, nil
+	}
+
+	payload, err := auth.storage.GetTokenPayload("user_name", req.UserName)
+	if err != nil {
+		auth.log.LogError("Error while GetTokenPayload", err)
+		response.ErrorInfo = helpers.ErrorJson(http.StatusInternalServerError, utils.InternalServerError)
+		return response, nil
+	}
+	token, err := auth.token.CreateAccessToken(payload.UserId, req.UserName, payload.UserType, time.Hour*48)
+	if err != nil {
+		auth.log.LogError("Error while CreateAccessToken", err)
+		response.ErrorInfo = helpers.ErrorJson(http.StatusInternalServerError, utils.InternalServerError)
+		return response, nil
+	}
+	response.StatusCode = http.StatusOK
+	response.Status = true
+	response.Message = "User loggedin Successfully"
+	response.ErrorInfo = nil
+
+	mdOut := metadata.New(map[string]string{
+		"access-token": token,
+	})
+	return response, grpc.SetHeader(ctx, mdOut)
+}
