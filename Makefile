@@ -13,6 +13,10 @@ redis:
 	@echo Creating a new container for postgres
 	docker run --name redis7.2 -p 6379:6379 -d redis:7.2-alpine
 
+prune:
+	@echo Removing unused images starting with deploy-
+	docker images | grep '^deploy-' | awk '{print $3}' | xargs -I {} docker rmi {}
+
 
 authentication_server:
 	@echo Running authentication service

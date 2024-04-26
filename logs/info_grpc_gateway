@@ -7,3 +7,9 @@
 {"level":"info","msg":"[gRPC Gateway has started]","time":"2024-04-25T19:31:11+05:30"}
 {"level":"info","msg":"[Config file loaded.]","time":"2024-04-25T19:31:11+05:30"}
 {"level":"info","msg":"[Listening to port 0.0.0.0:9000]","time":"2024-04-25T19:31:11+05:30"}
+{"level":"info","msg":"[gRPC Gateway has started]","time":"2024-04-25T20:52:05+05:30"}
+{"level":"info","msg":"[Config file loaded.]","time":"2024-04-25T20:52:05+05:30"}
+{"level":"info","msg":"[Listening to port 0.0.0.0:9000]","time":"2024-04-25T20:52:05+05:30"}
+{"level":"info","msg":"[gRPC Gateway has started]","time":"2024-04-26T06:24:14+05:30"}
+{"level":"info","msg":"[Config file loaded.]","time":"2024-04-26T06:24:14+05:30"}
+{"level":"info","msg":"[Listening to port 0.0.0.0:9000]","time":"2024-04-26T06:24:14+05:30"}

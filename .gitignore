@@ -2,3 +2,9 @@
 configs/config.yaml
 configs/app.env
 deploy/configs/config.yaml
+
+
+# docker build folder
+deploy/build
+# logs - info,error,...
+logs

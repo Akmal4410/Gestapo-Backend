@@ -9,10 +9,19 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
 func newGateway(ctx context.Context, log logger.Logger, config config.Config, opts ...runtime.ServeMuxOption) (*runtime.ServeMux, error) {
-	gMux := runtime.NewServeMux(opts...)
+	muxOption := runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
+		MarshalOptions: protojson.MarshalOptions{
+			UseProtoNames: true,
+		},
+		UnmarshalOptions: protojson.UnmarshalOptions{
+			DiscardUnknown: true,
+		},
+	})
+	gMux := runtime.NewServeMux(muxOption)
 	dialOpts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 	errAuthentication := registerAuthenticationEndPoints(ctx, log, config, gMux, dialOpts)
 	if errAuthentication != nil {
