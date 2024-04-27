@@ -10,7 +10,7 @@ import (
 	"github.com/akmal4410/gestapo/internal/config"
 	"github.com/akmal4410/gestapo/internal/database"
 	"github.com/akmal4410/gestapo/pkg/api/proto"
-	auth_interceptor "github.com/akmal4410/gestapo/pkg/grpc_api/authentication_service/interceptor"
+	"github.com/akmal4410/gestapo/pkg/grpc_api/authentication_service/interceptor"
 	"github.com/akmal4410/gestapo/pkg/grpc_api/authentication_service/service"
 	"github.com/akmal4410/gestapo/pkg/helpers/logger"
 	"github.com/akmal4410/gestapo/pkg/helpers/token"
@@ -24,10 +24,13 @@ func RunGRPCService(ctx context.Context, storage *database.Storage, config *conf
 		log.LogFatal("Error while Initializing NewJWTMaker %w", err)
 	}
 	service := service.NewAuthenticationService(storage, config, log, tokenMaker)
-	authInterceptor := auth_interceptor.NewAuthInterceptor(tokenMaker, log)
+	authInterceptor := interceptor.NewAuthInterceptor(tokenMaker, log)
 
 	grpcServer := grpc.NewServer(
-		grpc.UnaryInterceptor(authInterceptor.AuthServerInterceptor()),
+		grpc.ChainUnaryInterceptor(
+			authInterceptor.AuthMiddleware(),
+			// authInterceptor.AuthValidator(),//TODO: fix validation
+		),
 	)
 
 	proto.RegisterAuthenticationServiceServer(grpcServer, service)
