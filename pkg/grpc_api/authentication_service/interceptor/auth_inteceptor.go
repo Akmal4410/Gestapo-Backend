@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	signUp         string = "auth/signup"
+	signUp         string = "/pb.AuthenticationService/SignUpUser"
 	forgotPassword string = "auth/forgot-password"
 )
 
@@ -36,6 +36,7 @@ func NewAuthInterceptor(token token.Maker, log logger.Logger) *AuthInterceptor {
 // AuthServerInterceptor is a gRPC unary server interceptor for authentication.
 func (interceptor *AuthInterceptor) AuthServerInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		interceptor.log.LogInfo("Calling gRPC meathod :", info.FullMethod)
 		if ok := IsAuthenticationNeeded(info.FullMethod); !ok {
 			return handler(ctx, req)
 		}
@@ -74,11 +75,10 @@ func (interceptor *AuthInterceptor) AuthServerInterceptor() grpc.UnaryServerInte
 		}
 
 		token := fields[1]
-
 		// Verify and parse the token
 		payload, err := interceptor.token.VerifySessionToken(token)
 		if err != nil {
-			err := fmt.Errorf("error while VerifySessionToken %s", err.Error())
+			err := fmt.Errorf("error while VerifySessionToken: %s", err.Error())
 			interceptor.log.LogError("Error", err)
 			response.ErrorInfo = helpers.ErrorJson(http.StatusUnauthorized, err.Error())
 			return response, nil

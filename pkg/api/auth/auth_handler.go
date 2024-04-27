@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/akmal4410/gestapo/internal/config"
 	"github.com/akmal4410/gestapo/pkg/grpc_api/authentication_service/db"
@@ -14,7 +13,6 @@ import (
 	"github.com/akmal4410/gestapo/pkg/helpers/token"
 	"github.com/akmal4410/gestapo/pkg/service/cache"
 	"github.com/akmal4410/gestapo/pkg/service/mail"
-	"github.com/akmal4410/gestapo/pkg/service/sso"
 	"github.com/akmal4410/gestapo/pkg/service/twilio"
 	"github.com/akmal4410/gestapo/pkg/utils"
 )
@@ -126,47 +124,6 @@ func (auth *AuthHandler) verifyOTP(w http.ResponseWriter, payload *token.Session
 	return true
 }
 
-func (auth *AuthHandler) SignUpUser(w http.ResponseWriter, r *http.Request) {
-	req := new(entity.SignupReq)
-
-	err := helpers.ValidateBody(r.Body, req)
-	if err != nil {
-		auth.log.LogError("Error while ValidateBody", err)
-		helpers.ErrorJson(http.StatusBadRequest, InvalidBody)
-		return
-	}
-
-	err = helpers.ValidateEmailOrPhone(req.Email, req.Phone)
-	if err != nil {
-		auth.log.LogError("Error while ValidateEmailOrPhone", err)
-		helpers.ErrorJson(http.StatusBadRequest, "Invalid Email or Phone")
-		return
-	}
-
-	payload := r.Context().Value(utils.AuthorizationPayloadKey).(*token.SessionPayload)
-	verify := auth.verifyOTP(w, payload, req.Email, req.Phone, req.Code, utils.SIGN_UP)
-	if !verify {
-		return
-	}
-
-	id, err := auth.storage.InsertUser(req)
-	if err != nil {
-		err = fmt.Errorf("error while inserting user %w", err)
-		auth.log.LogError("Error while InsertUser", err)
-		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
-		return
-	}
-
-	token, err := auth.token.CreateAccessToken(id, req.UserName, req.UserType, time.Minute*5)
-	if err != nil {
-		auth.log.LogError("Error while CreateAccessToken", err)
-		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
-		return
-	}
-	w.Header().Set("access-token", token)
-	helpers.WriteJSON(w, http.StatusOK, "User Signup Successfully")
-}
-
 func (auth *AuthHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 	req := new(entity.ForgotPassword)
 
@@ -200,93 +157,93 @@ func (auth *AuthHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) 
 	helpers.WriteJSON(w, http.StatusOK, "Password changed successfully")
 }
 
-func (auth *AuthHandler) SSOAuth(w http.ResponseWriter, r *http.Request) {
-	req := new(entity.SsoReq)
+// func (auth *AuthHandler) SSOAuth(w http.ResponseWriter, r *http.Request) {
+// 	req := new(entity.SsoReq)
 
-	err := helpers.ValidateBody(r.Body, req)
-	if err != nil {
-		auth.log.LogError("Error while ValidateBody", err)
-		helpers.ErrorJson(http.StatusBadRequest, InvalidBody)
-		return
-	}
+// 	err := helpers.ValidateBody(r.Body, req)
+// 	if err != nil {
+// 		auth.log.LogError("Error while ValidateBody", err)
+// 		helpers.ErrorJson(http.StatusBadRequest, InvalidBody)
+// 		return
+// 	}
 
-	token := r.Context().Value(utils.AuthorizationPayloadKey).(string)
+// 	token := r.Context().Value(utils.AuthorizationPayloadKey).(string)
 
-	var email, fullname string
+// 	var email, fullname string
 
-	switch req.Action {
-	case utils.SSO_ANDROID:
-		email, fullname, err = sso.GoogleOauth(token, auth.config.OAuth.AndroidClientId, auth.log)
-		if err != nil {
-			if err.Error() == "missing claims" {
-				helpers.ErrorJson(http.StatusNotFound, "conflict occurs, missing claims")
-				return
-			}
-			helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
-			return
-		}
-	case utils.SSO_IOS:
-		email, fullname, err = sso.GoogleOauth(token, auth.config.OAuth.IOSClientId, auth.log)
-		if err != nil {
-			if err.Error() == "missing claims" {
-				helpers.ErrorJson(http.StatusNotFound, "conflict occurs, missing claims")
-				return
-			}
-			helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
-			return
-		}
-	default:
-		helpers.ErrorJson(http.StatusBadRequest, "Invalid action")
-		return
-	}
+// 	switch req.Action {
+// 	case utils.SSO_ANDROID:
+// 		email, fullname, err = sso.GoogleOauth(token, auth.config.OAuth.AndroidClientId, auth.log)
+// 		if err != nil {
+// 			if err.Error() == "missing claims" {
+// 				helpers.ErrorJson(http.StatusNotFound, "conflict occurs, missing claims")
+// 				return
+// 			}
+// 			helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
+// 			return
+// 		}
+// 	case utils.SSO_IOS:
+// 		email, fullname, err = sso.GoogleOauth(token, auth.config.OAuth.IOSClientId, auth.log)
+// 		if err != nil {
+// 			if err.Error() == "missing claims" {
+// 				helpers.ErrorJson(http.StatusNotFound, "conflict occurs, missing claims")
+// 				return
+// 			}
+// 			helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
+// 			return
+// 		}
+// 	default:
+// 		helpers.ErrorJson(http.StatusBadRequest, "Invalid action")
+// 		return
+// 	}
 
-	//checks if the user exist or not
-	exist, err := auth.storage.CheckDataExist("email", email)
-	if err != nil {
-		auth.log.LogError("Error while CheckDataExist", err)
-		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
-		return
-	}
-	//already exist so login
-	if exist {
-		payload, err := auth.storage.GetTokenPayload("email", email)
-		if err != nil {
-			auth.log.LogError("Error while GetTokenPayload", err)
-			helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
-			return
-		}
+// 	//checks if the user exist or not
+// 	exist, err := auth.storage.CheckDataExist("email", email)
+// 	if err != nil {
+// 		auth.log.LogError("Error while CheckDataExist", err)
+// 		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
+// 		return
+// 	}
+// 	//already exist so login
+// 	if exist {
+// 		payload, err := auth.storage.GetTokenPayload("email", email)
+// 		if err != nil {
+// 			auth.log.LogError("Error while GetTokenPayload", err)
+// 			helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
+// 			return
+// 		}
 
-		token, err := auth.token.CreateAccessToken(payload.UserId, payload.UserName, payload.UserType, time.Minute*10)
-		if err != nil {
-			auth.log.LogError("Error while CreateAccessToken", err)
-			helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
-			return
-		}
+// 		token, err := auth.token.CreateAccessToken(payload.UserId, payload.UserName, payload.UserType, time.Minute*10)
+// 		if err != nil {
+// 			auth.log.LogError("Error while CreateAccessToken", err)
+// 			helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
+// 			return
+// 		}
 
-		w.Header().Set("access-token", token)
-		helpers.WriteJSON(w, http.StatusOK, "User loggedin Successfully")
-	} else {
-		signupReq := entity.SignupReq{
-			Email:    email,
-			UserName: fullname,
-			UserType: req.UserType,
-			Password: email + fullname + req.UserType,
-		}
-		id, err := auth.storage.InsertUser(&signupReq)
-		if err != nil {
-			auth.log.LogError("Error while InsertUser", err)
-			helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
-			return
-		}
+// 		w.Header().Set("access-token", token)
+// 		helpers.WriteJSON(w, http.StatusOK, "User loggedin Successfully")
+// 	} else {
+// 		signupReq := entity.SignupReq{
+// 			Email:    email,
+// 			UserName: fullname,
+// 			UserType: req.UserType,
+// 			Password: email + fullname + req.UserType,
+// 		}
+// 		id, err := auth.storage.InsertUser(&signupReq)
+// 		if err != nil {
+// 			auth.log.LogError("Error while InsertUser", err)
+// 			helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
+// 			return
+// 		}
 
-		token, err := auth.token.CreateAccessToken(id, fullname, req.UserType, time.Minute*5)
-		if err != nil {
-			auth.log.LogError("Error while CreateAccessToken", err)
-			helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
-			return
-		}
-		w.Header().Set("access-token", token)
-		helpers.WriteJSON(w, http.StatusOK, "User Signup Successfully")
-	}
+// 		token, err := auth.token.CreateAccessToken(id, fullname, req.UserType, time.Minute*5)
+// 		if err != nil {
+// 			auth.log.LogError("Error while CreateAccessToken", err)
+// 			helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
+// 			return
+// 		}
+// 		w.Header().Set("access-token", token)
+// 		helpers.WriteJSON(w, http.StatusOK, "User Signup Successfully")
+// 	}
 
-}
+// }

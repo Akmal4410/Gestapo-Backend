@@ -19,8 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	AuthenticationService_SendOTP_FullMethodName   = "/pb.AuthenticationService/SendOTP"
-	AuthenticationService_LoginUser_FullMethodName = "/pb.AuthenticationService/LoginUser"
+	AuthenticationService_SendOTP_FullMethodName    = "/pb.AuthenticationService/SendOTP"
+	AuthenticationService_SignUpUser_FullMethodName = "/pb.AuthenticationService/SignUpUser"
+	AuthenticationService_LoginUser_FullMethodName  = "/pb.AuthenticationService/LoginUser"
 )
 
 // AuthenticationServiceClient is the client API for AuthenticationService service.
@@ -28,6 +29,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AuthenticationServiceClient interface {
 	SendOTP(ctx context.Context, in *SendOTPRequest, opts ...grpc.CallOption) (*Response, error)
+	SignUpUser(ctx context.Context, in *SignupRequest, opts ...grpc.CallOption) (*Response, error)
 	LoginUser(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*Response, error)
 }
 
@@ -48,6 +50,15 @@ func (c *authenticationServiceClient) SendOTP(ctx context.Context, in *SendOTPRe
 	return out, nil
 }
 
+func (c *authenticationServiceClient) SignUpUser(ctx context.Context, in *SignupRequest, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
+	err := c.cc.Invoke(ctx, AuthenticationService_SignUpUser_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *authenticationServiceClient) LoginUser(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*Response, error) {
 	out := new(Response)
 	err := c.cc.Invoke(ctx, AuthenticationService_LoginUser_FullMethodName, in, out, opts...)
@@ -62,6 +73,7 @@ func (c *authenticationServiceClient) LoginUser(ctx context.Context, in *LoginRe
 // for forward compatibility
 type AuthenticationServiceServer interface {
 	SendOTP(context.Context, *SendOTPRequest) (*Response, error)
+	SignUpUser(context.Context, *SignupRequest) (*Response, error)
 	LoginUser(context.Context, *LoginRequest) (*Response, error)
 	mustEmbedUnimplementedAuthenticationServiceServer()
 }
@@ -72,6 +84,9 @@ type UnimplementedAuthenticationServiceServer struct {
 
 func (UnimplementedAuthenticationServiceServer) SendOTP(context.Context, *SendOTPRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendOTP not implemented")
+}
+func (UnimplementedAuthenticationServiceServer) SignUpUser(context.Context, *SignupRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SignUpUser not implemented")
 }
 func (UnimplementedAuthenticationServiceServer) LoginUser(context.Context, *LoginRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoginUser not implemented")
@@ -107,6 +122,24 @@ func _AuthenticationService_SendOTP_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AuthenticationService_SignUpUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SignupRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthenticationServiceServer).SignUpUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthenticationService_SignUpUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthenticationServiceServer).SignUpUser(ctx, req.(*SignupRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _AuthenticationService_LoginUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(LoginRequest)
 	if err := dec(in); err != nil {
@@ -135,6 +168,10 @@ var AuthenticationService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SendOTP",
 			Handler:    _AuthenticationService_SendOTP_Handler,
+		},
+		{
+			MethodName: "SignUpUser",
+			Handler:    _AuthenticationService_SignUpUser_Handler,
 		},
 		{
 			MethodName: "LoginUser",
