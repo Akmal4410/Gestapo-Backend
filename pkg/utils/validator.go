@@ -68,3 +68,14 @@ func IsSupportedPercentage(percentage float64) bool {
 	}
 	return false
 }
+
+func IsValidPassword(password string) bool {
+	if len(password) > 6 && len(password) < 100 {
+		return true
+	}
+	return false
+}
+
+func IsValidCode(code string) bool {
+	return len(code) == 6
+}

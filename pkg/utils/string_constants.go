@@ -11,4 +11,5 @@ const (
 	AuthorizationTypeBearer string     = "bearer"
 	AuthorizationPayloadKey contextKey = "authorization_payload"
 	InternalServerError     string     = "Internal server error"
+	InvalidRequest          string     = "Invalid Request"
 )

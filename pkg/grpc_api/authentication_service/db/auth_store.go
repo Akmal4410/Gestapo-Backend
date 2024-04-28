@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/akmal4410/gestapo/internal/database"
-	"github.com/akmal4410/gestapo/pkg/grpc_api/authentication_service/db/entity"
+	"github.com/akmal4410/gestapo/pkg/api/proto"
 	"github.com/akmal4410/gestapo/pkg/service/password"
 	"github.com/google/uuid"
 )
@@ -19,20 +19,20 @@ func NewAuthStore(storage *database.Storage) *AuthStore {
 
 }
 
-func (store AuthStore) InsertUser(user *entity.SignupReq) (id string, err error) {
+func (store AuthStore) InsertUser(user *proto.SignupRequest) (id string, err error) {
 	var column string
 	var value string
 	if user.Email != "" {
 		column = "email"
-		value = user.Email
+		value = user.GetEmail()
 	} else if user.Phone != "" {
 		column = "phone"
-		value = user.Phone
+		value = user.GetPhone()
 	}
 	createdAt := time.Now()
 	updatedAt := time.Now()
 
-	user.Password, err = password.HashPassword(user.Password)
+	user.Password, err = password.HashPassword(user.GetPassword())
 	if err != nil {
 		return "", err
 	}
@@ -47,26 +47,26 @@ func (store AuthStore) InsertUser(user *entity.SignupReq) (id string, err error)
 		return "", err
 	}
 
-	_, err = store.storage.DB.Exec(insertQuery, uuId, user.FullName, user.UserName, value, user.UserType, user.Password, createdAt, updatedAt)
+	_, err = store.storage.DB.Exec(insertQuery, uuId, user.GetFullName(), user.GetUserName(), value, user.GetUserType(), user.Password, createdAt, updatedAt)
 	if err != nil {
 		return "", err
 	}
 	return uuId.String(), nil
 }
 
-func (store AuthStore) ChangePassword(req *entity.ForgotPassword) (err error) {
+func (store AuthStore) ChangePassword(req *proto.ForgotPasswordRequest) (err error) {
 	var column string
 	var value string
 	if req.Email != "" {
 		column = "email"
-		value = req.Email
+		value = req.GetEmail()
 	} else if req.Phone != "" {
 		column = "phone"
-		value = req.Phone
+		value = req.GetPhone()
 	}
 	updatedAt := time.Now()
 
-	req.Password, err = password.HashPassword(req.Password)
+	req.Password, err = password.HashPassword(req.GetPassword())
 	if err != nil {
 		return err
 	}
