@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package pb;
+
+import "api/proto/google/api/annotations.proto";
+
+option go_package = "api/proto";
+
+
+message AddCategoryRequest {
+    string category_name = 1;
+}
+
+message GetCategoryResponse {
+	string id = 1;     
+	string category = 2;
+}
+
+
+service AdminService {
+    rpc CreateCategory (AddCategoryRequest) returns (GetCategoryResponse) {
+        option (google.api.http) = {
+            post: "/admin/category"
+            body: "*"
+        };
+    }
+}

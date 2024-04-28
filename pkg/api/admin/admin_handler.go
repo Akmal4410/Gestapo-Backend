@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/akmal4410/gestapo/pkg/api/admin/database"
-	"github.com/akmal4410/gestapo/pkg/api/admin/database/entity"
+	"github.com/akmal4410/gestapo/pkg/grpc_api/admin_service/db"
+	"github.com/akmal4410/gestapo/pkg/grpc_api/admin_service/db/entity"
 	"github.com/akmal4410/gestapo/pkg/helpers"
 	"github.com/akmal4410/gestapo/pkg/helpers/logger"
 )
@@ -16,11 +16,11 @@ const (
 )
 
 type AdminHandler struct {
-	storage *database.AdminStore
+	storage *db.AdminStore
 	log     logger.Logger
 }
 
-func NewAdminHandler(storage *database.AdminStore, log logger.Logger) *AdminHandler {
+func NewAdminHandler(storage *db.AdminStore, log logger.Logger) *AdminHandler {
 	return &AdminHandler{
 		storage: storage,
 		log:     log,

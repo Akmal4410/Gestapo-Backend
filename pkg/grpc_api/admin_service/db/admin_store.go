@@ -1,10 +1,10 @@
-package database
+package db
 
 import (
 	"time"
 
 	"github.com/akmal4410/gestapo/internal/database"
-	"github.com/akmal4410/gestapo/pkg/api/admin/database/entity"
+	"github.com/akmal4410/gestapo/pkg/grpc_api/admin_service/db/entity"
 	"github.com/google/uuid"
 )
 
