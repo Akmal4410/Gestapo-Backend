@@ -15,7 +15,7 @@ import (
 
 const (
 	signUp         string = "/pb.AuthenticationService/SignUpUser"
-	forgotPassword string = "auth/forgot-password"
+	forgotPassword string = "/pb.AuthenticationService/ForgotPassword"
 )
 
 // AuthMiddleware is a gRPC unary server interceptor for authentication.

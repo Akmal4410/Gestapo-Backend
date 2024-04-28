@@ -6,7 +6,6 @@ import (
 
 	"github.com/akmal4410/gestapo/internal/database"
 	"github.com/akmal4410/gestapo/pkg/api/proto"
-	"github.com/akmal4410/gestapo/pkg/grpc_api/authentication_service/db/entity"
 	"github.com/akmal4410/gestapo/pkg/service/password"
 	"github.com/google/uuid"
 )
@@ -55,19 +54,19 @@ func (store AuthStore) InsertUser(user *proto.SignupRequest) (id string, err err
 	return uuId.String(), nil
 }
 
-func (store AuthStore) ChangePassword(req *entity.ForgotPassword) (err error) {
+func (store AuthStore) ChangePassword(req *proto.ForgotPasswordRequest) (err error) {
 	var column string
 	var value string
 	if req.Email != "" {
 		column = "email"
-		value = req.Email
+		value = req.GetEmail()
 	} else if req.Phone != "" {
 		column = "phone"
-		value = req.Phone
+		value = req.GetPhone()
 	}
 	updatedAt := time.Now()
 
-	req.Password, err = password.HashPassword(req.Password)
+	req.Password, err = password.HashPassword(req.GetPassword())
 	if err != nil {
 		return err
 	}

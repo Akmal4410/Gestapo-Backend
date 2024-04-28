@@ -8,6 +8,7 @@ import (
 	"github.com/akmal4410/gestapo/pkg/api/proto"
 	"github.com/akmal4410/gestapo/pkg/helpers"
 	"github.com/akmal4410/gestapo/pkg/helpers/token"
+	"github.com/akmal4410/gestapo/pkg/service/sso"
 	"github.com/akmal4410/gestapo/pkg/utils"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -60,7 +61,7 @@ func (auth *authenticationService) SendOTP(ctx context.Context, req *proto.SendO
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
 	response := &proto.Response{
-		Code:    int32(codes.OK),
+		Code:    200,
 		Status:  true,
 		Message: "OTP sent successfully",
 	}
@@ -155,7 +156,7 @@ func (auth *authenticationService) SignUpUser(ctx context.Context, req *proto.Si
 	}
 
 	response := &proto.Response{
-		Code:    int32(codes.OK),
+		Code:    200,
 		Status:  true,
 		Message: "User Signup Successfully",
 	}
@@ -167,7 +168,6 @@ func (auth *authenticationService) SignUpUser(ctx context.Context, req *proto.Si
 }
 
 func (auth *authenticationService) LoginUser(ctx context.Context, req *proto.LoginRequest) (*proto.Response, error) {
-
 	res, err := auth.storage.CheckDataExist("user_name", req.GetUserName())
 	if err != nil {
 		auth.log.LogError("Error while CheckDataExist", err)
@@ -200,7 +200,7 @@ func (auth *authenticationService) LoginUser(ctx context.Context, req *proto.Log
 	}
 
 	response := &proto.Response{
-		Code:    int32(codes.OK),
+		Code:    200,
 		Status:  true,
 		Message: "User loggedin Successfully",
 	}
@@ -209,4 +209,132 @@ func (auth *authenticationService) LoginUser(ctx context.Context, req *proto.Log
 		"access-token": token,
 	})
 	return response, grpc.SetHeader(ctx, mdOut)
+}
+
+func (auth *authenticationService) ForgotPassword(ctx context.Context, req *proto.ForgotPasswordRequest) (*proto.Response, error) {
+
+	err := validateForgotPasswordRequest(req)
+	if err != nil {
+		auth.log.LogError("Error while ValidateBody", err)
+		return nil, status.Errorf(codes.InvalidArgument, utils.InvalidRequest)
+	}
+
+	payload := ctx.Value(utils.AuthorizationPayloadKey).(*token.SessionPayload)
+	verify, err := auth.verifyOTP(payload, req.Email, req.Phone, req.Code, utils.FORGOT_PASSWORD)
+	if !verify {
+		return nil, err
+	}
+
+	err = auth.storage.ChangePassword(req)
+	if err != nil {
+		auth.log.LogError("Error while ChangePassword", err)
+		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	}
+
+	response := &proto.Response{
+		Code:    200,
+		Status:  true,
+		Message: "Password changed successfully",
+	}
+	return response, nil
+}
+
+func (auth *authenticationService) SSOAuth(ctx context.Context, req *proto.SsoRequest) (*proto.Response, error) {
+	err := validateSsoRequest(req)
+	if err != nil {
+		auth.log.LogError("Error while ValidateBody", err)
+		return nil, status.Errorf(codes.InvalidArgument, utils.InvalidRequest)
+	}
+
+	token := ctx.Value(utils.AuthorizationPayloadKey).(string)
+
+	var email, fullname string
+
+	switch req.Action {
+	case utils.SSO_ANDROID:
+		email, fullname, err = sso.GoogleOauth(token, auth.config.OAuth.AndroidClientId, auth.log)
+		if err != nil {
+			if err.Error() == "missing claims" {
+				auth.log.LogError("conflict occurs, missing claims :", err)
+				return nil, status.Errorf(codes.NotFound, "conflict occurs, missing claims")
+			}
+			auth.log.LogError("Error while GoogleOauth in sso-android", err)
+			return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+		}
+	case utils.SSO_IOS:
+		email, fullname, err = sso.GoogleOauth(token, auth.config.OAuth.IOSClientId, auth.log)
+		if err != nil {
+			if err.Error() == "missing claims" {
+				auth.log.LogError("conflict occurs, missing claims :", err)
+				return nil, status.Errorf(codes.NotFound, "conflict occurs, missing claims")
+			}
+			auth.log.LogError("Error while GoogleOauth in sso-ios", err)
+			return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+		}
+	default:
+		auth.log.LogError("Bad Requst", req)
+		return nil, status.Errorf(codes.InvalidArgument, utils.InvalidRequest)
+	}
+
+	//checks if the user exist or not
+	exist, err := auth.storage.CheckDataExist("email", email)
+	if err != nil {
+		auth.log.LogError("Error while CheckDataExist", err)
+		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	}
+	//already exist so login
+	if exist {
+		payload, err := auth.storage.GetTokenPayload("email", email)
+		if err != nil {
+			auth.log.LogError("Error while GetTokenPayload", err)
+			return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+		}
+
+		token, err := auth.token.CreateAccessToken(payload.UserId, payload.UserName, payload.UserType, time.Minute*10)
+		if err != nil {
+			auth.log.LogError("Error while CreateAccessToken", err)
+			return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+		}
+
+		response := &proto.Response{
+			Code:    200,
+			Status:  true,
+			Message: "User loggedin Successfully",
+		}
+
+		mdOut := metadata.New(map[string]string{
+			"access-token": token,
+		})
+		return response, grpc.SetHeader(ctx, mdOut)
+	} else {
+		signupReq := &proto.SignupRequest{
+			Email:    email,
+			UserName: fullname,
+			UserType: req.GetUserType(),
+			Password: email + fullname + req.UserType,
+		}
+		id, err := auth.storage.InsertUser(signupReq)
+		if err != nil {
+			auth.log.LogError("Error while InsertUser", err)
+			return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+		}
+
+		token, err := auth.token.CreateAccessToken(id, fullname, req.UserType, time.Minute*5)
+		if err != nil {
+			auth.log.LogError("Error while CreateAccessToken", err)
+			return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+		}
+
+		response := &proto.Response{
+			Code:    200,
+			Status:  true,
+			Message: "User Signup Successfully",
+		}
+
+		mdOut := metadata.New(map[string]string{
+			"access-token": token,
+		})
+		return response, grpc.SetHeader(ctx, mdOut)
+	}
+
 }

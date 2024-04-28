@@ -19,9 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	AuthenticationService_SendOTP_FullMethodName    = "/pb.AuthenticationService/SendOTP"
-	AuthenticationService_SignUpUser_FullMethodName = "/pb.AuthenticationService/SignUpUser"
-	AuthenticationService_LoginUser_FullMethodName  = "/pb.AuthenticationService/LoginUser"
+	AuthenticationService_SendOTP_FullMethodName        = "/pb.AuthenticationService/SendOTP"
+	AuthenticationService_SignUpUser_FullMethodName     = "/pb.AuthenticationService/SignUpUser"
+	AuthenticationService_LoginUser_FullMethodName      = "/pb.AuthenticationService/LoginUser"
+	AuthenticationService_ForgotPassword_FullMethodName = "/pb.AuthenticationService/ForgotPassword"
+	AuthenticationService_SSOAuth_FullMethodName        = "/pb.AuthenticationService/SSOAuth"
 )
 
 // AuthenticationServiceClient is the client API for AuthenticationService service.
@@ -31,6 +33,8 @@ type AuthenticationServiceClient interface {
 	SendOTP(ctx context.Context, in *SendOTPRequest, opts ...grpc.CallOption) (*Response, error)
 	SignUpUser(ctx context.Context, in *SignupRequest, opts ...grpc.CallOption) (*Response, error)
 	LoginUser(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*Response, error)
+	ForgotPassword(ctx context.Context, in *ForgotPasswordRequest, opts ...grpc.CallOption) (*Response, error)
+	SSOAuth(ctx context.Context, in *SsoRequest, opts ...grpc.CallOption) (*Response, error)
 }
 
 type authenticationServiceClient struct {
@@ -68,6 +72,24 @@ func (c *authenticationServiceClient) LoginUser(ctx context.Context, in *LoginRe
 	return out, nil
 }
 
+func (c *authenticationServiceClient) ForgotPassword(ctx context.Context, in *ForgotPasswordRequest, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
+	err := c.cc.Invoke(ctx, AuthenticationService_ForgotPassword_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authenticationServiceClient) SSOAuth(ctx context.Context, in *SsoRequest, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
+	err := c.cc.Invoke(ctx, AuthenticationService_SSOAuth_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AuthenticationServiceServer is the server API for AuthenticationService service.
 // All implementations must embed UnimplementedAuthenticationServiceServer
 // for forward compatibility
@@ -75,6 +97,8 @@ type AuthenticationServiceServer interface {
 	SendOTP(context.Context, *SendOTPRequest) (*Response, error)
 	SignUpUser(context.Context, *SignupRequest) (*Response, error)
 	LoginUser(context.Context, *LoginRequest) (*Response, error)
+	ForgotPassword(context.Context, *ForgotPasswordRequest) (*Response, error)
+	SSOAuth(context.Context, *SsoRequest) (*Response, error)
 	mustEmbedUnimplementedAuthenticationServiceServer()
 }
 
@@ -90,6 +114,12 @@ func (UnimplementedAuthenticationServiceServer) SignUpUser(context.Context, *Sig
 }
 func (UnimplementedAuthenticationServiceServer) LoginUser(context.Context, *LoginRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoginUser not implemented")
+}
+func (UnimplementedAuthenticationServiceServer) ForgotPassword(context.Context, *ForgotPasswordRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ForgotPassword not implemented")
+}
+func (UnimplementedAuthenticationServiceServer) SSOAuth(context.Context, *SsoRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SSOAuth not implemented")
 }
 func (UnimplementedAuthenticationServiceServer) mustEmbedUnimplementedAuthenticationServiceServer() {}
 
@@ -158,6 +188,42 @@ func _AuthenticationService_LoginUser_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AuthenticationService_ForgotPassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ForgotPasswordRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthenticationServiceServer).ForgotPassword(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthenticationService_ForgotPassword_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthenticationServiceServer).ForgotPassword(ctx, req.(*ForgotPasswordRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthenticationService_SSOAuth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SsoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthenticationServiceServer).SSOAuth(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthenticationService_SSOAuth_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthenticationServiceServer).SSOAuth(ctx, req.(*SsoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AuthenticationService_ServiceDesc is the grpc.ServiceDesc for AuthenticationService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -176,6 +242,14 @@ var AuthenticationService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "LoginUser",
 			Handler:    _AuthenticationService_LoginUser_Handler,
+		},
+		{
+			MethodName: "ForgotPassword",
+			Handler:    _AuthenticationService_ForgotPassword_Handler,
+		},
+		{
+			MethodName: "SSOAuth",
+			Handler:    _AuthenticationService_SSOAuth_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
