@@ -16,6 +16,7 @@ import (
 const (
 	signUp         string = "/pb.AuthenticationService/SignUpUser"
 	forgotPassword string = "/pb.AuthenticationService/ForgotPassword"
+	sso            string = "/pb.AuthenticationService/SSOAuth"
 )
 
 // AuthMiddleware is a gRPC unary server interceptor for authentication.
@@ -28,14 +29,14 @@ func (interceptor *AuthInterceptor) AuthMiddleware() grpc.UnaryServerInterceptor
 		md, ok := metadata.FromIncomingContext(ctx)
 		if !ok {
 			err := errors.New("metadata is not provided")
-			interceptor.log.LogError("Error :", err)
+			interceptor.log.LogError("Error : ", err)
 			return nil, status.Errorf(codes.Unauthenticated, err.Error())
 		}
 
 		authorizationHeaders := md.Get(utils.AuthorizationKey)
 		if len(authorizationHeaders) == 0 {
 			err := errors.New("authorization header is not provided")
-			interceptor.log.LogError("Error", err)
+			interceptor.log.LogError("Error : ", err)
 			return nil, status.Errorf(codes.Unauthenticated, err.Error())
 		}
 
@@ -43,14 +44,14 @@ func (interceptor *AuthInterceptor) AuthMiddleware() grpc.UnaryServerInterceptor
 		fields := strings.Fields(authorizationHeader)
 		if len(fields) < 2 {
 			err := errors.New("invalid authorization header format")
-			interceptor.log.LogError("Error", err)
+			interceptor.log.LogError("Error : ", err)
 			return nil, status.Errorf(codes.Unauthenticated, err.Error())
 		}
 
 		authorizationType := strings.ToLower(fields[0])
 		if authorizationType != utils.AuthorizationTypeBearer {
 			err := fmt.Errorf("unsupported authorization type: %s", authorizationType)
-			interceptor.log.LogError("Error", err)
+			interceptor.log.LogError("Error : ", err)
 			return nil, status.Errorf(codes.Unauthenticated, err.Error())
 		}
 
@@ -59,13 +60,55 @@ func (interceptor *AuthInterceptor) AuthMiddleware() grpc.UnaryServerInterceptor
 		payload, err := interceptor.token.VerifySessionToken(token)
 		if err != nil {
 			err := fmt.Errorf("error while VerifySessionToken: %s", err.Error())
-			interceptor.log.LogError("Error", err)
+			interceptor.log.LogError("Error : ", err)
 			return nil, status.Errorf(codes.Unauthenticated, err.Error())
 		}
 
 		// Add the payload to the context
 		ctx = context.WithValue(ctx, utils.AuthorizationPayloadKey, payload)
 
+		return handler(ctx, req)
+	}
+}
+
+func (interceptor *AuthInterceptor) AuthSsoMiddleware() grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		if ok := isSSONeeded(info.FullMethod); !ok {
+			interceptor.log.LogInfo("Calling gRPC meathod :", info.FullMethod)
+			return handler(ctx, req)
+		}
+		md, ok := metadata.FromIncomingContext(ctx)
+		if !ok {
+			err := errors.New("metadata is not provided")
+			interceptor.log.LogError("Error : ", err)
+			return nil, status.Errorf(codes.Unauthenticated, err.Error())
+		}
+		authorizationHeaders := md.Get(utils.AuthorizationKey)
+		if len(authorizationHeaders) == 0 {
+			err := errors.New("authorization header is not provided")
+			interceptor.log.LogError("Error : ", err)
+			return nil, status.Errorf(codes.Unauthenticated, err.Error())
+
+		}
+		authorizationHeader := authorizationHeaders[0]
+		fields := strings.Fields(authorizationHeader)
+		if len(fields) < 2 {
+			err := errors.New("invalid authorization header format")
+			interceptor.log.LogError("Error : ", err)
+			return nil, status.Errorf(codes.Unauthenticated, err.Error())
+
+		}
+
+		authorizationType := strings.ToLower(fields[0])
+		if authorizationType != utils.AuthorizationTypeBearer {
+			err := fmt.Errorf("unsupported authorization type: %s", authorizationType)
+			interceptor.log.LogError("Error : ", err)
+			return nil, status.Errorf(codes.Unauthenticated, err.Error())
+		}
+
+		token := fields[1]
+
+		ctx = context.WithValue(ctx, utils.AuthorizationPayloadKey, token)
 		return handler(ctx, req)
 	}
 }
@@ -77,4 +120,9 @@ func isAuthenticationNeeded(route string) bool {
 		return true
 	}
 	return false
+}
+
+// isAuthenticationNeeded returns true if the route needed authentication middleware
+func isSSONeeded(route string) bool {
+	return route == sso
 }

@@ -336,5 +336,4 @@ func (auth *authenticationService) SSOAuth(ctx context.Context, req *proto.SsoRe
 		})
 		return response, grpc.SetHeader(ctx, mdOut)
 	}
-
 }
