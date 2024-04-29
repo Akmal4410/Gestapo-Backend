@@ -56,13 +56,18 @@ func (admin *adminService) GetCategories(ctx context.Context, in *proto.Request)
 	return response, nil
 }
 
-// func (handler *AdminHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
-// 	res, err := handler.storage.GetUsers()
-// 	if err != nil {
-// 		handler.log.LogError("Error while GetUsers", err)
-// 		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
-// 		return
-// 	}
+func (admin *adminService) GetUsers(ctx context.Context, in *proto.Request) (*proto.GetUserResponse, error) {
+	res, err := admin.storage.GetUsers()
+	if err != nil {
+		admin.log.LogError("Error while GetUsers", err)
+		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	}
 
-// 	helpers.WriteJSON(w, http.StatusOK, res)
-// }
+	response := &proto.GetUserResponse{
+		Code:    200,
+		Status:  true,
+		Message: "Users fetched successfull",
+		Data:    res,
+	}
+	return response, nil
+}

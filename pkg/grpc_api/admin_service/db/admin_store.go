@@ -5,7 +5,6 @@ import (
 
 	"github.com/akmal4410/gestapo/internal/database"
 	"github.com/akmal4410/gestapo/pkg/api/proto"
-	"github.com/akmal4410/gestapo/pkg/grpc_api/admin_service/db/entity"
 	"github.com/google/uuid"
 )
 
@@ -84,8 +83,8 @@ func (store *AdminStore) GetCategories() ([]*proto.CategoryRes, error) {
 
 	return categories, nil
 }
-func (store *AdminStore) GetUsers() ([]entity.GetUserRes, error) {
-	var users []entity.GetUserRes
+func (store *AdminStore) GetUsers() ([]*proto.UserResponse, error) {
+	var users []*proto.UserResponse
 
 	selectQuery := `
 	SELECT id, profile_image, full_name, user_name, phone, email, dob, gender, user_type 
@@ -101,22 +100,22 @@ func (store *AdminStore) GetUsers() ([]entity.GetUserRes, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var user entity.GetUserRes
+		var user proto.UserResponse
 		err := rows.Scan(
-			&user.ID,
+			&user.Id,
 			&user.ProfileImage,
 			&user.FullName,
 			&user.UserName,
 			&user.Phone,
 			&user.Email,
-			&user.DOB,
+			&user.Dob,
 			&user.Gender,
 			&user.UserType,
 		)
 		if err != nil {
 			return nil, err
 		}
-		users = append(users, user)
+		users = append(users, &user)
 	}
 
 	err = rows.Err()
