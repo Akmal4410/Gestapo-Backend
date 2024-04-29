@@ -43,7 +43,7 @@ proto:
 
 evans:
 	@echo Starting evans gRPC client..
-	evans --host localhost --port 9001 -r repl      
+	evans --host localhost --port 9002 -r repl      
 
 
 
