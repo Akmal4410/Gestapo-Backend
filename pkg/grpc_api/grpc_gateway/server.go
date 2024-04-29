@@ -56,5 +56,4 @@ func RunGateway() error {
 			handlers.AllowedOrigins([]string{"*"}),
 		)(mux),
 	)
-
 }

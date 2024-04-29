@@ -22,6 +22,10 @@ authentication_server:
 	@echo Running authentication service
 	go run cmd/authentication_service/main.go 
 
+admin_server:
+	@echo Running admin service
+	go run cmd/admin_service/main.go
+
 grpc_gateway:
 	@echo Running grpc gateway
 	go run cmd/grpc_gateway/main.go

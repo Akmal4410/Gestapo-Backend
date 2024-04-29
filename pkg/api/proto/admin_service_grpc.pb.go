@@ -20,13 +20,15 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	AdminService_CreateCategory_FullMethodName = "/pb.AdminService/CreateCategory"
+	AdminService_GetCategories_FullMethodName  = "/pb.AdminService/GetCategories"
 )
 
 // AdminServiceClient is the client API for AdminService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AdminServiceClient interface {
-	CreateCategory(ctx context.Context, in *AddCategoryRequest, opts ...grpc.CallOption) (*GetCategoryResponse, error)
+	CreateCategory(ctx context.Context, in *AddCategoryRequest, opts ...grpc.CallOption) (*Response, error)
+	GetCategories(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetCategoryResponse, error)
 }
 
 type adminServiceClient struct {
@@ -37,9 +39,18 @@ func NewAdminServiceClient(cc grpc.ClientConnInterface) AdminServiceClient {
 	return &adminServiceClient{cc}
 }
 
-func (c *adminServiceClient) CreateCategory(ctx context.Context, in *AddCategoryRequest, opts ...grpc.CallOption) (*GetCategoryResponse, error) {
-	out := new(GetCategoryResponse)
+func (c *adminServiceClient) CreateCategory(ctx context.Context, in *AddCategoryRequest, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
 	err := c.cc.Invoke(ctx, AdminService_CreateCategory_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) GetCategories(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetCategoryResponse, error) {
+	out := new(GetCategoryResponse)
+	err := c.cc.Invoke(ctx, AdminService_GetCategories_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +61,8 @@ func (c *adminServiceClient) CreateCategory(ctx context.Context, in *AddCategory
 // All implementations must embed UnimplementedAdminServiceServer
 // for forward compatibility
 type AdminServiceServer interface {
-	CreateCategory(context.Context, *AddCategoryRequest) (*GetCategoryResponse, error)
+	CreateCategory(context.Context, *AddCategoryRequest) (*Response, error)
+	GetCategories(context.Context, *Request) (*GetCategoryResponse, error)
 	mustEmbedUnimplementedAdminServiceServer()
 }
 
@@ -58,8 +70,11 @@ type AdminServiceServer interface {
 type UnimplementedAdminServiceServer struct {
 }
 
-func (UnimplementedAdminServiceServer) CreateCategory(context.Context, *AddCategoryRequest) (*GetCategoryResponse, error) {
+func (UnimplementedAdminServiceServer) CreateCategory(context.Context, *AddCategoryRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateCategory not implemented")
+}
+func (UnimplementedAdminServiceServer) GetCategories(context.Context, *Request) (*GetCategoryResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCategories not implemented")
 }
 func (UnimplementedAdminServiceServer) mustEmbedUnimplementedAdminServiceServer() {}
 
@@ -92,6 +107,24 @@ func _AdminService_CreateCategory_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AdminService_GetCategories_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).GetCategories(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_GetCategories_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).GetCategories(ctx, req.(*Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AdminService_ServiceDesc is the grpc.ServiceDesc for AdminService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -102,6 +135,10 @@ var AdminService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateCategory",
 			Handler:    _AdminService_CreateCategory_Handler,
+		},
+		{
+			MethodName: "GetCategories",
+			Handler:    _AdminService_GetCategories_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
