@@ -1,32 +1,21 @@
 package server
 
-import (
-	"net/http"
+// func (server *Server) adminRoutes() {
+// 	storage := db.NewAdminStore(server.storage)
+// 	adminHandler := admin.NewAdminHandler(storage, server.log)
 
-	"github.com/akmal4410/gestapo/pkg/api/admin"
-	"github.com/akmal4410/gestapo/pkg/api/admin/database"
-	"github.com/akmal4410/gestapo/pkg/helpers/token"
-	"github.com/akmal4410/gestapo/pkg/server/middleware"
+// 	tokenMaker, err := token.NewJWTMaker(server.config.TokenSymmetricKey)
+// 	if err != nil {
+// 		server.log.LogFatal("%w", err)
+// 	}
 
-	"github.com/akmal4410/gestapo/pkg/utils"
-)
+// 	adminRoutes := server.router.PathPrefix("/admin").Subrouter()
 
-func (server *Server) adminRoutes() {
-	storage := database.NewAdminStore(server.storage)
-	adminHandler := admin.NewAdminHandler(storage, server.log)
+// 	createCategory := middleware.ApplyAccessRoleMiddleware(tokenMaker, server.log, utils.ADMIN, http.HandlerFunc(adminHandler.CreateCategory))
+// 	adminRoutes.Handle("/category", createCategory).Methods("POST")
+// 	getCategory := middleware.ApplyAccessRoleMiddleware(tokenMaker, server.log, utils.ADMIN, http.HandlerFunc(adminHandler.GetCategories))
+// 	adminRoutes.Handle("/category", getCategory).Methods("GET")
 
-	tokenMaker, err := token.NewJWTMaker(server.config.TokenSymmetricKey)
-	if err != nil {
-		server.log.LogFatal("%w", err)
-	}
-
-	adminRoutes := server.router.PathPrefix("/admin").Subrouter()
-
-	createCategory := middleware.ApplyAccessRoleMiddleware(tokenMaker, server.log, utils.ADMIN, http.HandlerFunc(adminHandler.CreateCategory))
-	adminRoutes.Handle("/category", createCategory).Methods("POST")
-	getCategory := middleware.ApplyAccessRoleMiddleware(tokenMaker, server.log, utils.ADMIN, http.HandlerFunc(adminHandler.GetCategories))
-	adminRoutes.Handle("/category", getCategory).Methods("GET")
-
-	allUsers := middleware.ApplyAccessRoleMiddleware(tokenMaker, server.log, utils.ADMIN, http.HandlerFunc(adminHandler.GetUsers))
-	adminRoutes.Handle("/user", allUsers).Methods("GET")
-}
+// 	allUsers := middleware.ApplyAccessRoleMiddleware(tokenMaker, server.log, utils.ADMIN, http.HandlerFunc(adminHandler.GetUsers))
+// 	adminRoutes.Handle("/user", allUsers).Methods("GET")
+// }

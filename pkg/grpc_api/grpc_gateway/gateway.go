@@ -25,8 +25,12 @@ func newGateway(ctx context.Context, log logger.Logger, config config.Config, op
 	dialOpts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 	errAuthentication := registerAuthenticationEndPoints(ctx, log, config, gMux, dialOpts)
 	if errAuthentication != nil {
-		log.LogError("error in registering Authentication Service.", errAuthentication)
 		return nil, errAuthentication
+	}
+
+	errAdmin := registerAdminEndPoints(ctx, log, config, gMux, dialOpts)
+	if errAuthentication != nil {
+		return nil, errAdmin
 	}
 
 	return gMux, nil
@@ -41,7 +45,19 @@ func registerAuthenticationEndPoints(ctx context.Context, log logger.Logger, con
 			log.LogError("error in registering authentication endpoint.", err)
 			return err
 		}
+	}
+	return nil
+}
 
+func registerAdminEndPoints(ctx context.Context, log logger.Logger, config config.Config, gMux *runtime.ServeMux, dialOpts []grpc.DialOption) error {
+	var endpoint *string
+	if config.ServerAddress != nil {
+		endpoint = &config.ServerAddress.Admin
+		err := proto.RegisterAdminServiceHandlerFromEndpoint(ctx, gMux, *endpoint, dialOpts)
+		if err != nil {
+			log.LogError("error in registering admin endpoint.", err)
+			return err
+		}
 	}
 	return nil
 }

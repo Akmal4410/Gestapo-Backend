@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package pb;
+
+import "api/proto/google/api/annotations.proto";
+import "api/proto/common_service.proto";
+
+option go_package = "api/proto";
+
+
+message AddCategoryRequest {
+    string category_name = 1;
+}
+
+message CategoryRes {
+	string id = 1;     
+	string category = 2;
+}
+
+// message AddCategoryResponse {
+//     int32 code = 1;
+//     bool status = 2;
+//     string message = 3;
+//     CategoryRes data = 4;
+// }
+
+message GetCategoryResponse {
+    int32 code = 1;
+    bool status = 2;
+    string message = 3;
+    repeated CategoryRes data = 4;
+}
+
+service AdminService {
+    rpc CreateCategory (AddCategoryRequest) returns (Response) {
+        option (google.api.http) = {
+            post: "/admin/category"
+            body: "*"
+        };
+    }
+
+    rpc GetCategories (Request) returns (GetCategoryResponse) {
+        option (google.api.http) = {
+            get: "/admin/category"
+        };
+    }
+}

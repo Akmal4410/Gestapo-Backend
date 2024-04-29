@@ -1,10 +1,11 @@
-package database
+package db
 
 import (
 	"time"
 
 	"github.com/akmal4410/gestapo/internal/database"
-	"github.com/akmal4410/gestapo/pkg/api/admin/database/entity"
+	"github.com/akmal4410/gestapo/pkg/api/proto"
+	"github.com/akmal4410/gestapo/pkg/grpc_api/admin_service/db/entity"
 	"github.com/google/uuid"
 )
 
@@ -31,7 +32,7 @@ func (store *AdminStore) CheckCategoryExist(category string) (bool, error) {
 	return result != 0, nil
 }
 
-func (store AdminStore) AddCategory(req *entity.AddCategoryReq) error {
+func (store AdminStore) AddCategory(req *proto.AddCategoryRequest) error {
 	createdAt := time.Now()
 	updatedAt := time.Now()
 
@@ -44,16 +45,16 @@ func (store AdminStore) AddCategory(req *entity.AddCategoryReq) error {
 	if err != nil {
 		return err
 	}
-	_, err = store.storage.DB.Exec(insertQuery, uuId, req.Category_Name, createdAt, updatedAt)
+	_, err = store.storage.DB.Exec(insertQuery, uuId, req.GetCategoryName(), createdAt, updatedAt)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (store *AdminStore) GetCategories() ([]entity.GetCategoriesRes, error) {
+func (store *AdminStore) GetCategories() ([]*proto.CategoryRes, error) {
 
-	var categories []entity.GetCategoriesRes
+	var categories []*proto.CategoryRes
 
 	selectQuery := `
 	SELECT id, category_name 
@@ -68,12 +69,12 @@ func (store *AdminStore) GetCategories() ([]entity.GetCategoriesRes, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var category entity.GetCategoriesRes
-		err := rows.Scan(&category.ID, &category.Category)
+		var category proto.CategoryRes
+		err := rows.Scan(&category.Id, &category.Category)
 		if err != nil {
 			return nil, err
 		}
-		categories = append(categories, category)
+		categories = append(categories, &category)
 	}
 
 	err = rows.Err()
