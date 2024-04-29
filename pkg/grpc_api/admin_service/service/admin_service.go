@@ -3,8 +3,10 @@ package service
 import (
 	"context"
 	"fmt"
+	"net/http"
 
 	"github.com/akmal4410/gestapo/pkg/api/proto"
+	"github.com/akmal4410/gestapo/pkg/helpers"
 	"github.com/akmal4410/gestapo/pkg/utils"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -56,13 +58,13 @@ func (admin *adminService) GetCategories(ctx context.Context, in *proto.Request)
 	return response, nil
 }
 
-// func (handler *AdminHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
-// 	res, err := handler.storage.GetUsers()
-// 	if err != nil {
-// 		handler.log.LogError("Error while GetUsers", err)
-// 		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
-// 		return
-// 	}
+func (handler *AdminHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
+	res, err := handler.storage.GetUsers()
+	if err != nil {
+		handler.log.LogError("Error while GetUsers", err)
+		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
+		return
+	}
 
-// 	helpers.WriteJSON(w, http.StatusOK, res)
-// }
+	helpers.WriteJSON(w, http.StatusOK, res)
+}

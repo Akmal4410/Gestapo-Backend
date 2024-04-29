@@ -44,4 +44,6 @@ service AdminService {
             get: "/admin/category"
         };
     }
+
+    rpc GetUsers (Request) returns (Response);
 }
