@@ -1,52 +1,56 @@
 package service
 
-// import (
-// 	"database/sql"
-// 	"fmt"
-// 	"net/http"
+import (
+	"context"
+	"database/sql"
+	"fmt"
+	"net/http"
 
-// 	"github.com/akmal4410/gestapo/pkg/helpers"
-// 	"github.com/gorilla/mux"
-// )
+	"github.com/akmal4410/gestapo/pkg/api/proto"
+	"github.com/akmal4410/gestapo/pkg/utils"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+)
 
-// func (handler *MerchantHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
-// 	userId := mux.Vars(r)["id"]
+func (merchant *merchantService) GetProfile(ctx context.Context, req *proto.GetMerchantProfileRequest) (*proto.GetMerchantProfileResponse, error) {
+	if req.GetUserId() == "" {
+		merchant.log.LogError("Error while Getting user id")
+		return nil, status.Errorf(codes.InvalidArgument, utils.InvalidRequest)
+	}
+	res, err := merchant.storage.CheckDataExist("user_data", "id", req.GetUserId())
+	if err != nil {
+		merchant.log.LogError("Error while CheckUserExist", err)
+		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	}
+	if !res {
+		err = fmt.Errorf("account does'nt exist using %s", req.GetUserId())
+		merchant.log.LogError(err)
+		return nil, status.Errorf(codes.NotFound, err.Error())
+	}
 
-// 	res, err := handler.storage.CheckDataExist("user_data", "id", userId)
-// 	if err != nil {
-// 		handler.log.LogError("Error while CheckUserExist", err)
-// 		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
-// 		return
-// 	}
+	userData, err := merchant.storage.GetProfile(req.UserId)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			merchant.log.LogError("Error while GetProfile", err)
+			return nil, status.Errorf(codes.NotFound, utils.NotFound)
+		}
+		merchant.log.LogError("Error while GetProfile", err)
+		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	}
 
-// 	if !res {
-// 		err = fmt.Errorf("account does'nt exist using %s", userId)
-// 		handler.log.LogError(err)
-// 		helpers.ErrorJson(http.StatusNotFound, err.Error())
-// 		return
-// 	}
-
-// 	userData, err := handler.storage.GetProfile(userId)
-// 	if err != nil {
-// 		if err == sql.ErrNoRows {
-// 			handler.log.LogError("Error while GetProfile", err)
-// 			helpers.ErrorJson(http.StatusNotFound, "Not found")
-// 			return
-// 		}
-// 		handler.log.LogError("Error while GetProfile", err)
-// 		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
-// 		return
-// 	}
-
-// 	if userData.ProfileImage != nil {
-// 		url, err := handler.s3Service.GetPreSignedURL(*userData.ProfileImage)
-// 		if err != nil {
-// 			handler.log.LogError("Error while GetPreSignedURL", err)
-// 			helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
-// 			return
-// 		}
-// 		userData.ProfileImage = &url
-// 	}
-
-// 	helpers.WriteJSON(w, http.StatusOK, userData)
-// }
+	if userData.ProfileImage != nil {
+		url, err := merchant.s3.GetPreSignedURL(*userData.ProfileImage)
+		if err != nil {
+			merchant.log.LogError("Error while GetPreSignedURL", err)
+			return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+		}
+		userData.ProfileImage = &url
+	}
+	respone := &proto.GetMerchantProfileResponse{
+		Code:    http.StatusOK,
+		Status:  true,
+		Message: "Profile fetched sucessfull",
+		Data:    userData,
+	}
+	return respone, nil
+}

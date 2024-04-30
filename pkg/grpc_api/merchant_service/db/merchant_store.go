@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/akmal4410/gestapo/internal/database"
+	"github.com/akmal4410/gestapo/pkg/api/proto"
 	"github.com/akmal4410/gestapo/pkg/grpc_api/merchant_service/db/entity"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
@@ -35,7 +36,7 @@ func (store MarchantStore) CheckDataExist(table, column, value string) (bool, er
 	return result != 0, nil
 }
 
-func (store *MarchantStore) GetProfile(userId string) (*entity.GetMerchantRes, error) {
+func (store *MarchantStore) GetProfile(userId string) (*proto.MerchantResponse, error) {
 	selectQuery := `
 	SELECT id, profile_image, full_name, user_name, phone, email, dob, gender, user_type 
 	FROM user_data WHERE id = $1;
@@ -44,15 +45,15 @@ func (store *MarchantStore) GetProfile(userId string) (*entity.GetMerchantRes, e
 	if rows.Err() != nil {
 		return nil, rows.Err()
 	}
-	var user entity.GetMerchantRes
+	var user proto.MerchantResponse
 	err := rows.Scan(
-		&user.ID,
+		&user.Id,
 		&user.ProfileImage,
 		&user.FullName,
 		&user.UserName,
 		&user.Phone,
 		&user.Email,
-		&user.DOB,
+		&user.Dob,
 		&user.Gender,
 		&user.UserType,
 	)

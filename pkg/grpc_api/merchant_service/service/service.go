@@ -4,7 +4,7 @@ import (
 	"github.com/akmal4410/gestapo/internal/config"
 	"github.com/akmal4410/gestapo/internal/database"
 	"github.com/akmal4410/gestapo/pkg/api/proto"
-	"github.com/akmal4410/gestapo/pkg/grpc_api/authentication_service/db"
+	"github.com/akmal4410/gestapo/pkg/grpc_api/merchant_service/db"
 	"github.com/akmal4410/gestapo/pkg/helpers/logger"
 	"github.com/akmal4410/gestapo/pkg/helpers/token"
 	s3 "github.com/akmal4410/gestapo/pkg/service/s3_service"
@@ -16,7 +16,7 @@ type merchantService struct {
 	config  *config.Config
 	log     logger.Logger
 	s3      *s3.S3Service
-	storage *db.AuthStore
+	storage *db.MarchantStore
 	token   token.Maker
 }
 
@@ -34,7 +34,7 @@ func NewMerchantService(storage *database.Storage, config *config.Config, log lo
 		config.AwsS3.SecretKey,
 	)
 
-	authStore := db.NewAuthStore(storage)
+	authStore := db.NewMarchantStore(storage)
 
 	server.s3 = s3
 	server.storage = authStore

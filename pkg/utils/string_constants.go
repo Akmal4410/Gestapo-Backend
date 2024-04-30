@@ -12,4 +12,5 @@ const (
 	AuthorizationPayloadKey contextKey = "authorization_payload"
 	InternalServerError     string     = "Internal server error"
 	InvalidRequest          string     = "Invalid Request"
+	NotFound                string     = "Not Found"
 )
