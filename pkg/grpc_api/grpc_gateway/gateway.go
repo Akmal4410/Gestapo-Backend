@@ -33,6 +33,16 @@ func newGateway(ctx context.Context, log logger.Logger, config config.Config, op
 		return nil, errAdmin
 	}
 
+	// errUser := registerUserEndPoints(ctx, log, config, gMux, dialOpts)
+	// if errUser != nil {
+	// 	return nil, errUser
+	// }
+
+	errMerchant := registerMerchantEndPoints(ctx, log, config, gMux, dialOpts)
+	if errMerchant != nil {
+		return nil, errMerchant
+	}
+
 	return gMux, nil
 }
 
@@ -56,6 +66,32 @@ func registerAdminEndPoints(ctx context.Context, log logger.Logger, config confi
 		err := proto.RegisterAdminServiceHandlerFromEndpoint(ctx, gMux, *endpoint, dialOpts)
 		if err != nil {
 			log.LogError("error in registering admin endpoint.", err)
+			return err
+		}
+	}
+	return nil
+}
+
+// func registerUserEndPoints(ctx context.Context, log logger.Logger, config config.Config, gMux *runtime.ServeMux, dialOpts []grpc.DialOption) error {
+// 	var endpoint *string
+// 	if config.ServerAddress != nil {
+// 		endpoint = &config.ServerAddress.User
+// 		err := proto.RegisterUserServiceHandlerFromEndpoint(ctx, gMux, *endpoint, dialOpts)
+// 		if err != nil {
+// 			log.LogError("error in registering admin endpoint.", err)
+// 			return err
+// 		}
+// 	}
+// 	return nil
+// }
+
+func registerMerchantEndPoints(ctx context.Context, log logger.Logger, config config.Config, gMux *runtime.ServeMux, dialOpts []grpc.DialOption) error {
+	var endpoint *string
+	if config.ServerAddress != nil {
+		endpoint = &config.ServerAddress.Merchant
+		err := proto.RegisterMerchantServiceHandlerFromEndpoint(ctx, gMux, *endpoint, dialOpts)
+		if err != nil {
+			log.LogError("error in registering merchant endpoint.", err)
 			return err
 		}
 	}

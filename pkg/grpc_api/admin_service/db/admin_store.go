@@ -83,6 +83,7 @@ func (store *AdminStore) GetCategories() ([]*proto.CategoryRes, error) {
 
 	return categories, nil
 }
+
 func (store *AdminStore) GetUsers() ([]*proto.UserResponse, error) {
 	var users []*proto.UserResponse
 

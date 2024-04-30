@@ -1,15 +1,15 @@
-package admin_service
+package user_service
 
 import (
 	"github.com/akmal4410/gestapo/internal/config"
 	"github.com/akmal4410/gestapo/internal/database"
-	"github.com/akmal4410/gestapo/pkg/grpc_api/admin_service/protocol/grpc"
+	"github.com/akmal4410/gestapo/pkg/grpc_api/user_service/protocol/grpc"
 	"github.com/akmal4410/gestapo/pkg/helpers/service_helper"
 )
 
 const (
-	serviceName = "Admin Service"
-	logFileName = "admin_service"
+	serviceName = "User Service"
+	logFileName = "user_service"
 )
 
 func RunServer() error {
@@ -19,7 +19,6 @@ func RunServer() error {
 		log.LogFatal("Cannot load configuration:", err)
 	}
 	log.LogInfo("Config file loaded.")
-
 	store, err := database.NewStorage(config.Database)
 	if err != nil {
 		log.LogFatal("Cannot connect to Database", err)

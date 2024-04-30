@@ -30,7 +30,7 @@ const (
 type AdminServiceClient interface {
 	CreateCategory(ctx context.Context, in *AddCategoryRequest, opts ...grpc.CallOption) (*Response, error)
 	GetCategories(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetCategoryResponse, error)
-	GetUsers(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetUserResponse, error)
+	GetUsers(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetUsersResponse, error)
 }
 
 type adminServiceClient struct {
@@ -59,8 +59,8 @@ func (c *adminServiceClient) GetCategories(ctx context.Context, in *Request, opt
 	return out, nil
 }
 
-func (c *adminServiceClient) GetUsers(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetUserResponse, error) {
-	out := new(GetUserResponse)
+func (c *adminServiceClient) GetUsers(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetUsersResponse, error) {
+	out := new(GetUsersResponse)
 	err := c.cc.Invoke(ctx, AdminService_GetUsers_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -74,7 +74,7 @@ func (c *adminServiceClient) GetUsers(ctx context.Context, in *Request, opts ...
 type AdminServiceServer interface {
 	CreateCategory(context.Context, *AddCategoryRequest) (*Response, error)
 	GetCategories(context.Context, *Request) (*GetCategoryResponse, error)
-	GetUsers(context.Context, *Request) (*GetUserResponse, error)
+	GetUsers(context.Context, *Request) (*GetUsersResponse, error)
 	mustEmbedUnimplementedAdminServiceServer()
 }
 
@@ -88,7 +88,7 @@ func (UnimplementedAdminServiceServer) CreateCategory(context.Context, *AddCateg
 func (UnimplementedAdminServiceServer) GetCategories(context.Context, *Request) (*GetCategoryResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCategories not implemented")
 }
-func (UnimplementedAdminServiceServer) GetUsers(context.Context, *Request) (*GetUserResponse, error) {
+func (UnimplementedAdminServiceServer) GetUsers(context.Context, *Request) (*GetUsersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUsers not implemented")
 }
 func (UnimplementedAdminServiceServer) mustEmbedUnimplementedAdminServiceServer() {}

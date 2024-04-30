@@ -1,8 +1,8 @@
-package database
+package db
 
 import (
 	"github.com/akmal4410/gestapo/internal/database"
-	"github.com/akmal4410/gestapo/pkg/api/user/database/entity"
+	"github.com/akmal4410/gestapo/pkg/grpc_api/user_service/db/entity"
 	"github.com/akmal4410/gestapo/pkg/utils"
 )
 

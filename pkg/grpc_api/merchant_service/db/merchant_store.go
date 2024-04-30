@@ -1,4 +1,4 @@
-package database
+package db
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/akmal4410/gestapo/internal/database"
-	"github.com/akmal4410/gestapo/pkg/api/merchant/database/entity"
+	"github.com/akmal4410/gestapo/pkg/grpc_api/merchant_service/db/entity"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
 )

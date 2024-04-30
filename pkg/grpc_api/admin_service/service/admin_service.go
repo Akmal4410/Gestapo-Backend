@@ -56,14 +56,14 @@ func (admin *adminService) GetCategories(ctx context.Context, in *proto.Request)
 	return response, nil
 }
 
-func (admin *adminService) GetUsers(ctx context.Context, in *proto.Request) (*proto.GetUserResponse, error) {
+func (admin *adminService) GetUsers(ctx context.Context, in *proto.Request) (*proto.GetUsersResponse, error) {
 	res, err := admin.storage.GetUsers()
 	if err != nil {
 		admin.log.LogError("Error while GetUsers", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
 
-	response := &proto.GetUserResponse{
+	response := &proto.GetUsersResponse{
 		Code:    200,
 		Status:  true,
 		Message: "Users fetched successfull",
