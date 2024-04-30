@@ -19,7 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	MerchantService_GetProfile_FullMethodName = "/pb.MerchantService/GetProfile"
+	MerchantService_GetProfile_FullMethodName  = "/pb.MerchantService/GetProfile"
+	MerchantService_EditProfile_FullMethodName = "/pb.MerchantService/EditProfile"
 )
 
 // MerchantServiceClient is the client API for MerchantService service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MerchantServiceClient interface {
 	GetProfile(ctx context.Context, in *GetMerchantProfileRequest, opts ...grpc.CallOption) (*GetMerchantProfileResponse, error)
+	EditProfile(ctx context.Context, in *EditMerchantRequest, opts ...grpc.CallOption) (*Response, error)
 }
 
 type merchantServiceClient struct {
@@ -46,11 +48,21 @@ func (c *merchantServiceClient) GetProfile(ctx context.Context, in *GetMerchantP
 	return out, nil
 }
 
+func (c *merchantServiceClient) EditProfile(ctx context.Context, in *EditMerchantRequest, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
+	err := c.cc.Invoke(ctx, MerchantService_EditProfile_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MerchantServiceServer is the server API for MerchantService service.
 // All implementations must embed UnimplementedMerchantServiceServer
 // for forward compatibility
 type MerchantServiceServer interface {
 	GetProfile(context.Context, *GetMerchantProfileRequest) (*GetMerchantProfileResponse, error)
+	EditProfile(context.Context, *EditMerchantRequest) (*Response, error)
 	mustEmbedUnimplementedMerchantServiceServer()
 }
 
@@ -60,6 +72,9 @@ type UnimplementedMerchantServiceServer struct {
 
 func (UnimplementedMerchantServiceServer) GetProfile(context.Context, *GetMerchantProfileRequest) (*GetMerchantProfileResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProfile not implemented")
+}
+func (UnimplementedMerchantServiceServer) EditProfile(context.Context, *EditMerchantRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EditProfile not implemented")
 }
 func (UnimplementedMerchantServiceServer) mustEmbedUnimplementedMerchantServiceServer() {}
 
@@ -92,6 +107,24 @@ func _MerchantService_GetProfile_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MerchantService_EditProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EditMerchantRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MerchantServiceServer).EditProfile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MerchantService_EditProfile_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MerchantServiceServer).EditProfile(ctx, req.(*EditMerchantRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MerchantService_ServiceDesc is the grpc.ServiceDesc for MerchantService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -102,6 +135,10 @@ var MerchantService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetProfile",
 			Handler:    _MerchantService_GetProfile_Handler,
+		},
+		{
+			MethodName: "EditProfile",
+			Handler:    _MerchantService_EditProfile_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
