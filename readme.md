@@ -12,3 +12,19 @@ docker logs deploy-authentication-service-1
 
 To list all in a folder
 ls -l
+
+To go inside the docker container
+docker exec -it postgres16 psql -U root
+
+List of databases
+\l
+
+To switch db inside psql
+\c dbname
+
+
+To list all table inside db
+\dt or \d
+
+To show details of a table use 
+\d table_name

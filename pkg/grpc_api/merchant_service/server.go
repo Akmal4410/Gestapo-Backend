@@ -1,15 +1,15 @@
-package admin_service
+package merchant_service
 
 import (
 	"github.com/akmal4410/gestapo/internal/config"
 	"github.com/akmal4410/gestapo/internal/database"
-	"github.com/akmal4410/gestapo/pkg/grpc_api/admin_service/protocol/grpc"
+	"github.com/akmal4410/gestapo/pkg/grpc_api/merchant_service/protocol/grpc"
 	"github.com/akmal4410/gestapo/pkg/helpers/service_helper"
 )
 
 const (
-	serviceName = "Admin Service"
-	logFileName = "admin_service"
+	serviceName = "Merchant Service"
+	logFileName = "merchant_service"
 )
 
 func RunServer() error {

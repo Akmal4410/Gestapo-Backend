@@ -10,23 +10,23 @@ import (
 	"github.com/akmal4410/gestapo/internal/config"
 	"github.com/akmal4410/gestapo/internal/database"
 	"github.com/akmal4410/gestapo/pkg/api/proto"
-	"github.com/akmal4410/gestapo/pkg/grpc_api/admin_service/service"
+	"github.com/akmal4410/gestapo/pkg/grpc_api/user_service/service"
 	"github.com/akmal4410/gestapo/pkg/helpers/logger"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
 func RunGRPCService(ctx context.Context, storage *database.Storage, config *config.Config, log logger.Logger) error {
-
-	service := service.NewAdminService(storage, log)
+	service := service.NewUserService(storage, log)
 	grpcServer := grpc.NewServer()
 
-	proto.RegisterAdminServiceServer(grpcServer, service)
+	proto.RegisterUserServieServer(grpcServer, service)
 	log.LogInfo("Registreing for reflection")
 	reflection.Register(grpcServer)
-	lis, err := net.Listen("tcp", config.ServerAddress.Admin)
+
+	lis, err := net.Listen("tcp", config.ServerAddress.User)
 	if err != nil {
-		log.LogError("error in listening to port", config.ServerAddress.Admin, "error:", err)
+		log.LogError("error in listening to port", config.ServerAddress.User, "error:", err)
 		return err
 	}
 

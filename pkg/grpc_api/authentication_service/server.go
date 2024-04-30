@@ -34,9 +34,9 @@ func RunServer() error {
 
 	select {
 	case <-ctx.Done():
-		log.LogInfo(ctx.Err())
+		log.LogError(ctx.Err())
 		break
 	}
-	log.LogInfo(serviceName, "shutdown")
+	log.LogError(serviceName, "shutdown")
 	return nil
 }

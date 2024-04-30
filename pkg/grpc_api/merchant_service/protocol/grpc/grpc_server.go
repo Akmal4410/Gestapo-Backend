@@ -10,26 +10,37 @@ import (
 	"github.com/akmal4410/gestapo/internal/config"
 	"github.com/akmal4410/gestapo/internal/database"
 	"github.com/akmal4410/gestapo/pkg/api/proto"
-	"github.com/akmal4410/gestapo/pkg/grpc_api/admin_service/service"
+	"github.com/akmal4410/gestapo/pkg/grpc_api/authentication_service/interceptor"
+	"github.com/akmal4410/gestapo/pkg/grpc_api/merchant_service/service"
 	"github.com/akmal4410/gestapo/pkg/helpers/logger"
+	"github.com/akmal4410/gestapo/pkg/helpers/token"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
 func RunGRPCService(ctx context.Context, storage *database.Storage, config *config.Config, log logger.Logger) error {
+	tokenMaker, err := token.NewJWTMaker(config.TokenSymmetricKey)
+	if err != nil {
+		log.LogFatal("Error while Initializing NewJWTMaker %w", err)
+	}
+	service := service.NewMerchantService(storage, config, log, tokenMaker)
+	authInterceptor := interceptor.NewAuthInterceptor(tokenMaker, log)
 
-	service := service.NewAdminService(storage, log)
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			authInterceptor.AuthMiddleware(),
+			// authInterceptor.AuthValidator(),//TODO: fix validation
+		),
+	)
 
-	proto.RegisterAdminServiceServer(grpcServer, service)
+	proto.RegisterMerchantServiceServer(grpcServer, service)
 	log.LogInfo("Registreing for reflection")
 	reflection.Register(grpcServer)
-	lis, err := net.Listen("tcp", config.ServerAddress.Admin)
+	lis, err := net.Listen("tcp", config.ServerAddress.Merchant)
 	if err != nil {
-		log.LogError("error in listening to port", config.ServerAddress.Admin, "error:", err)
+		log.LogError("error in listening to port", config.ServerAddress.Merchant, "error:", err)
 		return err
 	}
-
 	//graceful shutdown
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGKILL, syscall.SIGINT, syscall.SIGTERM)
@@ -40,7 +51,6 @@ func RunGRPCService(ctx context.Context, storage *database.Storage, config *conf
 			<-ctx.Done()
 		}
 	}()
-
 	log.LogInfo("Start gRPC server at ", lis.Addr().String())
 	return grpcServer.Serve(lis)
 }

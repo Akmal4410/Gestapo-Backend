@@ -43,6 +43,6 @@ func (server *Server) Start() error {
 }
 
 func (server *Server) setupRouter() {
-	server.merchantRoutes()
-	server.userRoutes()
+	// server.merchantRoutes()
+	// server.userRoutes()
 }

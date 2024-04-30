@@ -9,6 +9,7 @@ import (
 )
 
 const minSecretKeySize = 32
+const accessToken = "access-token"
 
 // JWTMaker is JSON Wed Token Maker
 type JWTMaker struct {
@@ -60,7 +61,7 @@ func (maker *JWTMaker) VerifySessionToken(token string) (*SessionPayload, error)
 // CreateAccessToken create a token for specific userName and duration
 func (maker *JWTMaker) CreateAccessToken(userID, userName, userType string, duration time.Duration) (string, error) {
 	mySigningKey := []byte(maker.secretKey)
-	payload := NewAccessPayload(userID, userName, userType, "access-token", duration)
+	payload := NewAccessPayload(userID, userName, userType, accessToken, duration)
 	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
 	return jwtToken.SignedString(mySigningKey)
 

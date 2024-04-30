@@ -14,6 +14,7 @@ func NewDBStore(storage *database.Storage) *DBStore {
 	return &DBStore{storage: storage}
 
 }
+
 func (store *DBStore) GetProducts() ([]entity.GetProductRes, error) {
 	var products []entity.GetProductRes
 	selectQuery := `
