@@ -12,36 +12,36 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (merchant *MerchantService) GetProfile(ctx context.Context, req *proto.GetMerchantProfileRequest) (*proto.GetMerchantProfileResponse, error) {
+func (merchant *merchantService) GetProfile(ctx context.Context, req *proto.GetMerchantProfileRequest) (*proto.GetMerchantProfileResponse, error) {
 	if req.GetUserId() == "" {
-		merchant.Log.LogError("Error while Getting user id")
+		merchant.log.LogError("Error while Getting user id")
 		return nil, status.Errorf(codes.InvalidArgument, utils.InvalidRequest)
 	}
 	res, err := merchant.storage.CheckDataExist("user_data", "id", req.GetUserId())
 	if err != nil {
-		merchant.Log.LogError("Error while CheckUserExist", err)
+		merchant.log.LogError("Error while CheckUserExist", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
 	if !res {
 		err = fmt.Errorf("account does'nt exist using %s", req.GetUserId())
-		merchant.Log.LogError(err)
+		merchant.log.LogError(err)
 		return nil, status.Errorf(codes.NotFound, err.Error())
 	}
 
 	userData, err := merchant.storage.GetProfile(req.UserId)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			merchant.Log.LogError("Error while GetProfile", err)
+			merchant.log.LogError("Error while GetProfile", err)
 			return nil, status.Errorf(codes.NotFound, utils.NotFound)
 		}
-		merchant.Log.LogError("Error while GetProfile", err)
+		merchant.log.LogError("Error while GetProfile", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
 
 	if userData.ProfileImage != nil {
 		url, err := merchant.s3.GetPreSignedURL(*userData.ProfileImage)
 		if err != nil {
-			merchant.Log.LogError("Error while GetPreSignedURL", err)
+			merchant.log.LogError("Error while GetPreSignedURL", err)
 			return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 		}
 		userData.ProfileImage = &url
@@ -53,4 +53,27 @@ func (merchant *MerchantService) GetProfile(ctx context.Context, req *proto.GetM
 		Data:    userData,
 	}
 	return respone, nil
+}
+
+func (merchant *merchantService) GetProducts(ctx context.Context, in *proto.Request) (*proto.GetProductResponse, error) {
+	// res, err := merchant.dbStorage.GetProducts()
+	// if err != nil {
+	// 	merchant.log.LogError("Error while GetProducts", err)
+	// 	return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	// }
+	// for _, product := range res {
+	// 	if product.ProductImages != nil {
+	// 		for i, image := range product.ProductImages {
+	// 			url, err := merchant.s3.GetPreSignedURL(image)
+	// 			if err != nil {
+	// 				merchant.log.LogError("Error while GetPreSignedURL", err)
+	// 				return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	// 			}
+	// 			product.ProductImages[i] = url
+	// 		}
+	// 	}
+	// }
+
+	// helpers.WriteJSON(w, http.StatusOK, res)
+	return nil, nil
 }

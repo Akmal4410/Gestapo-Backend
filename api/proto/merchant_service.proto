@@ -31,10 +31,18 @@ message GetMerchantProfileResponse {
     MerchantResponse data = 4;
 }
 
+
+
 service MerchantService {
     rpc GetProfile (GetMerchantProfileRequest) returns (GetMerchantProfileResponse) {
         option (google.api.http) = {
             get: "/merchant/profile/{user_id}"
+        };
+    }
+
+    rpc GetProducts (Request) returns (GetProductResponse) {
+        option (google.api.http) = {
+            get: "/merchant/product"
         };
     }
 }

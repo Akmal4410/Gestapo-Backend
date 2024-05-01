@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package pb;
+
+import "api/proto/google/api/annotations.proto";
+import "api/proto/common_service.proto";
+
+option go_package = "api/proto";
+
+service ProductService {
+    rpc GetProducts (Request) returns (GetProductResponse) {
+        option (google.api.http) = {
+            get: "/product"
+        };
+    }
+}
