@@ -34,8 +34,7 @@ message GetMerchantProfileResponse {
 service MerchantService {
     rpc GetProfile (GetMerchantProfileRequest) returns (GetMerchantProfileResponse) {
         option (google.api.http) = {
-            post: "/merchant/profile/{user_id}"
-            body: "*"
+            get: "/merchant/profile/{user_id}"
         };
     }
 }

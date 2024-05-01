@@ -35,10 +35,6 @@ func request_MerchantService_GetProfile_0(ctx context.Context, marshaler runtime
 	var protoReq GetMerchantProfileRequest
 	var metadata runtime.ServerMetadata
 
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
 	var (
 		val string
 		ok  bool
@@ -64,10 +60,6 @@ func request_MerchantService_GetProfile_0(ctx context.Context, marshaler runtime
 func local_request_MerchantService_GetProfile_0(ctx context.Context, marshaler runtime.Marshaler, server MerchantServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetMerchantProfileRequest
 	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
 
 	var (
 		val string
@@ -97,7 +89,7 @@ func local_request_MerchantService_GetProfile_0(ctx context.Context, marshaler r
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterMerchantServiceHandlerFromEndpoint instead.
 func RegisterMerchantServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server MerchantServiceServer) error {
 
-	mux.Handle("POST", pattern_MerchantService_GetProfile_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_MerchantService_GetProfile_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -163,7 +155,7 @@ func RegisterMerchantServiceHandler(ctx context.Context, mux *runtime.ServeMux, 
 // "MerchantServiceClient" to call the correct interceptors.
 func RegisterMerchantServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client MerchantServiceClient) error {
 
-	mux.Handle("POST", pattern_MerchantService_GetProfile_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_MerchantService_GetProfile_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
