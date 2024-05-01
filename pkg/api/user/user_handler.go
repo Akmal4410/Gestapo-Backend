@@ -1,12 +1,8 @@
 package user
 
 // import (
-// 	"net/http"
-
-// 	"github.com/akmal4410/gestapo/pkg/grpc_api/user_service/db/entity"
 // 	s3 "github.com/akmal4410/gestapo/pkg/service/s3_service"
 
-// 	"github.com/akmal4410/gestapo/pkg/helpers"
 // 	"github.com/akmal4410/gestapo/pkg/helpers/logger"
 // )
 

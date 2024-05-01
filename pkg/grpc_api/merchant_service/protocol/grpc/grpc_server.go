@@ -10,7 +10,6 @@ import (
 	"github.com/akmal4410/gestapo/internal/config"
 	"github.com/akmal4410/gestapo/internal/database"
 	"github.com/akmal4410/gestapo/pkg/api/proto"
-	"github.com/akmal4410/gestapo/pkg/grpc_api/authentication_service/interceptor"
 	"github.com/akmal4410/gestapo/pkg/grpc_api/merchant_service/service"
 	"github.com/akmal4410/gestapo/pkg/helpers/logger"
 	"github.com/akmal4410/gestapo/pkg/helpers/token"
@@ -24,14 +23,8 @@ func RunGRPCService(ctx context.Context, storage *database.Storage, config *conf
 		log.LogFatal("Error while Initializing NewJWTMaker %w", err)
 	}
 	service := service.NewMerchantService(storage, config, log, tokenMaker)
-	authInterceptor := interceptor.NewAuthInterceptor(tokenMaker, log)
 
-	grpcServer := grpc.NewServer(
-		grpc.ChainUnaryInterceptor(
-			authInterceptor.AuthMiddleware(),
-			// authInterceptor.AuthValidator(),//TODO: fix validation
-		),
-	)
+	grpcServer := grpc.NewServer()
 
 	proto.RegisterMerchantServiceServer(grpcServer, service)
 	log.LogInfo("Registreing for reflection")
