@@ -28,3 +28,5 @@ To list all table inside db
 
 To show details of a table use 
 \d table_name
+
+.
