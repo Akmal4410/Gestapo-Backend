@@ -78,6 +78,7 @@ func httpServe(l net.Listener, service *service.MerchantService) error {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/merchant", service.EditProfile)
 	s := &http.Server{Handler: mux}
+	service.Log.LogInfo("Serving merchant handlers at ", l.Addr())
 	return s.Serve(l)
 }
 

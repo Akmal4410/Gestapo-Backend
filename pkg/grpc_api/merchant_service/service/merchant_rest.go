@@ -27,14 +27,14 @@ func (handler *MerchantService) EditProfile(w http.ResponseWriter, r *http.Reque
 	err := helpers.ValidateBody(reader, req)
 	if err != nil {
 		handler.Log.LogError("Error while ValidateBody", err)
-		helpers.ErrorJson(http.StatusBadRequest, utils.InvalidRequest)
+		helpers.ErrorJson(w, http.StatusBadRequest, utils.InvalidRequest)
 		return
 	}
 
 	err = r.ParseMultipartForm(thirtyTwoMB)
 	if err != nil {
 		handler.Log.LogError("Unable to parse form", err.Error())
-		helpers.ErrorJson(http.StatusBadRequest, utils.InvalidRequest)
+		helpers.ErrorJson(w, http.StatusBadRequest, utils.InvalidRequest)
 		return
 	}
 
@@ -44,7 +44,7 @@ func (handler *MerchantService) EditProfile(w http.ResponseWriter, r *http.Reque
 	if len(files) > maxFileCount {
 		handler.Log.LogError("Too many files uploaded", "Max allowed: %d", maxFileCount)
 		errMsg := fmt.Sprintf("too many files uploaded. Max allowed: %s", strconv.Itoa(maxFileCount))
-		helpers.ErrorJson(http.StatusBadRequest, errMsg)
+		helpers.ErrorJson(w, http.StatusBadRequest, errMsg)
 		return
 	}
 
@@ -53,7 +53,7 @@ func (handler *MerchantService) EditProfile(w http.ResponseWriter, r *http.Reque
 		file, err := fileHeader.Open()
 		if err != nil {
 			handler.Log.LogError("Unable to open file", err)
-			helpers.ErrorJson(http.StatusInternalServerError, "Unable to open file")
+			helpers.ErrorJson(w, http.StatusInternalServerError, "Unable to open file")
 			return
 		}
 		defer file.Close()
@@ -62,7 +62,7 @@ func (handler *MerchantService) EditProfile(w http.ResponseWriter, r *http.Reque
 		fileURL, err := handler.s3.UploadFileToS3(file, folderPath, fileHeader.Filename)
 		if err != nil {
 			handler.Log.LogError("Error uploading file to S3", err)
-			helpers.ErrorJson(http.StatusInternalServerError, "Error uploading file to S3")
+			helpers.ErrorJson(w, http.StatusInternalServerError, "Error uploading file to S3")
 			return
 		}
 
@@ -76,7 +76,7 @@ func (handler *MerchantService) EditProfile(w http.ResponseWriter, r *http.Reque
 	err = handler.storage.UpdateProfile(payload.UserID, req)
 	if err != nil {
 		handler.Log.LogError("Error while UpdateProfile", err)
-		helpers.ErrorJson(http.StatusInternalServerError, utils.InternalServerError)
+		helpers.ErrorJson(w, http.StatusInternalServerError, utils.InternalServerError)
 		return
 	}
 
