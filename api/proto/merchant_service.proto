@@ -31,26 +31,10 @@ message GetMerchantProfileResponse {
     MerchantResponse data = 4;
 }
 
-message EditMerchantRequest {
-	string profile_image = 1;
-	string full_name = 2;
-	string dob = 3;
-	string gender = 4;
-}
-
-
-
 service MerchantService {
     rpc GetProfile (GetMerchantProfileRequest) returns (GetMerchantProfileResponse) {
         option (google.api.http) = {
             post: "/merchant/profile/{user_id}"
-            body: "*"
-        };
-    }
-
-    rpc EditProfile (EditMerchantRequest) returns (Response) {
-        option (google.api.http) = {
-            patch: "/merchant/profile"
             body: "*"
         };
     }

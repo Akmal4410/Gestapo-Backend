@@ -10,21 +10,21 @@ import (
 	s3 "github.com/akmal4410/gestapo/pkg/service/s3_service"
 )
 
-// merchantService serves gRPC requests for our e-commerce service.
-type merchantService struct {
+// MerchantService serves gRPC requests for our e-commerce service.
+type MerchantService struct {
 	proto.UnimplementedMerchantServiceServer
 	config  *config.Config
-	log     logger.Logger
+	Log     logger.Logger
 	s3      *s3.S3Service
 	storage *db.MarchantStore
 	token   token.Maker
 }
 
 // NewMerchantService creates a new gRPC server.
-func NewMerchantService(storage *database.Storage, config *config.Config, log logger.Logger, tokenMaker token.Maker) *merchantService {
-	server := &merchantService{
+func NewMerchantService(storage *database.Storage, config *config.Config, log logger.Logger, tokenMaker token.Maker) *MerchantService {
+	server := &MerchantService{
 		config: config,
-		log:    log,
+		Log:    log,
 		token:  tokenMaker,
 	}
 	s3 := s3.NewS3Service(

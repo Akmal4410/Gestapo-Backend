@@ -39,7 +39,7 @@ func (server *Server) Start() error {
 
 	server.setupRouter()
 	server.log.LogInfo("Go Bank Running on port :", server.config.ServerAddress)
-	return http.ListenAndServe("", router)
+	return http.ListenAndServe("", server.router)
 }
 
 func (server *Server) setupRouter() {
