@@ -1,6 +1,6 @@
 package entity
 
-import "github.com/akmal4410/gestapo/pkg/database/entity"
+import "github.com/akmal4410/gestapo/pkg/grpc_api/product_service/db/entity"
 
 type GetHomeRes struct {
 	Discount  *DiscountRes           `json:"discount,omitempty"`

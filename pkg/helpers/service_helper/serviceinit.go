@@ -11,9 +11,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-/*
-InitializeService func is called to set the log service and also listen to interrupt signals
-*/
+// InitializeService func is called to set the log service and also listen to interrupt signals
 func InitializeService(serviceName string, logFileName string) (context.Context, logger.Logger) {
 	//listen to interrupts or process termination
 	//first we create a channel to listen to interrupt's or kill signals

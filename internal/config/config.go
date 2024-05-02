@@ -27,6 +27,7 @@ type ServerAddress struct {
 	Admin          string `mapstructure:"ADMIN" json:"ADMIN"`
 	User           string `mapstructure:"USER" json:"USER"`
 	Merchant       string `mapstructure:"MERCHANT" json:"MERCHANT"`
+	Product        string `mapstructure:"PRODUCT" json:"PRODUCT"`
 }
 
 type Database struct {

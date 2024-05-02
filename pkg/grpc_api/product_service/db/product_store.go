@@ -2,20 +2,20 @@ package db
 
 import (
 	"github.com/akmal4410/gestapo/internal/database"
-	"github.com/akmal4410/gestapo/pkg/database/entity"
+	"github.com/akmal4410/gestapo/pkg/grpc_api/product_service/db/entity"
 	"github.com/lib/pq"
 )
 
-type DBStore struct {
+type ProductStore struct {
 	storage *database.Storage
 }
 
-func NewDBStore(storage *database.Storage) *DBStore {
-	return &DBStore{storage: storage}
+func NewProductStore(storage *database.Storage) *ProductStore {
+	return &ProductStore{storage: storage}
 
 }
 
-func (store *DBStore) GetProducts() ([]entity.GetProductRes, error) {
+func (store *ProductStore) GetProducts() ([]entity.GetProductRes, error) {
 	var products []entity.GetProductRes
 	selectQuery := `
 		SELECT id, product_name, images, price
@@ -57,7 +57,7 @@ func (store *DBStore) GetProducts() ([]entity.GetProductRes, error) {
 	return products, nil
 }
 
-func (store *DBStore) GetProductById(productId string) (*entity.GetProductRes, error) {
+func (store *ProductStore) GetProductById(productId string) (*entity.GetProductRes, error) {
 	selectQuery := `
 	SELECT
     p.id AS id,

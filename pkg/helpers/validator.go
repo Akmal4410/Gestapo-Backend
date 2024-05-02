@@ -15,8 +15,10 @@ var validate = validator.New()
 
 func ValidateBody(body io.Reader, data any) error {
 	RegisterValidator()
-	if err := json.NewDecoder(body).Decode(&data); err != nil {
-		return err
+	if body != nil {
+		if err := json.NewDecoder(body).Decode(&data); err != nil {
+			return err
+		}
 	}
 
 	err := validate.Struct(data)
@@ -33,6 +35,7 @@ func ValidateBody(body io.Reader, data any) error {
 		return fmt.Errorf("validation errors: %s", errorMessage.String())
 	}
 	return nil
+
 }
 
 func RegisterValidator() {

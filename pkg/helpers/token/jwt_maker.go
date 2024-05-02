@@ -9,7 +9,6 @@ import (
 )
 
 const minSecretKeySize = 32
-const accessToken = "access-token"
 
 // JWTMaker is JSON Wed Token Maker
 type JWTMaker struct {
@@ -25,9 +24,9 @@ func NewJWTMaker(secretKey string) (Maker, error) {
 }
 
 // CreateSessionToken implements Maker.
-func (maker *JWTMaker) CreateSessionToken(value, tokenType string, duration time.Duration) (string, error) {
+func (maker *JWTMaker) CreateSessionToken(value, tokenFor string, duration time.Duration) (string, error) {
 	mySigningKey := []byte(maker.secretKey)
-	payload := NewSessionPayload(value, tokenType, duration)
+	payload := NewSessionPayload(value, tokenFor, duration)
 	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
 	return jwtToken.SignedString(mySigningKey)
 }
@@ -61,7 +60,7 @@ func (maker *JWTMaker) VerifySessionToken(token string) (*SessionPayload, error)
 // CreateAccessToken create a token for specific userName and duration
 func (maker *JWTMaker) CreateAccessToken(userID, userName, userType string, duration time.Duration) (string, error) {
 	mySigningKey := []byte(maker.secretKey)
-	payload := NewAccessPayload(userID, userName, userType, accessToken, duration)
+	payload := NewAccessPayload(userID, userName, userType, duration)
 	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
 	return jwtToken.SignedString(mySigningKey)
 
@@ -87,6 +86,40 @@ func (maker *JWTMaker) VerifyAccessToken(token string) (*AccessPayload, error) {
 		return nil, ErrorInvalidToken
 	}
 	payload, ok := jwtToken.Claims.(*AccessPayload)
+	if !ok {
+		return nil, ErrorInvalidToken
+	}
+	return payload, nil
+}
+
+// CreateServiceToken create a token for specific service and duration
+func (maker *JWTMaker) CreateServiceToken(userID, serviceName string) (string, error) {
+	mySigningKey := []byte(maker.secretKey)
+	payload := NewServicePayload(userID, serviceName)
+	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
+	return jwtToken.SignedString(mySigningKey)
+}
+
+// VerifyServiceToken checks if token is valid or not
+func (maker *JWTMaker) VerifyServiceToken(token string) (*ServicePayload, error) {
+	keyFunc := func(token *jwt.Token) (interface{}, error) {
+		_, ok := token.Method.(*jwt.SigningMethodHMAC)
+		if !ok {
+			return nil, ErrorInvalidToken
+		}
+		return []byte(maker.secretKey), nil
+	}
+	jwtToken, err := jwt.ParseWithClaims(token, &AccessPayload{}, keyFunc)
+	if err != nil {
+		if strings.Contains(err.Error(), "token is expired") {
+			return nil, ErrorExpiredToken
+		}
+		return nil, ErrorInvalidToken
+	}
+	if !jwtToken.Valid {
+		return nil, ErrorInvalidToken
+	}
+	payload, ok := jwtToken.Claims.(*ServicePayload)
 	if !ok {
 		return nil, ErrorInvalidToken
 	}

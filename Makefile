@@ -28,7 +28,7 @@ admin_server:
 
 merchant_server:
 	@echo Running admin service
-	go run cmd/mentor_service/main.go
+	go run cmd/merchant_service/main.go
 
 
 grpc_gateway:
