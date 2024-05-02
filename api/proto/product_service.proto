@@ -11,10 +11,21 @@ message GetProductRequest {
     string merchant_id = 1;
 }
 
+message GetProductByIdRequest {
+    string merchant_id = 1;
+    string product_id = 2;
+}
+
 service ProductService {
-    rpc GetProducts (GetProductRequest) returns (GetProductResponse) {
+    rpc GetProducts (GetProductRequest) returns (GetProductsResponse) {
         option (google.api.http) = {
             get: "/product"
+        };
+    }
+
+    rpc GetProductById (GetProductByIdRequest) returns (GetProductByIdResponse) {
+        option (google.api.http) = {
+            get: "/product/{product_id}"
         };
     }
 }

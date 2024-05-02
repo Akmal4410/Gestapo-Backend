@@ -32,6 +32,26 @@ message GetMerchantProfileResponse {
 }
 
 
+message AddDiscountRequest {
+	string product_id = 1;
+	string name = 2;
+    string description =3;
+    fixed64 percentage = 4;
+    string card_color = 5;
+    google.protobuf.Timestamp start_time = 6;
+    google.protobuf.Timestamp end_time = 7;
+}
+
+message EditDiscountRequest {
+	string discount_id = 1;
+	string name = 2;
+    string description =3;
+    fixed64 percentage = 4;
+    string card_color = 5;
+    google.protobuf.Timestamp start_time = 6;
+    google.protobuf.Timestamp end_time = 7;
+}
+
 
 service MerchantService {
     rpc GetProfile (GetMerchantProfileRequest) returns (GetMerchantProfileResponse) {
@@ -40,9 +60,23 @@ service MerchantService {
         };
     }
 
-    rpc GetProducts (Request) returns (GetProductResponse) {
+    rpc GetProducts (Request) returns (GetProductsResponse) {
         option (google.api.http) = {
             get: "/merchant/product"
+        };
+    }
+
+    rpc AddProductDiscount (AddDiscountRequest) returns (Response) {
+        option (google.api.http) = {
+            post: "/merchant/product/discount"
+            body: "*"
+        };
+    }
+
+    rpc EditProductDiscount (EditDiscountRequest) returns (Response) {
+        option (google.api.http) = {
+            patch: "/merchant/product/discount/{discount_id}"
+            body: "*"
         };
     }
 }

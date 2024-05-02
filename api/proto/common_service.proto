@@ -34,13 +34,6 @@ message UserResponse  {
     string user_type = 9;
 }
 
-message GetProductResponse {
-    int32 code = 1;
-    bool status = 2;
-    string message = 3;
-    ProductResponse data = 4;
-}
-
 message ProductResponse  {
 	string id = 1;
 	string merchant_id = 2;
@@ -52,4 +45,21 @@ message ProductResponse  {
     fixed64 price = 8;
     fixed64 discount_price = 9;
 }
+
+message GetProductsResponse {
+    int32 code = 1;
+    bool status = 2;
+    string message = 3;
+    repeated ProductResponse data = 4;
+}
+
+message GetProductByIdResponse {
+    int32 code = 1;
+    bool status = 2;
+    string message = 3;
+    ProductResponse data = 4;
+}
+
+
+
 

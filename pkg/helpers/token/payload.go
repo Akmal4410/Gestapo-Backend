@@ -9,13 +9,17 @@ import (
 
 // Different types of error returend by token
 var (
-	ErrorExpiredToken error = fmt.Errorf("token is expired")
-	ErrorInvalidToken error = fmt.Errorf("token is invalid")
+	ErrorExpiredToken error  = fmt.Errorf("token is expired")
+	ErrorInvalidToken error  = fmt.Errorf("token is invalid")
+	sessionToken      string = "session-token"
+	accessToken       string = "access-token"
+	serviceToken      string = "service-token"
 )
 
 // SessionPayload contains the payload data of the session token
 type SessionPayload struct {
 	Value     string `json:"value"`
+	TokenFor  string `json:"token_for"`
 	TokenType string `json:"token_type"`
 	jwt.RegisteredClaims
 }
@@ -29,11 +33,20 @@ type AccessPayload struct {
 	jwt.RegisteredClaims
 }
 
+// ServicePayload contains the payload data of the token and is used to validate between services
+type ServicePayload struct {
+	UserID      string `json:"user_id"`
+	ServiceName string `json:"service_name"`
+	TokenType   string `json:"token_type"`
+	jwt.RegisteredClaims
+}
+
 // NewSessionPayload creates a new token payload with a specific value and duration
-func NewSessionPayload(value, tokenType string, duration time.Duration) *SessionPayload {
+func NewSessionPayload(value, tokenFor string, duration time.Duration) *SessionPayload {
 	payload := &SessionPayload{
 		Value:     value,
-		TokenType: tokenType,
+		TokenFor:  tokenFor,
+		TokenType: sessionToken,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(duration)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -43,14 +56,28 @@ func NewSessionPayload(value, tokenType string, duration time.Duration) *Session
 }
 
 // NewAccessPayload creates a new token payload with a specific username and duration
-func NewAccessPayload(userID, userName, userType, tokenType string, duration time.Duration) *AccessPayload {
+func NewAccessPayload(userID, userName, userType string, duration time.Duration) *AccessPayload {
 	payload := &AccessPayload{
 		UserID:    userID,
 		UserName:  userName,
 		UserType:  userType,
-		TokenType: tokenType,
+		TokenType: accessToken,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(duration)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+		},
+	}
+	return payload
+}
+
+// NewServicePayload creates a new token payload with a specific username and duration
+func NewServicePayload(userID, serviceName string) *ServicePayload {
+	payload := &ServicePayload{
+		UserID:      userID,
+		ServiceName: serviceName,
+		TokenType:   serviceToken,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Second * 3)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 	}
@@ -65,8 +92,14 @@ func (payload *SessionPayload) Valid() error {
 	return nil
 }
 
-// Valid checks if the token payload is valid or not
 func (payload *AccessPayload) Valid() error {
+	if time.Now().After(payload.RegisteredClaims.ExpiresAt.Time) {
+		return ErrorExpiredToken
+	}
+	return nil
+}
+
+func (payload *ServicePayload) Valid() error {
 	if time.Now().After(payload.RegisteredClaims.ExpiresAt.Time) {
 		return ErrorExpiredToken
 	}
