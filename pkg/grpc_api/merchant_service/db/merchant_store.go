@@ -8,6 +8,7 @@ import (
 	"github.com/akmal4410/gestapo/internal/database"
 	"github.com/akmal4410/gestapo/pkg/api/proto"
 	"github.com/akmal4410/gestapo/pkg/grpc_api/merchant_service/db/entity"
+	pro "github.com/akmal4410/gestapo/pkg/grpc_api/product_service/db/entity"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
 )
@@ -146,6 +147,66 @@ func (store *MarchantStore) UpdateProduct(id string, req *entity.EditProductReq)
 		return fmt.Errorf("couldnot update the products")
 	}
 	return nil
+}
+
+func (store *MarchantStore) GetProductById(productId string) (*pro.GetProductRes, error) {
+	selectQuery := `
+	SELECT
+    p.id AS id,
+	p.merchent_id AS merchent_id,
+    p.product_name AS product_name,
+    p.description AS description,
+    c.category_name AS category_name,
+    p.size AS size,
+    p.price AS price,
+    CASE
+        WHEN d.end_time IS NOT NULL AND d.end_time > NOW()
+		THEN p.price - (p.price * d.percent / 100) 
+        ELSE NULL
+    END AS discount_price,
+    p.images AS product_images
+	FROM
+    products p
+	LEFT JOIN
+    categories c ON p.category_id = c.id
+	LEFT JOIN
+    discounts d ON p.discount_id = d.id
+	WHERE 
+	p.id = $1;
+	`
+	rows := store.storage.DB.QueryRow(selectQuery, productId)
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+
+	var product pro.GetProductRes
+
+	var images pq.StringArray
+	var sizes pq.Float64Array
+
+	err := rows.Scan(
+		&product.ID,
+		&product.MerchantID,
+		&product.ProductName,
+		&product.Description,
+		&product.CategoryName,
+		&sizes,
+		&product.Price,
+		&product.DiscountPrice,
+		&images,
+	)
+	product.ProductImages = []string(images)
+	// Convert pq.Float64Array to []float64
+	var sizeList []float64
+	for _, v := range sizes {
+		sizeList = append(sizeList, float64(v))
+	}
+	product.Size = &sizeList
+
+	if err != nil {
+		return nil, err
+	}
+	return &product, nil
 }
 
 func (store *MarchantStore) DeleteProduct(productId string) error {
