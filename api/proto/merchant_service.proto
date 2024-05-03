@@ -52,6 +52,10 @@ message EditDiscountRequest {
     google.protobuf.Timestamp end_time = 7;
 }
 
+message DeleteProductRequest {
+    string product_id = 1;
+}
+
 
 service MerchantService {
     rpc GetProfile (GetMerchantProfileRequest) returns (GetMerchantProfileResponse) {
@@ -60,9 +64,16 @@ service MerchantService {
         };
     }
 
-    rpc GetProducts (Request) returns (GetProductsResponse) {
+    rpc GetProducts (GetProductRequest) returns (GetProductsResponse) {
         option (google.api.http) = {
-            get: "/merchant/product"
+            post: "/merchant/product"
+            body: "*"
+        };
+    }
+
+    rpc DeleteProduct (DeleteProductRequest) returns (Response) {
+        option (google.api.http) = {
+            delete: "/merchant/product/{product_id}"
         };
     }
 

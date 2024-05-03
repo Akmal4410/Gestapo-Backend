@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	MerchantService_GetProfile_FullMethodName          = "/pb.MerchantService/GetProfile"
 	MerchantService_GetProducts_FullMethodName         = "/pb.MerchantService/GetProducts"
+	MerchantService_DeleteProduct_FullMethodName       = "/pb.MerchantService/DeleteProduct"
 	MerchantService_AddProductDiscount_FullMethodName  = "/pb.MerchantService/AddProductDiscount"
 	MerchantService_EditProductDiscount_FullMethodName = "/pb.MerchantService/EditProductDiscount"
 )
@@ -30,7 +31,8 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MerchantServiceClient interface {
 	GetProfile(ctx context.Context, in *GetMerchantProfileRequest, opts ...grpc.CallOption) (*GetMerchantProfileResponse, error)
-	GetProducts(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetProductsResponse, error)
+	GetProducts(ctx context.Context, in *GetProductRequest, opts ...grpc.CallOption) (*GetProductsResponse, error)
+	DeleteProduct(ctx context.Context, in *DeleteProductRequest, opts ...grpc.CallOption) (*Response, error)
 	AddProductDiscount(ctx context.Context, in *AddDiscountRequest, opts ...grpc.CallOption) (*Response, error)
 	EditProductDiscount(ctx context.Context, in *EditDiscountRequest, opts ...grpc.CallOption) (*Response, error)
 }
@@ -52,9 +54,18 @@ func (c *merchantServiceClient) GetProfile(ctx context.Context, in *GetMerchantP
 	return out, nil
 }
 
-func (c *merchantServiceClient) GetProducts(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetProductsResponse, error) {
+func (c *merchantServiceClient) GetProducts(ctx context.Context, in *GetProductRequest, opts ...grpc.CallOption) (*GetProductsResponse, error) {
 	out := new(GetProductsResponse)
 	err := c.cc.Invoke(ctx, MerchantService_GetProducts_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *merchantServiceClient) DeleteProduct(ctx context.Context, in *DeleteProductRequest, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
+	err := c.cc.Invoke(ctx, MerchantService_DeleteProduct_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +95,8 @@ func (c *merchantServiceClient) EditProductDiscount(ctx context.Context, in *Edi
 // for forward compatibility
 type MerchantServiceServer interface {
 	GetProfile(context.Context, *GetMerchantProfileRequest) (*GetMerchantProfileResponse, error)
-	GetProducts(context.Context, *Request) (*GetProductsResponse, error)
+	GetProducts(context.Context, *GetProductRequest) (*GetProductsResponse, error)
+	DeleteProduct(context.Context, *DeleteProductRequest) (*Response, error)
 	AddProductDiscount(context.Context, *AddDiscountRequest) (*Response, error)
 	EditProductDiscount(context.Context, *EditDiscountRequest) (*Response, error)
 	mustEmbedUnimplementedMerchantServiceServer()
@@ -97,8 +109,11 @@ type UnimplementedMerchantServiceServer struct {
 func (UnimplementedMerchantServiceServer) GetProfile(context.Context, *GetMerchantProfileRequest) (*GetMerchantProfileResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProfile not implemented")
 }
-func (UnimplementedMerchantServiceServer) GetProducts(context.Context, *Request) (*GetProductsResponse, error) {
+func (UnimplementedMerchantServiceServer) GetProducts(context.Context, *GetProductRequest) (*GetProductsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProducts not implemented")
+}
+func (UnimplementedMerchantServiceServer) DeleteProduct(context.Context, *DeleteProductRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteProduct not implemented")
 }
 func (UnimplementedMerchantServiceServer) AddProductDiscount(context.Context, *AddDiscountRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddProductDiscount not implemented")
@@ -138,7 +153,7 @@ func _MerchantService_GetProfile_Handler(srv interface{}, ctx context.Context, d
 }
 
 func _MerchantService_GetProducts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Request)
+	in := new(GetProductRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -150,7 +165,25 @@ func _MerchantService_GetProducts_Handler(srv interface{}, ctx context.Context, 
 		FullMethod: MerchantService_GetProducts_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MerchantServiceServer).GetProducts(ctx, req.(*Request))
+		return srv.(MerchantServiceServer).GetProducts(ctx, req.(*GetProductRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MerchantService_DeleteProduct_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteProductRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MerchantServiceServer).DeleteProduct(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MerchantService_DeleteProduct_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MerchantServiceServer).DeleteProduct(ctx, req.(*DeleteProductRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -205,6 +238,10 @@ var MerchantService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetProducts",
 			Handler:    _MerchantService_GetProducts_Handler,
+		},
+		{
+			MethodName: "DeleteProduct",
+			Handler:    _MerchantService_DeleteProduct_Handler,
 		},
 		{
 			MethodName: "AddProductDiscount",

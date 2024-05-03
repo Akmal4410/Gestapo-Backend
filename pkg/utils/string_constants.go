@@ -13,4 +13,5 @@ const (
 	InternalServerError     string     = "Internal server error"
 	InvalidRequest          string     = "Invalid Request"
 	NotFound                string     = "Not Found"
+	PermissionDenied        string     = "Not Found"
 )

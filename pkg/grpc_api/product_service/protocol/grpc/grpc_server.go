@@ -23,7 +23,6 @@ func RunGRPCService(ctx context.Context, storage *database.Storage, config *conf
 		log.LogFatal("Error while Initializing NewJWTMaker %w", err)
 	}
 	service := service.NewProductService(storage, config, log, tokenMaker)
-
 	grpcServer := grpc.NewServer()
 
 	proto.RegisterProductServiceServer(grpcServer, service)

@@ -34,6 +34,10 @@ message UserResponse  {
     string user_type = 9;
 }
 
+message GetProductRequest {
+    string merchant_id = 1;
+}
+
 message ProductResponse  {
 	string id = 1;
 	string merchant_id = 2;
@@ -41,9 +45,9 @@ message ProductResponse  {
     string product_name = 4;
     string description = 5;
 	string category_name = 6;
-    repeated fixed64 size = 7;
-    fixed64 price = 8;
-    fixed64 discount_price = 9;
+    repeated double size = 7;
+    double price = 8;
+    double discount_price = 9;
 }
 
 message GetProductsResponse {
