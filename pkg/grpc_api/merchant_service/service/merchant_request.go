@@ -19,36 +19,36 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (merchant *merchantService) GetProfile(ctx context.Context, req *proto.GetMerchantProfileRequest) (*proto.GetMerchantProfileResponse, error) {
+func (handler *merchantService) GetProfile(ctx context.Context, req *proto.GetMerchantProfileRequest) (*proto.GetMerchantProfileResponse, error) {
 	if req.GetUserId() == "" {
-		merchant.log.LogError("Error while Getting user id")
+		handler.log.LogError("Error while Getting user id")
 		return nil, status.Errorf(codes.InvalidArgument, utils.InvalidRequest)
 	}
-	res, err := merchant.storage.CheckDataExist("user_data", "id", req.GetUserId())
+	res, err := handler.storage.CheckDataExist("user_data", "id", req.GetUserId())
 	if err != nil {
-		merchant.log.LogError("Error while CheckUserExist", err)
+		handler.log.LogError("Error while CheckUserExist", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
 	if !res {
 		err = fmt.Errorf("account does'nt exist using %s", req.GetUserId())
-		merchant.log.LogError(err)
+		handler.log.LogError(err)
 		return nil, status.Errorf(codes.NotFound, err.Error())
 	}
 
-	userData, err := merchant.storage.GetProfile(req.UserId)
+	userData, err := handler.storage.GetProfile(req.UserId)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			merchant.log.LogError("Error while GetProfile", err)
+			handler.log.LogError("Error while GetProfile", err)
 			return nil, status.Errorf(codes.NotFound, utils.NotFound)
 		}
-		merchant.log.LogError("Error while GetProfile", err)
+		handler.log.LogError("Error while GetProfile", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
 
 	if userData.ProfileImage != nil {
-		url, err := merchant.s3.GetPreSignedURL(*userData.ProfileImage)
+		url, err := handler.s3.GetPreSignedURL(*userData.ProfileImage)
 		if err != nil {
-			merchant.log.LogError("Error while GetPreSignedURL", err)
+			handler.log.LogError("Error while GetPreSignedURL", err)
 			return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 		}
 		userData.ProfileImage = &url
@@ -62,23 +62,23 @@ func (merchant *merchantService) GetProfile(ctx context.Context, req *proto.GetM
 	return respone, nil
 }
 
-func (merchant *merchantService) GetProducts(ctx context.Context, req *proto.Request) (*proto.GetProductsResponse, error) {
+func (handler *merchantService) GetProducts(ctx context.Context, req *proto.GetProductRequest) (*proto.GetProductsResponse, error) {
 	payload, ok := ctx.Value(utils.AuthorizationPayloadKey).(*token.AccessPayload)
 	if !ok {
 		err := errors.New("unable to retrieve merchant payload from context")
-		merchant.log.LogError("Error", err)
+		handler.log.LogError("Error", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
 
-	serviceToken, err := merchant.token.CreateServiceToken(payload.UserID, "authentication")
+	serviceToken, err := handler.token.CreateServiceToken(payload.UserID, "product")
 	if err != nil {
-		merchant.log.LogError("error while generating service token in GetProducts", err)
+		handler.log.LogError("error while generating service token in GetProducts", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
 
-	conn, err := service_helper.ConnectEndpoints(merchant.config.ServerAddress.Product, "product", merchant.log)
+	conn, err := service_helper.ConnectEndpoints(handler.config.ServerAddress.Product, "product", handler.log)
 	if err != nil {
-		merchant.log.LogError("error while connecting product service :", err)
+		handler.log.LogError("error while connecting product service :", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
 	defer conn.Close()
@@ -90,115 +90,86 @@ func (merchant *merchantService) GetProducts(ctx context.Context, req *proto.Req
 	}))
 	defer cancel()
 
-	response, err := productClient.GetProducts(serviceCtx, &proto.GetProductRequest{MerchantId: payload.UserID})
+	response, err := productClient.GetProducts(serviceCtx, &proto.GetProductRequest{MerchantId: req.GetMerchantId()})
 	if err != nil {
-		merchant.log.LogError("error parsing product service context : :", err)
+		handler.log.LogError("error parsing product service context : :", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
 	return response, nil
-
-	// res, err := merchant.dbStorage.GetProducts()
-	// if err != nil {
-	// 	merchant.log.LogError("Error while GetProducts", err)
-	// 	return nil, status.Errorf(codes.Internal, utils.InternalServerError)
-	// }
-	// for _, product := range res {
-	// 	if product.ProductImages != nil {
-	// 		for i, image := range product.ProductImages {
-	// 			url, err := merchant.s3.GetPreSignedURL(image)
-	// 			if err != nil {
-	// 				merchant.log.LogError("Error while GetPreSignedURL", err)
-	// 				return nil, status.Errorf(codes.Internal, utils.InternalServerError)
-	// 			}
-	// 			product.ProductImages[i] = url
-	// 		}
-	// 	}
-	// }
-
-	// helpers.WriteJSON(w, http.StatusOK, res)
 }
 
-//FOR PRODUCT Service
+func (handler *merchantService) DeleteProduct(ctx context.Context, req *proto.DeleteProductRequest) (*proto.Response, error) {
+	payload, ok := ctx.Value(utils.AuthorizationPayloadKey).(*token.AccessPayload)
+	if !ok {
+		err := errors.New("unable to retrieve merchant payload from context")
+		handler.log.LogError("Error", err)
+		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	}
 
-// func (handler *MerchantHandler) GetProductById(w http.ResponseWriter, r *http.Request) {
-// 	productId := mux.Vars(r)["id"]
+	serviceToken, err := handler.token.CreateServiceToken(payload.UserID, "product")
+	if err != nil {
+		handler.log.LogError("error while generating service token in DeleteProduct", err)
+		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	}
 
-// 	product, err := handler.dbStorage.GetProductById(productId)
-// 	if err != nil {
-// 		if err == sql.ErrNoRows {
-// 			handler.log.LogError("Error while GetProductById Not found", err)
-// 			helpers.ErrorJson(http.StatusNotFound, "Not found")
-// 			return
-// 		}
-// 		handler.log.LogError("Error while GetProductById", err)
-// 		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
-// 		return
-// 	}
+	conn, err := service_helper.ConnectEndpoints(handler.config.ServerAddress.Product, "product", handler.log)
+	if err != nil {
+		handler.log.LogError("error while connecting product service :", err)
+		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	}
+	defer conn.Close()
 
-// 	if product.ProductImages != nil {
-// 		for i, image := range product.ProductImages {
-// 			url, err := handler.s3Service.GetPreSignedURL(image)
-// 			if err != nil {
-// 				handler.log.LogError("Error while GetPreSignedURL", err)
-// 				helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
-// 				return
-// 			}
-// 			product.ProductImages[i] = url
-// 		}
-// 	}
-// 	helpers.WriteJSON(w, http.StatusOK, product)
-// }
+	productClient := proto.NewProductServiceClient(conn)
+	serviceCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	serviceCtx = metadata.NewOutgoingContext(serviceCtx, metadata.New(map[string]string{
+		"service-token": serviceToken,
+	}))
+	defer cancel()
 
-//FOR PRODUCT Service
+	productRes, err := productClient.GetProductById(serviceCtx, &proto.GetProductByIdRequest{
+		ProductId: req.GetProductId(),
+	})
+	if err != nil {
+		handler.log.LogError("Error while retrieving product", err)
+		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	}
+	if !productRes.Status {
+		if productRes.Code == int32(codes.NotFound) {
+			handler.log.LogError("Error while GetProductById product Not found")
+			return nil, status.Errorf(codes.NotFound, utils.NotFound)
+		}
+		handler.log.LogError("Error while GetProductById")
+		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	}
 
-// func (handler *MerchantHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
-// 	productId := mux.Vars(r)["id"]
-// 	product, err := handler.dbStorage.GetProductById(productId)
-// 	if err != nil {
-// 		if err == sql.ErrNoRows {
-// 			handler.log.LogError("Error while GetProductById Not fount", err)
-// 			helpers.ErrorJson(http.StatusNotFound, "Not found")
-// 			return
-// 		}
-// 		handler.log.LogError("Error while retrieving product", err)
-// 		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
-// 		return
-// 	}
+	if productRes.Data.MerchantId != payload.UserID {
+		handler.log.LogError("unauthorized: product does not belong to the authenticated merchant")
+		return nil, status.Errorf(codes.PermissionDenied, "product does not belong to the authenticated merchant")
+	}
 
-// 	payload, ok := r.Context().Value(utils.AuthorizationPayloadKey).(*token.AccessPayload)
-// 	if !ok {
-// 		err := errors.New("unable to retrieve user payload from context")
-// 		handler.log.LogError("Error", err)
-// 		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
-// 		return
-// 	}
+	err = handler.storage.DeleteProduct(req.GetProductId())
+	if err != nil {
+		handler.log.LogError("Error while DeleteProduct", err)
+		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	}
 
-// 	if product.MerchantID != payload.UserID {
-// 		err := errors.New("unauthorized: product does not belong to the authenticated merchant")
-// 		handler.log.LogError("Error", err)
-// 		helpers.ErrorJson(http.StatusForbidden, err.Error())
-// 		return
-// 	}
+	for _, key := range productRes.Data.ProductImages {
+		err := handler.s3.DeleteKey(key)
+		if err != nil {
+			handler.log.LogError("Error deleting file from S3", err)
+			return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+		}
+	}
 
-// 	err = handler.storage.DeleteProduct(productId)
-// 	if err != nil {
-// 		handler.log.LogError("Error while DeleteProduct", err)
-// 		helpers.ErrorJson(http.StatusInternalServerError, InternalServerError)
-// 		return
-// 	}
+	response := &proto.Response{
+		Code:    http.StatusOK,
+		Status:  true,
+		Message: "Product deleted succesfully",
+	}
+	return response, nil
+}
 
-// 	for _, key := range product.ProductImages {
-// 		err := handler.s3Service.DeleteKey(key)
-// 		if err != nil {
-// 			handler.log.LogError("Error deleting file from S3", err)
-// 			helpers.ErrorJson(http.StatusInternalServerError, "Error deleting file from")
-// 			return
-// 		}
-// 	}
-// 	helpers.WriteJSON(w, http.StatusOK, "Product deleted succesfully")
-// }
-
-func (merchant *merchantService) AddProductDiscount(ctx context.Context, in *proto.AddDiscountRequest) (*proto.Response, error) {
+func (handler *merchantService) AddProductDiscount(ctx context.Context, in *proto.AddDiscountRequest) (*proto.Response, error) {
 	req := &entity.AddDiscountReq{
 		ProductId:    in.GetProductId(),
 		DiscountName: in.GetName(),
@@ -210,22 +181,22 @@ func (merchant *merchantService) AddProductDiscount(ctx context.Context, in *pro
 	}
 	err := helpers.ValidateBody(nil, req)
 	if err != nil {
-		merchant.log.LogError("Error while ValidateBody", err)
+		handler.log.LogError("Error while ValidateBody", err)
 		return nil, status.Errorf(codes.InvalidArgument, utils.InvalidRequest)
 	}
-	exist, err := merchant.storage.CheckDataExist("products", "id", req.ProductId)
+	exist, err := handler.storage.CheckDataExist("products", "id", req.ProductId)
 	if err != nil {
-		merchant.log.LogError("Error while checking product", err)
+		handler.log.LogError("Error while checking product", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
 	if !exist {
-		merchant.log.LogError("product doesnt exists")
+		handler.log.LogError("product doesnt exists")
 		return nil, status.Errorf(codes.NotFound, "Product not found with ", req.ProductId)
 	}
 
-	err = merchant.storage.AddProductDiscount(req)
+	err = handler.storage.AddProductDiscount(req)
 	if err != nil {
-		merchant.log.LogError("Error while AddProductDiscount", err)
+		handler.log.LogError("Error while AddProductDiscount", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 
 	}
