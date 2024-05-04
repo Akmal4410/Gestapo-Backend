@@ -56,6 +56,16 @@ message DeleteProductRequest {
     string product_id = 1;
 }
 
+message GetDiscountsRequest {
+    optional string merchant_id = 1;
+}
+message GetDiscountsResponse {
+    int32 code = 1;
+    bool status = 2;
+    string message = 3;
+    repeated DiscountResponse data = 4;
+}
+
 
 service MerchantService {
     rpc GetProfile (GetMerchantProfileRequest) returns (GetMerchantProfileResponse) {
@@ -87,6 +97,13 @@ service MerchantService {
     rpc EditProductDiscount (EditDiscountRequest) returns (Response) {
         option (google.api.http) = {
             patch: "/merchant/product/discount/{discount_id}"
+            body: "*"
+        };
+    }
+
+    rpc GetAllDiscounts (GetDiscountsRequest) returns (GetDiscountsResponse) {
+        option (google.api.http) = {
+            post: "/merchant/product/discounts"
             body: "*"
         };
     }

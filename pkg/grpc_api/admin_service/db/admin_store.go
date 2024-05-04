@@ -5,6 +5,7 @@ import (
 
 	"github.com/akmal4410/gestapo/internal/database"
 	"github.com/akmal4410/gestapo/pkg/api/proto"
+	"github.com/akmal4410/gestapo/pkg/grpc_api/admin_service/db/entity"
 	"github.com/google/uuid"
 )
 
@@ -84,16 +85,15 @@ func (store *AdminStore) GetCategories() ([]*proto.CategoryRes, error) {
 	return categories, nil
 }
 
-func (store *AdminStore) GetUsers() ([]*proto.UserResponse, error) {
-	var users []*proto.UserResponse
+func (store *AdminStore) GetUsers() ([]entity.GetUserRes, error) {
+	var users []entity.GetUserRes
 
 	selectQuery := `
 	SELECT id, profile_image, full_name, user_name, phone, email, dob, gender, user_type 
 	FROM user_data
-	WHERE user_type != 'ADMIN'
-	ORDER BY full_name ASC;
+	WHERE user_type != 'ADMIN';
 	`
-
+	//ORDER BY full_name ASC
 	rows, err := store.storage.DB.Query(selectQuery)
 	if err != nil {
 		return nil, err
@@ -101,22 +101,22 @@ func (store *AdminStore) GetUsers() ([]*proto.UserResponse, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var user proto.UserResponse
+		var user entity.GetUserRes
 		err := rows.Scan(
-			&user.Id,
+			&user.ID,
 			&user.ProfileImage,
 			&user.FullName,
 			&user.UserName,
 			&user.Phone,
 			&user.Email,
-			&user.Dob,
+			&user.DOB,
 			&user.Gender,
 			&user.UserType,
 		)
 		if err != nil {
 			return nil, err
 		}
-		users = append(users, &user)
+		users = append(users, user)
 	}
 
 	err = rows.Err()

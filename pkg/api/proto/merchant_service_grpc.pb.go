@@ -24,6 +24,7 @@ const (
 	MerchantService_DeleteProduct_FullMethodName       = "/pb.MerchantService/DeleteProduct"
 	MerchantService_AddProductDiscount_FullMethodName  = "/pb.MerchantService/AddProductDiscount"
 	MerchantService_EditProductDiscount_FullMethodName = "/pb.MerchantService/EditProductDiscount"
+	MerchantService_GetAllDiscounts_FullMethodName     = "/pb.MerchantService/GetAllDiscounts"
 )
 
 // MerchantServiceClient is the client API for MerchantService service.
@@ -35,6 +36,7 @@ type MerchantServiceClient interface {
 	DeleteProduct(ctx context.Context, in *DeleteProductRequest, opts ...grpc.CallOption) (*Response, error)
 	AddProductDiscount(ctx context.Context, in *AddDiscountRequest, opts ...grpc.CallOption) (*Response, error)
 	EditProductDiscount(ctx context.Context, in *EditDiscountRequest, opts ...grpc.CallOption) (*Response, error)
+	GetAllDiscounts(ctx context.Context, in *GetDiscountsRequest, opts ...grpc.CallOption) (*GetDiscountsResponse, error)
 }
 
 type merchantServiceClient struct {
@@ -90,6 +92,15 @@ func (c *merchantServiceClient) EditProductDiscount(ctx context.Context, in *Edi
 	return out, nil
 }
 
+func (c *merchantServiceClient) GetAllDiscounts(ctx context.Context, in *GetDiscountsRequest, opts ...grpc.CallOption) (*GetDiscountsResponse, error) {
+	out := new(GetDiscountsResponse)
+	err := c.cc.Invoke(ctx, MerchantService_GetAllDiscounts_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MerchantServiceServer is the server API for MerchantService service.
 // All implementations must embed UnimplementedMerchantServiceServer
 // for forward compatibility
@@ -99,6 +110,7 @@ type MerchantServiceServer interface {
 	DeleteProduct(context.Context, *DeleteProductRequest) (*Response, error)
 	AddProductDiscount(context.Context, *AddDiscountRequest) (*Response, error)
 	EditProductDiscount(context.Context, *EditDiscountRequest) (*Response, error)
+	GetAllDiscounts(context.Context, *GetDiscountsRequest) (*GetDiscountsResponse, error)
 	mustEmbedUnimplementedMerchantServiceServer()
 }
 
@@ -120,6 +132,9 @@ func (UnimplementedMerchantServiceServer) AddProductDiscount(context.Context, *A
 }
 func (UnimplementedMerchantServiceServer) EditProductDiscount(context.Context, *EditDiscountRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EditProductDiscount not implemented")
+}
+func (UnimplementedMerchantServiceServer) GetAllDiscounts(context.Context, *GetDiscountsRequest) (*GetDiscountsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllDiscounts not implemented")
 }
 func (UnimplementedMerchantServiceServer) mustEmbedUnimplementedMerchantServiceServer() {}
 
@@ -224,6 +239,24 @@ func _MerchantService_EditProductDiscount_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MerchantService_GetAllDiscounts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDiscountsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MerchantServiceServer).GetAllDiscounts(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MerchantService_GetAllDiscounts_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MerchantServiceServer).GetAllDiscounts(ctx, req.(*GetDiscountsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MerchantService_ServiceDesc is the grpc.ServiceDesc for MerchantService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -250,6 +283,10 @@ var MerchantService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "EditProductDiscount",
 			Handler:    _MerchantService_EditProductDiscount_Handler,
+		},
+		{
+			MethodName: "GetAllDiscounts",
+			Handler:    _MerchantService_GetAllDiscounts_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

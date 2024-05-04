@@ -3,7 +3,6 @@ package token
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/golang-jwt/jwt"
 )
@@ -24,9 +23,9 @@ func NewJWTMaker(secretKey string) (Maker, error) {
 }
 
 // CreateSessionToken implements Maker.
-func (maker *JWTMaker) CreateSessionToken(value, tokenFor string, duration time.Duration) (string, error) {
+func (maker *JWTMaker) CreateSessionToken(value, tokenFor string) (string, error) {
 	mySigningKey := []byte(maker.secretKey)
-	payload := NewSessionPayload(value, tokenFor, duration)
+	payload := NewSessionPayload(value, tokenFor)
 	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
 	return jwtToken.SignedString(mySigningKey)
 }
@@ -58,9 +57,9 @@ func (maker *JWTMaker) VerifySessionToken(token string) (*SessionPayload, error)
 }
 
 // CreateAccessToken create a token for specific userName and duration
-func (maker *JWTMaker) CreateAccessToken(userID, userName, userType string, duration time.Duration) (string, error) {
+func (maker *JWTMaker) CreateAccessToken(userID, userName, userType string) (string, error) {
 	mySigningKey := []byte(maker.secretKey)
-	payload := NewAccessPayload(userID, userName, userType, duration)
+	payload := NewAccessPayload(userID, userName, userType)
 	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
 	return jwtToken.SignedString(mySigningKey)
 

@@ -21,14 +21,6 @@ message HomeResponse {
     repeated ProductResponse products = 3;
 }
 
-message DiscountResponse {
-	string product_id = 1;
-	string name = 2;
-    string description = 3;
-    float percentage = 4;
-	string  product_image = 5;
-    uint32 card_color = 6;
-}
 
 
 service UserServie {

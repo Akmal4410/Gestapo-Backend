@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/akmal4410/gestapo/pkg/api/proto"
 	"github.com/akmal4410/gestapo/pkg/helpers"
@@ -55,7 +54,7 @@ func (auth *authenticationService) SendOTP(ctx context.Context, req *proto.SendO
 			return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 		}
 	}
-	sessionToken, err := auth.token.CreateSessionToken(value, req.Action, time.Minute*5)
+	sessionToken, err := auth.token.CreateSessionToken(value, req.Action)
 	if err != nil {
 		auth.log.LogError("Error while CreateSessionToken", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
@@ -150,7 +149,7 @@ func (auth *authenticationService) SignUpUser(ctx context.Context, req *proto.Si
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
 
-	token, err := auth.token.CreateAccessToken(id, req.UserName, req.UserType, time.Minute*5)
+	token, err := auth.token.CreateAccessToken(id, req.UserName, req.UserType)
 	if err != nil {
 		auth.log.LogError("Error while CreateAccessToken", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
@@ -194,7 +193,7 @@ func (auth *authenticationService) LoginUser(ctx context.Context, req *proto.Log
 		auth.log.LogError("Error while GetTokenPayload", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
-	token, err := auth.token.CreateAccessToken(payload.UserId, req.UserName, payload.UserType, time.Hour*48)
+	token, err := auth.token.CreateAccessToken(payload.UserId, req.UserName, payload.UserType)
 	if err != nil {
 		auth.log.LogError("Error while CreateAccessToken", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
@@ -291,7 +290,7 @@ func (auth *authenticationService) SSOAuth(ctx context.Context, req *proto.SsoRe
 			return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 		}
 
-		token, err := auth.token.CreateAccessToken(payload.UserId, payload.UserName, payload.UserType, time.Minute*10)
+		token, err := auth.token.CreateAccessToken(payload.UserId, payload.UserName, payload.UserType)
 		if err != nil {
 			auth.log.LogError("Error while CreateAccessToken", err)
 			return nil, status.Errorf(codes.Internal, utils.InternalServerError)
@@ -320,7 +319,7 @@ func (auth *authenticationService) SSOAuth(ctx context.Context, req *proto.SsoRe
 			return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 		}
 
-		token, err := auth.token.CreateAccessToken(id, fullname, req.UserType, time.Minute*5)
+		token, err := auth.token.CreateAccessToken(id, fullname, req.UserType)
 		if err != nil {
 			auth.log.LogError("Error while CreateAccessToken", err)
 			return nil, status.Errorf(codes.Internal, utils.InternalServerError)

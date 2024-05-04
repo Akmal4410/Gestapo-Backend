@@ -43,6 +43,7 @@ type EditProductReq struct {
 
 type AddDiscountReq struct {
 	ProductId    string    `json:"product_id" validate:"required"`
+	MerchantId   string    `json:"merchant_id" validate:"required"`
 	DiscountName string    `json:"name" validate:"required"`
 	Description  string    `json:"description" validate:"required"`
 	Percentage   float64   `json:"percentage" validate:"percentage"`
