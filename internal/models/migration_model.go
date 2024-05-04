@@ -43,6 +43,7 @@ type Inventories struct {
 
 type Discounts struct {
 	ID          uuid.UUID `gorm:"NOT NULL; PRIMARY_KEY"`
+	MerchentID  uuid.UUID `gorm:"NOT NULL"`
 	Name        string    `gorm:"NOT NULL"`
 	Description string    `gorm:"NOT NULL"`
 	Percent     float64   `gorm:"NOT NULL"`

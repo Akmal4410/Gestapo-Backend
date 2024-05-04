@@ -69,7 +69,7 @@ func (interceptor *Interceptor) AccessMiddleware() grpc.UnaryServerInterceptor {
 		if err != nil {
 			err := fmt.Errorf("error while VerifyAccessToken: %s", err.Error())
 			interceptor.log.LogError("Error : ", err)
-			return nil, status.Errorf(codes.Unauthenticated, err.Error())
+			return nil, status.Errorf(codes.Unauthenticated, "token is expired")
 		}
 
 		if payload.TokenType != "access-token" {

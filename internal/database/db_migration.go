@@ -8,10 +8,12 @@ import (
 )
 
 type DBMigration struct {
-	user_data  models.User_Data
-	categories models.Categories
-	products   models.Products
-	carts      models.Carts
+	user_data   models.User_Data
+	categories  models.Categories
+	products    models.Products
+	inventories models.Inventories
+	dicounts    models.Discounts
+	carts       models.Carts
 }
 
 var migrate DBMigration
@@ -21,18 +23,24 @@ func AutoMigrateTables(gormDB *gorm.DB) {
 		fmt.Println(err.Error())
 	}
 
-	if err := gormDB.AutoMigrate(
-		&migrate.categories,
-		&migrate.products,
-	); err != nil {
+	if err := gormDB.AutoMigrate(&migrate.categories); err != nil {
 		fmt.Println(err.Error())
 	}
+
+	if err := gormDB.AutoMigrate(&migrate.products); err != nil {
+		fmt.Println(err.Error())
+	}
+
+	if err := gormDB.AutoMigrate(&migrate.inventories); err != nil {
+		fmt.Println(err.Error())
+	}
+
+	if err := gormDB.AutoMigrate(&migrate.dicounts); err != nil {
+		fmt.Println(err.Error())
+	}
+
 	if err := gormDB.AutoMigrate(&migrate.carts); err != nil {
 		fmt.Println(err.Error())
 	}
 
-	// Add foreign key constraints
-	// if err := gormDB.Model(&migrate.products).AddForeignKey("category_id", "categories(id)", "RESTRICT", "RESTRICT"); err != nil {
-	// 	fmt.Println(err.Error())
-	// }
 }

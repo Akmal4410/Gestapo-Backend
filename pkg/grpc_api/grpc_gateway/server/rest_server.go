@@ -12,7 +12,7 @@ import (
 type RestServer struct {
 	log     logger.Logger
 	s3      *s3.S3Service
-	storage *db.MarchantStore
+	storage *db.MerchantStore
 	token   token.Maker
 }
 
@@ -29,7 +29,7 @@ func NewRestServer(storage *database.Storage, config *config.Config, log logger.
 		config.AwsS3.SecretKey,
 	)
 
-	merchantStore := db.NewMarchantStore(storage)
+	merchantStore := db.NewMerchantStore(storage)
 
 	server.s3 = s3
 	server.storage = merchantStore

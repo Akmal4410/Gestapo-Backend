@@ -140,7 +140,7 @@ func (handler *merchantService) DeleteProduct(ctx context.Context, req *proto.De
 	productClient := proto.NewProductServiceClient(conn)
 	serviceCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	serviceCtx = metadata.NewOutgoingContext(serviceCtx, metadata.New(map[string]string{
-		token.ServiceToken: serviceToken,
+		token.ServiceToken: fmt.Sprint(utils.AuthorizationTypeBearer, " ", serviceToken),
 	}))
 	defer cancel()
 
@@ -188,8 +188,15 @@ func (handler *merchantService) DeleteProduct(ctx context.Context, req *proto.De
 }
 
 func (handler *merchantService) AddProductDiscount(ctx context.Context, in *proto.AddDiscountRequest) (*proto.Response, error) {
+	payload, ok := ctx.Value(utils.AuthorizationPayloadKey).(*token.AccessPayload)
+	if !ok {
+		err := errors.New("unable to retrieve merchant payload from context")
+		handler.log.LogError("Error", err)
+		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	}
 	req := &entity.AddDiscountReq{
 		ProductId:    in.GetProductId(),
+		MerchantId:   payload.UserID,
 		DiscountName: in.GetName(),
 		Description:  in.GetDescription(),
 		Percentage:   float64(in.GetPercentage()),
@@ -202,14 +209,50 @@ func (handler *merchantService) AddProductDiscount(ctx context.Context, in *prot
 		handler.log.LogError("Error while ValidateBody", err)
 		return nil, status.Errorf(codes.InvalidArgument, utils.InvalidRequest)
 	}
-	exist, err := handler.storage.CheckDataExist("products", "id", req.ProductId)
+
+	serviceToken, err := handler.token.CreateServiceToken(payload.UserID, "product")
 	if err != nil {
-		handler.log.LogError("Error while checking product", err)
+		handler.log.LogError("error while generating service token in DeleteProduct", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
-	if !exist {
-		handler.log.LogError("product doesnt exists")
-		return nil, status.Errorf(codes.NotFound, "Product not found")
+
+	conn, err := service_helper.ConnectEndpoints(handler.config.ServerAddress.Product, "product", handler.log)
+	if err != nil {
+		handler.log.LogError("error while connecting product service :", err)
+		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	}
+	defer conn.Close()
+
+	productClient := proto.NewProductServiceClient(conn)
+	serviceCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	serviceCtx = metadata.NewOutgoingContext(serviceCtx, metadata.New(map[string]string{
+		token.ServiceToken: fmt.Sprint(utils.AuthorizationTypeBearer, " ", serviceToken),
+	}))
+	defer cancel()
+
+	productRes, err := productClient.GetProductById(serviceCtx, &proto.GetProductByIdRequest{
+		ProductId: in.GetProductId(),
+	})
+	if err != nil {
+		if err.Error() == "rpc error: code = NotFound desc = No found" {
+			handler.log.LogError("Error while GetProductById Not found", err)
+			return nil, status.Errorf(codes.NotFound, "No found")
+		}
+		handler.log.LogError("Error while retrieving product", err)
+		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	}
+	if !productRes.Status {
+		if productRes.Code == int32(codes.NotFound) {
+			handler.log.LogError("Error while GetProductById product Not found")
+			return nil, status.Errorf(codes.NotFound, utils.NotFound)
+		}
+		handler.log.LogError("Error while GetProductById")
+		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	}
+
+	if productRes.Data.MerchantId != nil && *productRes.Data.MerchantId != payload.UserID {
+		handler.log.LogError("unauthorized: product does not belong to the authenticated merchant")
+		return nil, status.Errorf(codes.PermissionDenied, "product does not belong to the authenticated merchant")
 	}
 
 	err = handler.storage.AddProductDiscount(req)
@@ -268,5 +311,33 @@ func (handler *merchantService) EditProductDiscount(ctx context.Context, in *pro
 		Message: "Discount updated successfully",
 	}
 
+	return response, nil
+}
+
+func (handler *merchantService) GetAllDiscounts(ctx context.Context, req *proto.GetDiscountsRequest) (*proto.GetDiscountsResponse, error) {
+	discountEntities, err := handler.storage.GetAllDiscount(req.MerchantId)
+	if err != nil {
+		handler.log.LogError("Error while GetAllDiscount", err)
+		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	}
+
+	var discouts []*proto.DiscountResponse
+	for _, discount := range discountEntities {
+		discountRes := &proto.DiscountResponse{
+			ProductId:    discount.ProductID,
+			Name:         discount.Name,
+			Description:  discount.Description,
+			Percentage:   float32(discount.Percentage),
+			ProductImage: discount.ProductImage,
+			CardColor:    discount.CardColor,
+		}
+		discouts = append(discouts, discountRes)
+	}
+	response := &proto.GetDiscountsResponse{
+		Code:    http.StatusOK,
+		Status:  true,
+		Message: "Discounts fetched successfully",
+		Data:    discouts,
+	}
 	return response, nil
 }

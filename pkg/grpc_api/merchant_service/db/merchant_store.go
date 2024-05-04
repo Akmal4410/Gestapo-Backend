@@ -7,21 +7,22 @@ import (
 
 	"github.com/akmal4410/gestapo/internal/database"
 	"github.com/akmal4410/gestapo/pkg/grpc_api/merchant_service/db/entity"
-	pro "github.com/akmal4410/gestapo/pkg/grpc_api/product_service/db/entity"
+	product_entity "github.com/akmal4410/gestapo/pkg/grpc_api/product_service/db/entity"
+	user_entity "github.com/akmal4410/gestapo/pkg/grpc_api/user_service/db/entity"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
 )
 
-type MarchantStore struct {
+type MerchantStore struct {
 	storage *database.Storage
 }
 
-func NewMarchantStore(storage *database.Storage) *MarchantStore {
-	return &MarchantStore{storage: storage}
+func NewMerchantStore(storage *database.Storage) *MerchantStore {
+	return &MerchantStore{storage: storage}
 
 }
 
-func (store MarchantStore) CheckDataExist(table, column, value string) (bool, error) {
+func (store MerchantStore) CheckDataExist(table, column, value string) (bool, error) {
 	checkQuery := fmt.Sprintf(`SELECT * FROM %s WHERE %s = $1;`, table, column)
 	res, err := store.storage.DB.Exec(checkQuery, value)
 	if err != nil {
@@ -36,7 +37,7 @@ func (store MarchantStore) CheckDataExist(table, column, value string) (bool, er
 	return result != 0, nil
 }
 
-func (store *MarchantStore) GetProfile(userId string) (*entity.GetMerchantRes, error) {
+func (store *MerchantStore) GetProfile(userId string) (*entity.GetMerchantRes, error) {
 	selectQuery := `
 	SELECT id, profile_image, full_name, user_name, phone, email, dob, gender, user_type 
 	FROM user_data WHERE id = $1;
@@ -63,7 +64,7 @@ func (store *MarchantStore) GetProfile(userId string) (*entity.GetMerchantRes, e
 	return &user, nil
 }
 
-func (store *MarchantStore) UpdateProfile(id string, req *entity.EditMerchantReq) error {
+func (store *MerchantStore) UpdateProfile(id string, req *entity.EditMerchantReq) error {
 	updatedAt := time.Now()
 
 	updateQuery := `UPDATE user_data
@@ -84,7 +85,7 @@ func (store *MarchantStore) UpdateProfile(id string, req *entity.EditMerchantReq
 	return nil
 }
 
-func (store *MarchantStore) InsertProduct(userId, productId string, req *entity.AddProductReq) error {
+func (store *MerchantStore) InsertProduct(userId, productId string, req *entity.AddProductReq) error {
 	createdAt := time.Now()
 	updatedAt := time.Now()
 
@@ -124,7 +125,7 @@ func (store *MarchantStore) InsertProduct(userId, productId string, req *entity.
 	return nil
 }
 
-func (store *MarchantStore) UpdateProduct(id string, req *entity.EditProductReq) error {
+func (store *MerchantStore) UpdateProduct(id string, req *entity.EditProductReq) error {
 	updateQuery := `
 	UPDATE products
 	SET product_name = $2, description = $3, images = $4, size = $5, price = $6, updated_at = $7
@@ -148,7 +149,7 @@ func (store *MarchantStore) UpdateProduct(id string, req *entity.EditProductReq)
 	return nil
 }
 
-func (store *MarchantStore) GetProductById(productId string) (*pro.GetProductRes, error) {
+func (store *MerchantStore) GetProductById(productId string) (*product_entity.GetProductRes, error) {
 	selectQuery := `
 	SELECT
     p.id AS id,
@@ -178,7 +179,7 @@ func (store *MarchantStore) GetProductById(productId string) (*pro.GetProductRes
 		return nil, rows.Err()
 	}
 
-	var product pro.GetProductRes
+	var product product_entity.GetProductRes
 
 	var images pq.StringArray
 	var sizes pq.Float64Array
@@ -208,7 +209,7 @@ func (store *MarchantStore) GetProductById(productId string) (*pro.GetProductRes
 	return &product, nil
 }
 
-func (store *MarchantStore) DeleteProduct(productId string) error {
+func (store *MerchantStore) DeleteProduct(productId string) error {
 	deleteQuery := `
         DELETE FROM products
         USING inventories
@@ -232,7 +233,7 @@ func (store *MarchantStore) DeleteProduct(productId string) error {
 	return nil
 }
 
-func (store *MarchantStore) AddProductDiscount(req *entity.AddDiscountReq) error {
+func (store *MerchantStore) AddProductDiscount(req *entity.AddDiscountReq) error {
 	ctx := context.Background()
 	tx, err := store.storage.DB.BeginTx(ctx, nil)
 	if err != nil {
@@ -252,11 +253,11 @@ func (store *MarchantStore) AddProductDiscount(req *entity.AddDiscountReq) error
 
 	insertQuery := `
 	INSERT INTO discounts
-	(id, name, description, percent, card_color, start_time, end_time, created_at, updated_at)
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);
+	(id, merchent_id, name, description, percent, card_color, start_time, end_time, created_at, updated_at)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
 	`
 
-	res, err := tx.Exec(insertQuery, discountId.String(), req.DiscountName, req.Description, req.Percentage, req.CardColor, req.StartTime, req.EndTime, createdAt, updatedAt)
+	res, err := tx.Exec(insertQuery, discountId.String(), req.MerchantId, req.DiscountName, req.Description, req.Percentage, req.CardColor, req.StartTime, req.EndTime, createdAt, updatedAt)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -293,7 +294,7 @@ func (store *MarchantStore) AddProductDiscount(req *entity.AddDiscountReq) error
 	return nil
 }
 
-func (store *MarchantStore) EditProductDiscount(discountId string, req *entity.EditDiscountReq) error {
+func (store *MerchantStore) EditProductDiscount(discountId string, req *entity.EditDiscountReq) error {
 	updateQuery := `
 	UPDATE discounts
 	SET name = COALESCE($2, name),
@@ -318,4 +319,45 @@ func (store *MarchantStore) EditProductDiscount(discountId string, req *entity.E
 		return fmt.Errorf("couldnot update the discount")
 	}
 	return nil
+}
+
+func (store *MerchantStore) GetAllDiscount(merchantId *string) ([]user_entity.DiscountRes, error) {
+	selectQuery := `
+	SELECT 
+    p.id AS product_id,
+    d.name AS name,
+	d.description AS description,
+    d.percent AS percent,
+    p.images[1] AS image
+	FROM products p
+	JOIN discounts d ON p.discount_id = d.id
+	WHERE  d.end_time > NOW() AND d.merchent_id = COALESCE($1, d.merchent_id)
+	ORDER BY d.percent DESC;
+	`
+
+	rows, err := store.storage.DB.Query(selectQuery, merchantId)
+	if err != nil {
+		return nil, err
+	}
+	var discounts []user_entity.DiscountRes
+	defer rows.Close()
+	for rows.Next() {
+		var discount user_entity.DiscountRes
+
+		err := rows.Scan(
+			&discount.ProductID,
+			&discount.Name,
+			&discount.Description,
+			&discount.Percentage,
+			&discount.ProductImage,
+		)
+		if err != nil {
+			return nil, err
+		}
+		discounts = append(discounts, discount)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return discounts, nil
 }

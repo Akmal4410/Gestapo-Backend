@@ -45,13 +45,13 @@ type ServicePayload struct {
 }
 
 // NewSessionPayload creates a new token payload with a specific value and duration
-func NewSessionPayload(value, tokenFor string, duration time.Duration) *SessionPayload {
+func NewSessionPayload(value, tokenFor string) *SessionPayload {
 	payload := &SessionPayload{
 		Value:     value,
 		TokenFor:  tokenFor,
 		TokenType: sessionToken,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(duration)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 5)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 	}
@@ -59,14 +59,14 @@ func NewSessionPayload(value, tokenFor string, duration time.Duration) *SessionP
 }
 
 // NewAccessPayload creates a new token payload with a specific username and duration
-func NewAccessPayload(userID, userName, userType string, duration time.Duration) *AccessPayload {
+func NewAccessPayload(userID, userName, userType string) *AccessPayload {
 	payload := &AccessPayload{
 		UserID:    userID,
 		UserName:  userName,
 		UserType:  userType,
 		TokenType: accessToken,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(duration)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 5)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 	}
@@ -80,7 +80,7 @@ func NewServicePayload(userID, serviceName string) *ServicePayload {
 		ServiceName: serviceName,
 		TokenType:   ServiceToken,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Second * 3)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Second * 5)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 	}

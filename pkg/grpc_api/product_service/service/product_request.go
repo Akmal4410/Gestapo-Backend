@@ -65,7 +65,7 @@ func (handler *productService) GetProductById(ctx context.Context, req *proto.Ge
 	if err != nil {
 		if err == sql.ErrNoRows {
 			handler.log.LogError("Error while GetProductById Not found", err)
-			return nil, status.Errorf(codes.NotFound, "Product not found")
+			return nil, status.Errorf(codes.NotFound, "No found")
 		}
 		handler.log.LogError("Error while GetProductById", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
