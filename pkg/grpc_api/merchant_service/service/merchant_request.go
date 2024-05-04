@@ -108,7 +108,7 @@ func (handler *merchantService) GetProducts(ctx context.Context, req *proto.GetP
 	}))
 	defer cancel()
 
-	response, err := productClient.GetProducts(serviceCtx, &proto.GetProductRequest{MerchantId: req.GetMerchantId()})
+	response, err := productClient.GetProducts(serviceCtx, &proto.GetProductRequest{MerchantId: req.MerchantId})
 	if err != nil {
 		handler.log.LogError("error parsing product service context :", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)

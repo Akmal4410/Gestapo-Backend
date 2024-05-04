@@ -83,7 +83,7 @@ func (handler *userService) GetHome(ctx context.Context, req *proto.Request) (*p
 	}))
 	defer cancel()
 
-	getProductsRes, err := productClient.GetProducts(serviceCtx, &proto.GetProductRequest{MerchantId: ""})
+	getProductsRes, err := productClient.GetProducts(serviceCtx, &proto.GetProductRequest{MerchantId: nil})
 	if err != nil {
 		handler.log.LogError("Error while GetProducts", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
