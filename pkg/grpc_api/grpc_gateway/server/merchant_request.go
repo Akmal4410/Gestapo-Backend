@@ -101,7 +101,7 @@ func (handler *RestServer) InsertProduct(w http.ResponseWriter, r *http.Request)
 	err := helpers.ValidateBody(reader, req)
 	if err != nil {
 		handler.log.LogError("Error while ValidateBody", err)
-		helpers.ErrorJson(w, http.StatusBadRequest, err.Error())
+		helpers.ErrorJson(w, http.StatusBadRequest, utils.InvalidRequest)
 		return
 	}
 

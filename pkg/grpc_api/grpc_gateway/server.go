@@ -52,18 +52,6 @@ func RunGateway() error {
 	server := server.NewRestServer(store, &config, log, tokenMaker)
 	server.SetupRouter(mux)
 	//------------------------------------------------------------------------------
-	// lis, err := net.Listen("tcp", config.ServerAddress.Gateway)
-	// if err != nil {
-	// 	log.LogError("error in listening to port", config.ServerAddress.Gateway, "error:", err)
-	// 	return err
-	// }
-	// log.LogInfo("Listening to port", config.ServerAddress.Gateway)
-	// err = http.Serve(lis, mux)
-	// if err != nil {
-	// 	log.LogError("Cannot server gateway", config.ServerAddress.Gateway, "error:", err)
-	// 	return err
-	// }
-	// return nil
 
 	return http.ListenAndServe(":"+config.ServerAddress.Gateway,
 		handlers.CORS(handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization", "User-Agent"}),
