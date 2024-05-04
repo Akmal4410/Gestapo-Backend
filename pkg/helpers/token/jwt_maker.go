@@ -109,7 +109,7 @@ func (maker *JWTMaker) VerifyServiceToken(token string) (*ServicePayload, error)
 		}
 		return []byte(maker.secretKey), nil
 	}
-	jwtToken, err := jwt.ParseWithClaims(token, &AccessPayload{}, keyFunc)
+	jwtToken, err := jwt.ParseWithClaims(token, &ServicePayload{}, keyFunc)
 	if err != nil {
 		if strings.Contains(err.Error(), "token is expired") {
 			return nil, ErrorExpiredToken

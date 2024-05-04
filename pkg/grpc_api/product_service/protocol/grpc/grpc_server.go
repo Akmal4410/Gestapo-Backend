@@ -11,6 +11,7 @@ import (
 	"github.com/akmal4410/gestapo/internal/database"
 	"github.com/akmal4410/gestapo/pkg/api/proto"
 	"github.com/akmal4410/gestapo/pkg/grpc_api/product_service/service"
+	"github.com/akmal4410/gestapo/pkg/helpers/interceptor"
 	"github.com/akmal4410/gestapo/pkg/helpers/logger"
 	"github.com/akmal4410/gestapo/pkg/helpers/token"
 	"google.golang.org/grpc"
@@ -23,7 +24,13 @@ func RunGRPCService(ctx context.Context, storage *database.Storage, config *conf
 		log.LogFatal("Error while Initializing NewJWTMaker %w", err)
 	}
 	service := service.NewProductService(storage, config, log, tokenMaker)
-	grpcServer := grpc.NewServer()
+	interceptor := interceptor.NewInterceptor(tokenMaker, log)
+
+	grpcServer := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			interceptor.AccessMiddleware(),
+		),
+	)
 
 	proto.RegisterProductServiceServer(grpcServer, service)
 	log.LogInfo("Registreing for reflection")

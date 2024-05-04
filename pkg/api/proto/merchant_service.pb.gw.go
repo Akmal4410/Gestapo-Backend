@@ -286,7 +286,7 @@ func RegisterMerchantServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/pb.MerchantService/GetProducts", runtime.WithHTTPPathPattern("/merchant/product"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/pb.MerchantService/GetProducts", runtime.WithHTTPPathPattern("/merchant/products"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -447,7 +447,7 @@ func RegisterMerchantServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/pb.MerchantService/GetProducts", runtime.WithHTTPPathPattern("/merchant/product"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/pb.MerchantService/GetProducts", runtime.WithHTTPPathPattern("/merchant/products"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -535,7 +535,7 @@ func RegisterMerchantServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 var (
 	pattern_MerchantService_GetProfile_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"merchant", "profile", "user_id"}, ""))
 
-	pattern_MerchantService_GetProducts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"merchant", "product"}, ""))
+	pattern_MerchantService_GetProducts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"merchant", "products"}, ""))
 
 	pattern_MerchantService_DeleteProduct_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"merchant", "product", "product_id"}, ""))
 

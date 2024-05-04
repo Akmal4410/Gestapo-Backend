@@ -18,14 +18,14 @@ func ValidateServiceToken(ctx context.Context, log logger.Logger, tokenMaker tok
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		err := errors.New("metadata is not provided")
-		log.LogError("Error : ", err)
+		log.LogError(err)
 		return nil, status.Errorf(codes.Unauthenticated, err.Error())
 	}
 
-	authorizationHeaders := md.Get(utils.AuthorizationKey)
+	authorizationHeaders := md.Get(token.ServiceToken)
 	if len(authorizationHeaders) == 0 {
 		err := errors.New("authorization header is not provided")
-		log.LogError("Error : ", err)
+		log.LogError(err)
 		return nil, status.Errorf(codes.Unauthenticated, err.Error())
 	}
 
@@ -33,14 +33,14 @@ func ValidateServiceToken(ctx context.Context, log logger.Logger, tokenMaker tok
 	fields := strings.Fields(authorizationHeader)
 	if len(fields) < 2 {
 		err := errors.New("invalid authorization header format")
-		log.LogError("Error : ", err)
+		log.LogError(err)
 		return nil, status.Errorf(codes.Unauthenticated, err.Error())
 	}
 
 	authorizationType := strings.ToLower(fields[0])
 	if authorizationType != utils.AuthorizationTypeBearer {
 		err := fmt.Errorf("unsupported authorization type: %s", authorizationType)
-		log.LogError("Error : ", err)
+		log.LogError(err)
 		return nil, status.Errorf(codes.Unauthenticated, err.Error())
 	}
 
@@ -49,7 +49,7 @@ func ValidateServiceToken(ctx context.Context, log logger.Logger, tokenMaker tok
 	payload, err := tokenMaker.VerifyServiceToken(token)
 	if err != nil {
 		err := fmt.Errorf("error while VerifySessionToken: %s", err.Error())
-		log.LogError("Error : ", err)
+		log.LogError(err)
 		return nil, status.Errorf(codes.Unauthenticated, err.Error())
 	}
 	return payload, nil

@@ -17,6 +17,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func (handler *merchantService) GetProfile(ctx context.Context, req *proto.GetMerchantProfileRequest) (*proto.GetMerchantProfileResponse, error) {
@@ -45,7 +46,7 @@ func (handler *merchantService) GetProfile(ctx context.Context, req *proto.GetMe
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
 
-	if userData.ProfileImage != nil {
+	if userData.ProfileImage != nil && *userData.ProfileImage != "" {
 		url, err := handler.s3.GetPreSignedURL(*userData.ProfileImage)
 		if err != nil {
 			handler.log.LogError("Error while GetPreSignedURL", err)
@@ -53,11 +54,28 @@ func (handler *merchantService) GetProfile(ctx context.Context, req *proto.GetMe
 		}
 		userData.ProfileImage = &url
 	}
+
+	var dob *timestamppb.Timestamp
+	if userData.DOB != nil {
+		dob = timestamppb.New(*userData.DOB)
+	}
+
+	merchantData := &proto.MerchantResponse{
+		Id:           userData.ID,
+		ProfileImage: userData.ProfileImage,
+		FullName:     userData.FullName,
+		UserName:     userData.UserName,
+		Phone:        userData.Phone,
+		Email:        userData.Email,
+		Dob:          dob,
+		Gender:       userData.Gender,
+		UserType:     userData.UserType,
+	}
 	respone := &proto.GetMerchantProfileResponse{
 		Code:    http.StatusOK,
 		Status:  true,
 		Message: "Profile fetched sucessfull",
-		Data:    userData,
+		Data:    merchantData,
 	}
 	return respone, nil
 }
@@ -86,13 +104,13 @@ func (handler *merchantService) GetProducts(ctx context.Context, req *proto.GetP
 	productClient := proto.NewProductServiceClient(conn)
 	serviceCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	serviceCtx = metadata.NewOutgoingContext(serviceCtx, metadata.New(map[string]string{
-		"service-token": serviceToken,
+		token.ServiceToken: fmt.Sprint(utils.AuthorizationTypeBearer, " ", serviceToken),
 	}))
 	defer cancel()
 
 	response, err := productClient.GetProducts(serviceCtx, &proto.GetProductRequest{MerchantId: req.GetMerchantId()})
 	if err != nil {
-		handler.log.LogError("error parsing product service context : :", err)
+		handler.log.LogError("error parsing product service context :", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
 	return response, nil
@@ -122,7 +140,7 @@ func (handler *merchantService) DeleteProduct(ctx context.Context, req *proto.De
 	productClient := proto.NewProductServiceClient(conn)
 	serviceCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	serviceCtx = metadata.NewOutgoingContext(serviceCtx, metadata.New(map[string]string{
-		"service-token": serviceToken,
+		token.ServiceToken: serviceToken,
 	}))
 	defer cancel()
 
@@ -142,7 +160,7 @@ func (handler *merchantService) DeleteProduct(ctx context.Context, req *proto.De
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
 
-	if productRes.Data.MerchantId != payload.UserID {
+	if productRes.Data.MerchantId != nil && *productRes.Data.MerchantId != payload.UserID {
 		handler.log.LogError("unauthorized: product does not belong to the authenticated merchant")
 		return nil, status.Errorf(codes.PermissionDenied, "product does not belong to the authenticated merchant")
 	}
@@ -191,7 +209,7 @@ func (handler *merchantService) AddProductDiscount(ctx context.Context, in *prot
 	}
 	if !exist {
 		handler.log.LogError("product doesnt exists")
-		return nil, status.Errorf(codes.NotFound, "Product not found with ", req.ProductId)
+		return nil, status.Errorf(codes.NotFound, "Product not found")
 	}
 
 	err = handler.storage.AddProductDiscount(req)

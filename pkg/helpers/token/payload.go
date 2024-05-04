@@ -9,11 +9,14 @@ import (
 
 // Different types of error returend by token
 var (
-	ErrorExpiredToken error  = fmt.Errorf("token is expired")
-	ErrorInvalidToken error  = fmt.Errorf("token is invalid")
-	sessionToken      string = "session-token"
-	accessToken       string = "access-token"
-	serviceToken      string = "service-token"
+	ErrorExpiredToken error = fmt.Errorf("token is expired")
+	ErrorInvalidToken error = fmt.Errorf("token is invalid")
+)
+
+const (
+	sessionToken string = "session-token"
+	accessToken  string = "access-token"
+	ServiceToken string = "service-token"
 )
 
 // SessionPayload contains the payload data of the session token
@@ -75,7 +78,7 @@ func NewServicePayload(userID, serviceName string) *ServicePayload {
 	payload := &ServicePayload{
 		UserID:      userID,
 		ServiceName: serviceName,
-		TokenType:   serviceToken,
+		TokenType:   ServiceToken,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Second * 3)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),

@@ -27,9 +27,12 @@ admin_server:
 	go run cmd/admin_service/main.go
 
 merchant_server:
-	@echo Running admin service
+	@echo Running merchant service
 	go run cmd/merchant_service/main.go
 
+product_server:
+	@echo Running product service
+	go run cmd/product_service/main.go
 
 grpc_gateway:
 	@echo Running grpc gateway
@@ -49,8 +52,6 @@ proto:
 evans:
 	@echo Starting evans gRPC client..
 	evans --host localhost --port 9002 -r repl      
-
-
 
 compose_down: 
 	@echo Stopping docker containers
