@@ -108,7 +108,7 @@ func (handler *merchantService) GetProducts(ctx context.Context, req *proto.GetP
 	}))
 	defer cancel()
 
-	response, err := productClient.GetProducts(serviceCtx, &proto.GetProductRequest{MerchantId: req.GetMerchantId()})
+	response, err := productClient.GetProducts(serviceCtx, &proto.GetProductRequest{MerchantId: req.MerchantId})
 	if err != nil {
 		handler.log.LogError("error parsing product service context :", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
@@ -230,6 +230,7 @@ func (handler *merchantService) AddProductDiscount(ctx context.Context, in *prot
 func (handler *merchantService) EditProductDiscount(ctx context.Context, in *proto.EditDiscountRequest) (*proto.Response, error) {
 	startTime := in.GetStartTime().AsTime()
 	entTime := in.GetEndTime().AsTime()
+
 	req := &entity.EditDiscountReq{
 		DiscountName: &in.Name,
 		Description:  &in.Description,

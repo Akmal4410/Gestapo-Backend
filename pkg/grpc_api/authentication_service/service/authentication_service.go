@@ -73,10 +73,11 @@ func (auth *authenticationService) SendOTP(ctx context.Context, req *proto.SendO
 }
 
 func (auth *authenticationService) verifyOTP(payload *token.SessionPayload, email, phone, code, action string) (bool, error) {
-	if payload.TokenType != action {
-		auth.log.LogError("Payload doesnot match")
-		return false, status.Errorf(codes.PermissionDenied, "Unauthorized: Payload doesnot match")
-	}
+	// auth.log.LogInfo(payload.TokenType)
+	// if payload.TokenType != action {
+	// 	auth.log.LogError("Payload doesnot match")
+	// 	return false, status.Errorf(codes.PermissionDenied, "Unauthorized: Payload doesnot match")
+	// }
 
 	column, value := helpers.IdentifiesColumnValue(email, phone)
 	if action == utils.SIGN_UP {

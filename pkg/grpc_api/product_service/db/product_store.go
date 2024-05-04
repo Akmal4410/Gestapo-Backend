@@ -15,14 +15,15 @@ func NewProductStore(storage *database.Storage) *ProductStore {
 
 }
 
-func (store *ProductStore) GetProducts() ([]entity.GetProductRes, error) {
+func (store *ProductStore) GetProducts(merchantId *string) ([]entity.GetProductRes, error) {
 	var products []entity.GetProductRes
 	selectQuery := `
-		SELECT id, product_name, images, price
-		FROM products;
-	`
+        SELECT id, product_name, images, price
+        FROM products
+        WHERE merchent_id = COALESCE($1, merchent_id);
+    `
 
-	rows, err := store.storage.DB.Query(selectQuery)
+	rows, err := store.storage.DB.Query(selectQuery, merchantId)
 	if err != nil {
 		return nil, err
 	}

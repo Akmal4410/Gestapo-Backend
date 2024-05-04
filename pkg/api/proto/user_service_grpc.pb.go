@@ -19,15 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	UserServie_GetUsers_FullMethodName = "/pb.UserServie/GetUsers"
+	UserServie_GetHome_FullMethodName = "/pb.UserServie/GetHome"
 )
 
 // UserServieClient is the client API for UserServie service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserServieClient interface {
-	// TODO: do it later if user is moved to get users is done in admin service to view all users
-	GetUsers(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetUsersResponse, error)
+	GetHome(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetHomeResponse, error)
 }
 
 type userServieClient struct {
@@ -38,9 +37,9 @@ func NewUserServieClient(cc grpc.ClientConnInterface) UserServieClient {
 	return &userServieClient{cc}
 }
 
-func (c *userServieClient) GetUsers(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetUsersResponse, error) {
-	out := new(GetUsersResponse)
-	err := c.cc.Invoke(ctx, UserServie_GetUsers_FullMethodName, in, out, opts...)
+func (c *userServieClient) GetHome(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetHomeResponse, error) {
+	out := new(GetHomeResponse)
+	err := c.cc.Invoke(ctx, UserServie_GetHome_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -51,8 +50,7 @@ func (c *userServieClient) GetUsers(ctx context.Context, in *Request, opts ...gr
 // All implementations must embed UnimplementedUserServieServer
 // for forward compatibility
 type UserServieServer interface {
-	// TODO: do it later if user is moved to get users is done in admin service to view all users
-	GetUsers(context.Context, *Request) (*GetUsersResponse, error)
+	GetHome(context.Context, *Request) (*GetHomeResponse, error)
 	mustEmbedUnimplementedUserServieServer()
 }
 
@@ -60,8 +58,8 @@ type UserServieServer interface {
 type UnimplementedUserServieServer struct {
 }
 
-func (UnimplementedUserServieServer) GetUsers(context.Context, *Request) (*GetUsersResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetUsers not implemented")
+func (UnimplementedUserServieServer) GetHome(context.Context, *Request) (*GetHomeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetHome not implemented")
 }
 func (UnimplementedUserServieServer) mustEmbedUnimplementedUserServieServer() {}
 
@@ -76,20 +74,20 @@ func RegisterUserServieServer(s grpc.ServiceRegistrar, srv UserServieServer) {
 	s.RegisterService(&UserServie_ServiceDesc, srv)
 }
 
-func _UserServie_GetUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _UserServie_GetHome_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Request)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServieServer).GetUsers(ctx, in)
+		return srv.(UserServieServer).GetHome(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: UserServie_GetUsers_FullMethodName,
+		FullMethod: UserServie_GetHome_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServieServer).GetUsers(ctx, req.(*Request))
+		return srv.(UserServieServer).GetHome(ctx, req.(*Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -102,8 +100,8 @@ var UserServie_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*UserServieServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetUsers",
-			Handler:    _UserServie_GetUsers_Handler,
+			MethodName: "GetHome",
+			Handler:    _UserServie_GetHome_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

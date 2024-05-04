@@ -18,7 +18,7 @@ func (handler *productService) GetProducts(ctx context.Context, req *proto.GetPr
 		handler.log.LogError("Error while ValidateServiceToken", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
-	productRes, err := handler.storage.GetProducts()
+	productRes, err := handler.storage.GetProducts(req.MerchantId)
 	if err != nil {
 		handler.log.LogError("Error while GetProducts", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
