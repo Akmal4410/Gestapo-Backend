@@ -3,12 +3,38 @@ syntax = "proto3";
 package pb;
 
 import "api/proto/common_service.proto";
+import "api/proto/google/api/annotations.proto";
 
 
 option go_package = "api/proto";
 
+message GetHomeResponse {
+    int32 code = 1;
+    bool status = 2;
+    string message = 3;
+    HomeResponse data = 4;
+}
+
+message HomeResponse {
+	DiscountResponse  discount = 1; 
+    repeated UserResponse merchants = 2;
+    repeated ProductResponse products = 3;
+}
+
+message DiscountResponse {
+	string product_id = 1;
+	string name = 2;
+    string description = 3;
+    float percentage = 4;
+	string  product_image = 5;
+    uint32 card_color = 6;
+}
+
 
 service UserServie {
-    // TODO: do it later if user is moved to get users is done in admin service to view all users
-    rpc GetUsers (Request) returns (GetUsersResponse);
+    rpc GetHome (Request) returns (GetHomeResponse) {
+        option (google.api.http) = {
+            get: "/user/home"
+        };
+    } 
 }

@@ -230,6 +230,7 @@ func (handler *merchantService) AddProductDiscount(ctx context.Context, in *prot
 func (handler *merchantService) EditProductDiscount(ctx context.Context, in *proto.EditDiscountRequest) (*proto.Response, error) {
 	startTime := in.GetStartTime().AsTime()
 	entTime := in.GetEndTime().AsTime()
+
 	req := &entity.EditDiscountReq{
 		DiscountName: &in.Name,
 		Description:  &in.Description,

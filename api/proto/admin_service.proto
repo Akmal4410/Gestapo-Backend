@@ -17,13 +17,6 @@ message CategoryRes {
 	string category = 2;
 }
 
-// message AddCategoryResponse {
-//     int32 code = 1;
-//     bool status = 2;
-//     string message = 3;
-//     CategoryRes data = 4;
-// }
-
 message GetCategoryResponse {
     int32 code = 1;
     bool status = 2;

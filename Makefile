@@ -26,6 +26,10 @@ admin_server:
 	@echo Running admin service
 	go run cmd/admin_service/main.go
 
+user_server:
+	@echo Running user service
+	go run cmd/user_service/main.go	
+
 merchant_server:
 	@echo Running merchant service
 	go run cmd/merchant_service/main.go
