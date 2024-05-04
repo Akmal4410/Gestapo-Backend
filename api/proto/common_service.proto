@@ -40,14 +40,14 @@ message GetProductRequest {
 
 message ProductResponse  {
 	string id = 1;
-	string merchant_id = 2;
+	optional string merchant_id = 2;
 	repeated string product_images = 3;
     string product_name = 4;
-    string description = 5;
-	string category_name = 6;
+    optional string description = 5;
+	optional string category_name = 6;
     repeated double size = 7;
     double price = 8;
-    double discount_price = 9;
+    optional double discount_price = 9;
 }
 
 message GetProductsResponse {

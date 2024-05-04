@@ -41,12 +41,12 @@ func (handler *productService) GetProducts(ctx context.Context, req *proto.GetPr
 			Id:            product.ID,
 			MerchantId:    product.MerchantID,
 			ProductImages: product.ProductImages,
-			ProductName:   *product.ProductName,
-			Description:   *product.Description,
-			CategoryName:  *product.CategoryName,
-			Size:          *product.Size,
+			ProductName:   product.ProductName,
+			Description:   product.Description,
+			CategoryName:  product.CategoryName,
+			// Size:          *product.Size,
 			Price:         product.Price,
-			DiscountPrice: *product.DiscountPrice,
+			DiscountPrice: product.DiscountPrice,
 		}
 		products = append(products, newProduct)
 	}
@@ -65,7 +65,7 @@ func (handler *productService) GetProductById(ctx context.Context, req *proto.Ge
 	if err != nil {
 		if err == sql.ErrNoRows {
 			handler.log.LogError("Error while GetProductById Not found", err)
-			return nil, status.Errorf(codes.NotFound, utils.NotFound)
+			return nil, status.Errorf(codes.NotFound, "Product not found")
 		}
 		handler.log.LogError("Error while GetProductById", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
@@ -86,12 +86,12 @@ func (handler *productService) GetProductById(ctx context.Context, req *proto.Ge
 		Id:            product.ID,
 		MerchantId:    product.MerchantID,
 		ProductImages: product.ProductImages,
-		ProductName:   *product.ProductName,
-		Description:   *product.Description,
-		CategoryName:  *product.CategoryName,
+		ProductName:   product.ProductName,
+		Description:   product.Description,
+		CategoryName:  product.CategoryName,
 		Size:          *product.Size,
 		Price:         product.Price,
-		DiscountPrice: *product.DiscountPrice,
+		DiscountPrice: product.DiscountPrice,
 	}
 
 	response := &proto.GetProductByIdResponse{

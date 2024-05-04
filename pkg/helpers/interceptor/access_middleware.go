@@ -14,9 +14,26 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+const (
+	getProductRPC string = "/pb.ProductService/GetProducts"
+)
+
+// For protecting merchant calls
+const (
+	deletProduct        string = "/pb.MerchantService/DeleteProduct"
+	addProductDiscount  string = "/pb.MerchantService/AddProductDiscount"
+	editProductDiscount string = "/pb.MerchantService/EditProductDiscount"
+)
+
 // AccessMiddleware is a gRPC unary server interceptor for access.
 func (interceptor *Interceptor) AccessMiddleware() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		interceptor.log.LogInfo("Calling gRPC meathod :", info.FullMethod)
+		//	skipping the authentication middlware because it don't have access token
+		//	so add method names that wanted to skip inside this
+		if ok := skipAuthenticationBetweenRPC(info.FullMethod); ok {
+			return handler(ctx, req)
+		}
 		md, ok := metadata.FromIncomingContext(ctx)
 		if !ok {
 			err := errors.New("metadata is not provided")
@@ -69,15 +86,20 @@ func (interceptor *Interceptor) AccessMiddleware() grpc.UnaryServerInterceptor {
 	}
 }
 
+// Currently used by merchant so modify if needed
 func (interceptor *Interceptor) RolMiddleware(requiredRole string) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		interceptor.log.LogInfo("Calling gRPC meathod :", info.FullMethod)
+		if ok := isMerchantCanOnlyAccess(info.FullMethod); !ok {
+			return handler(ctx, req)
+		}
 		payload, ok := ctx.Value(utils.AuthorizationPayloadKey).(*token.AccessPayload)
 		if !ok {
 			err := errors.New("unable to retrieve user payload from context")
 			interceptor.log.LogError("Error", err)
 			return nil, status.Errorf(codes.Internal, err.Error())
 		}
-		if requiredRole != "" && payload.UserType != requiredRole {
+		if payload.UserType != requiredRole {
 			err := fmt.Errorf("user does not have required role: %s", requiredRole)
 			interceptor.log.LogError("Error", err)
 			return nil, status.Errorf(codes.PermissionDenied, err.Error())
@@ -85,4 +107,20 @@ func (interceptor *Interceptor) RolMiddleware(requiredRole string) grpc.UnarySer
 		ctx = context.WithValue(ctx, utils.AuthorizationPayloadKey, payload)
 		return handler(ctx, req)
 	}
+}
+
+func isMerchantCanOnlyAccess(method string) bool {
+	switch method {
+	case deletProduct, addProductDiscount, editProductDiscount:
+		return true
+	}
+	return false
+}
+
+func skipAuthenticationBetweenRPC(method string) bool {
+	switch method {
+	case getProductRPC:
+		return true
+	}
+	return false
 }

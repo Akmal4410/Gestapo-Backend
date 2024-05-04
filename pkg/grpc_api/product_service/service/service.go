@@ -34,9 +34,9 @@ func NewProductService(storage *database.Storage, config *config.Config, log log
 		config.AwsS3.SecretKey,
 	)
 
-	authStore := db.NewProductStore(storage)
+	productStore := db.NewProductStore(storage)
 
 	server.s3 = s3
-	server.storage = authStore
+	server.storage = productStore
 	return server
 }

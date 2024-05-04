@@ -227,7 +227,7 @@ func (handler *RestServer) EditProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if product.MerchantID != payload.UserID {
+	if *product.MerchantID != payload.UserID {
 		err := errors.New("unauthorized: product does not belong to the authenticated merchant")
 		handler.log.LogError("Error", err)
 		helpers.ErrorJson(w, http.StatusForbidden, err.Error())

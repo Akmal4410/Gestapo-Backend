@@ -2,9 +2,9 @@ package entity
 
 type GetProductRes struct {
 	ID            string     `json:"id"`
-	MerchantID    string     `json:"merchant_id,omitempty"`
+	MerchantID    *string    `json:"merchant_id,omitempty"`
 	ProductImages []string   `json:"product_images,omitempty"`
-	ProductName   *string    `json:"product_name"`
+	ProductName   string     `json:"product_name"`
 	Description   *string    `json:"description,omitempty"`
 	CategoryName  *string    `json:"category_name,omitempty"`
 	Size          *[]float64 `json:"size,omitempty"`
