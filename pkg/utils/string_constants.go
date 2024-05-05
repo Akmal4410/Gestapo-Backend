@@ -4,14 +4,17 @@ package utils
 type contextKey string
 
 const (
-	EmailSubject            string     = "Sign Up OTP"
-	EmailContent            string     = "Welcome to Gestapo !!!. Use the following OTP to complete your Sign Up procedures. OTP is valid for 5 minutes"
+	EmailSubject string = "Sign Up OTP"
+	EmailContent string = "Welcome to Gestapo !!!. Use the following OTP to complete your Sign Up procedures. OTP is valid for 5 minutes"
+
 	Unauthorized            string     = "Unauthorized"
 	AuthorizationKey        string     = "Authorization"
 	AuthorizationTypeBearer string     = "bearer"
 	AuthorizationPayloadKey contextKey = "authorization_payload"
-	InternalServerError     string     = "Internal server error"
-	InvalidRequest          string     = "Invalid Request"
-	NotFound                string     = "Not Found"
-	PermissionDenied        string     = "Not Found"
+
+	InternalServerError string = "Internal server error"
+	InvalidRequest      string = "Invalid Request"
+	NotFound            string = "Not Found"
+	PermissionDenied    string = "Permission Denied"
+	AlreadyExists       string = "Already Exists"
 )

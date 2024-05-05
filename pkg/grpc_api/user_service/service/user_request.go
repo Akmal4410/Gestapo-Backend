@@ -46,7 +46,6 @@ func (handler *userService) GetHome(ctx context.Context, req *proto.Request) (*p
 	}
 	for _, merchant := range merchantEntities {
 		if merchant.ImageURL != nil {
-			handler.log.LogInfo(*merchant.ImageURL)
 			url, err := handler.s3.GetPreSignedURL(*merchant.ImageURL)
 			if err != nil {
 				handler.log.LogError("Error while GetPreSignedURL for merchant.ImageURL", err)

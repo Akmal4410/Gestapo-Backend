@@ -25,6 +25,12 @@ const (
 	FEMALE = "Female"
 )
 
+// constants for all supported SignupAction
+const (
+	ADD_WISHLIST    string = "add-wishlist"
+	REMOVE_WISHLIST string = "remove-wishlist"
+)
+
 // IsSupportedSignupAction returns true if the SignupAction is supported
 func IsSupportedSignupAction(action string) bool {
 	switch action {
@@ -78,4 +84,13 @@ func IsValidPassword(password string) bool {
 
 func IsValidCode(code string) bool {
 	return len(code) == 6
+}
+
+// IsSupportedAddRemoveWishlistAction returns true if the AddRemove action is supported
+func IsSupportedAddRemoveWishlistAction(action string) bool {
+	switch action {
+	case ADD_WISHLIST, REMOVE_WISHLIST:
+		return true
+	}
+	return false
 }

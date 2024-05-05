@@ -13,6 +13,7 @@ type DBMigration struct {
 	products    models.Products
 	inventories models.Inventories
 	dicounts    models.Discounts
+	wishlists   models.Wishlists
 	carts       models.Carts
 }
 
@@ -36,6 +37,10 @@ func AutoMigrateTables(gormDB *gorm.DB) {
 	}
 
 	if err := gormDB.AutoMigrate(&migrate.dicounts); err != nil {
+		fmt.Println(err.Error())
+	}
+
+	if err := gormDB.AutoMigrate(&migrate.wishlists); err != nil {
 		fmt.Println(err.Error())
 	}
 

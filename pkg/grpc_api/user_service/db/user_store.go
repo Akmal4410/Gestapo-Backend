@@ -1,9 +1,15 @@
 package db
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/akmal4410/gestapo/internal/database"
+	product_entity "github.com/akmal4410/gestapo/pkg/grpc_api/product_service/db/entity"
 	"github.com/akmal4410/gestapo/pkg/grpc_api/user_service/db/entity"
 	"github.com/akmal4410/gestapo/pkg/utils"
+	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 type UserStore struct {
@@ -14,6 +20,21 @@ func NewUserStore(storage *database.Storage) *UserStore {
 	return &UserStore{
 		storage: storage,
 	}
+}
+
+func (store *UserStore) CheckDataExist(table, column, value string) (bool, error) {
+	checkQuery := fmt.Sprintf(`SELECT * FROM %s WHERE %s = $1;`, table, column)
+	res, err := store.storage.DB.Exec(checkQuery, value)
+	if err != nil {
+		return false, err
+	}
+
+	result, err := res.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+
+	return result != 0, nil
 }
 
 func (store *UserStore) GetDiscount() (*entity.DiscountRes, error) {
@@ -79,4 +100,112 @@ func (store *UserStore) GetMerchants() ([]entity.MerchantRes, error) {
 		return nil, err
 	}
 	return merchants, nil
+}
+
+func (store *UserStore) AlreadyInWishlist(req *entity.AddRemoveWishlistReq) (bool, error) {
+	checkQuery := `
+	SELECT user_id, product_id FROM wishlists
+	WHERE user_id = $1 AND product_id = $2;
+	`
+	res, err := store.storage.DB.Exec(checkQuery, req.UserID, req.ProductID)
+	if err != nil {
+		return false, err
+	}
+
+	result, err := res.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+
+	return result != 0, nil
+}
+
+func (store *UserStore) AddToWishlist(req *entity.AddRemoveWishlistReq) error {
+	createdAt := time.Now()
+	updatedAt := time.Now()
+
+	uuId, err := uuid.NewRandom()
+	if err != nil {
+		return err
+	}
+	insertQuery := `
+	INSERT INTO wishlists (id, user_id, product_id, created_at, updated_at)
+	VALUES ($1, $2, $3, $4, $5);
+	`
+	_, err = store.storage.DB.Exec(insertQuery, uuId, req.UserID, req.ProductID, createdAt, updatedAt)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (store *UserStore) RemoveFromWishlist(req *entity.AddRemoveWishlistReq) error {
+	deleteQuery := `
+        DELETE FROM wishlists
+        WHERE user_id = $1 AND product_id = $2;
+    `
+
+	res, err := store.storage.DB.Exec(deleteQuery, req.UserID, req.ProductID)
+	if err != nil {
+		return err
+	}
+	n, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if n == 0 {
+		return fmt.Errorf("could not delete the product")
+	}
+	return nil
+}
+
+func (store *UserStore) GetWishlistProducts(userId string) ([]product_entity.GetProductRes, error) {
+	var products []product_entity.GetProductRes
+
+	selectQuery := `
+	SELECT
+    p.id AS id,
+    p.product_name AS product_name,
+	p.images AS product_images,
+    p.price AS price
+	FROM
+    products p
+	LEFT JOIN
+    wishlists w ON p.id = w.product_id
+	WHERE w.user_id = $1;
+	`
+
+	rows, err := store.storage.DB.Query(selectQuery, userId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var product product_entity.GetProductRes
+		var images pq.StringArray
+
+		err := rows.Scan(
+			&product.ID,
+			&product.ProductName,
+			&images,
+			&product.Price,
+		)
+		if err != nil {
+			return nil, err
+		}
+		product.ProductImages = []string(images)
+		products = append(products, product)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	if len(products) == 0 {
+		return []product_entity.GetProductRes{}, nil
+	}
+
+	return products, nil
 }
