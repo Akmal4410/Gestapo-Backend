@@ -63,6 +63,10 @@ func RegisterValidator() {
 	if err != nil {
 		fmt.Println("Error registering percentage:", err.Error())
 	}
+	err = validate.RegisterValidation("wishlist_action", validateAddRemoveWishlistAction)
+	if err != nil {
+		fmt.Println("Error registering wishlist_action:", err.Error())
+	}
 }
 
 var validateUserType validator.Func = func(fl validator.FieldLevel) bool {
@@ -102,6 +106,13 @@ var validateDate validator.Func = func(fl validator.FieldLevel) bool {
 var validatePercentage validator.Func = func(fl validator.FieldLevel) bool {
 	if perentage, ok := fl.Field().Interface().(float64); ok {
 		return utils.IsSupportedPercentage(perentage)
+	}
+	return false
+}
+
+var validateAddRemoveWishlistAction validator.Func = func(fl validator.FieldLevel) bool {
+	if wishlistAction, ok := fl.Field().Interface().(string); ok {
+		return utils.IsSupportedAddRemoveWishlistAction(wishlistAction)
 	}
 	return false
 }

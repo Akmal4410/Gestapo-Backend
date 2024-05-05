@@ -22,3 +22,9 @@ type MerchantRes struct {
 	Name       string  `json:"name"`
 	ImageURL   *string `json:"image_url,omitempty"`
 }
+
+type AddRemoveWishlistReq struct {
+	Action    string `json:"action" validate:"wishlist_action"`
+	ProductID string `json:"product_id" validate:"required"`
+	UserID    string `json:"user_id" validate:"required"`
+}

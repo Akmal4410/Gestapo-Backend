@@ -22,11 +22,35 @@ message HomeResponse {
 }
 
 
+message AddRemoveWishlistRequest {
+    string action = 1;
+    string product_id = 2;
+}
+
+message GetWishlistResponse {
+    int32 code = 1;
+    bool status = 2;
+    string message = 3;
+    repeated ProductResponse data = 4;
+}
 
 service UserServie {
     rpc GetHome (Request) returns (GetHomeResponse) {
         option (google.api.http) = {
             get: "/user/home"
+        };
+    } 
+
+    rpc AddRemoveWishlist (AddRemoveWishlistRequest) returns (Response) {
+        option (google.api.http) = {
+            post: "/user/wishlist"
+            body: "*"
+        };
+    }
+
+    rpc GetWishlist (Request) returns (GetWishlistResponse) {
+        option (google.api.http) = {
+            get: "/user/wishlist"
         };
     } 
 }

@@ -73,6 +73,17 @@ type Products struct {
 	DeletedAt   gorm.DeletedAt
 }
 
+type Wishlists struct {
+	ID        uuid.UUID `gorm:"NOT NULL;PRIMARY_KEY"`
+	User      User_Data `gorm:"foreignKey:UserID;references:ID"`
+	UserID    uuid.UUID `gorm:"NOT NULL"`
+	Product   Products  `gorm:"foreignKey:ProductID;references:ID"`
+	ProductID uuid.UUID `gorm:"NOT NULL;index"`
+	CreatedAt time.Time `gorm:"NOT NULL"`
+	UpdatedAt time.Time `gorm:"NOT NULL"`
+	DeletedAt gorm.DeletedAt
+}
+
 type Carts struct {
 	ID        uuid.UUID `gorm:"NOT NULL;PRIMARY_KEY"`
 	User      User_Data `gorm:"foreignKey:UserID;references:ID"`

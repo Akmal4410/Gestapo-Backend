@@ -19,7 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	UserServie_GetHome_FullMethodName = "/pb.UserServie/GetHome"
+	UserServie_GetHome_FullMethodName           = "/pb.UserServie/GetHome"
+	UserServie_AddRemoveWishlist_FullMethodName = "/pb.UserServie/AddRemoveWishlist"
+	UserServie_GetWishlist_FullMethodName       = "/pb.UserServie/GetWishlist"
 )
 
 // UserServieClient is the client API for UserServie service.
@@ -27,6 +29,8 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserServieClient interface {
 	GetHome(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetHomeResponse, error)
+	AddRemoveWishlist(ctx context.Context, in *AddRemoveWishlistRequest, opts ...grpc.CallOption) (*Response, error)
+	GetWishlist(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetWishlistResponse, error)
 }
 
 type userServieClient struct {
@@ -46,11 +50,31 @@ func (c *userServieClient) GetHome(ctx context.Context, in *Request, opts ...grp
 	return out, nil
 }
 
+func (c *userServieClient) AddRemoveWishlist(ctx context.Context, in *AddRemoveWishlistRequest, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
+	err := c.cc.Invoke(ctx, UserServie_AddRemoveWishlist_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServieClient) GetWishlist(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetWishlistResponse, error) {
+	out := new(GetWishlistResponse)
+	err := c.cc.Invoke(ctx, UserServie_GetWishlist_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServieServer is the server API for UserServie service.
 // All implementations must embed UnimplementedUserServieServer
 // for forward compatibility
 type UserServieServer interface {
 	GetHome(context.Context, *Request) (*GetHomeResponse, error)
+	AddRemoveWishlist(context.Context, *AddRemoveWishlistRequest) (*Response, error)
+	GetWishlist(context.Context, *Request) (*GetWishlistResponse, error)
 	mustEmbedUnimplementedUserServieServer()
 }
 
@@ -60,6 +84,12 @@ type UnimplementedUserServieServer struct {
 
 func (UnimplementedUserServieServer) GetHome(context.Context, *Request) (*GetHomeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetHome not implemented")
+}
+func (UnimplementedUserServieServer) AddRemoveWishlist(context.Context, *AddRemoveWishlistRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddRemoveWishlist not implemented")
+}
+func (UnimplementedUserServieServer) GetWishlist(context.Context, *Request) (*GetWishlistResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetWishlist not implemented")
 }
 func (UnimplementedUserServieServer) mustEmbedUnimplementedUserServieServer() {}
 
@@ -92,6 +122,42 @@ func _UserServie_GetHome_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserServie_AddRemoveWishlist_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddRemoveWishlistRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServieServer).AddRemoveWishlist(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserServie_AddRemoveWishlist_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServieServer).AddRemoveWishlist(ctx, req.(*AddRemoveWishlistRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserServie_GetWishlist_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServieServer).GetWishlist(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserServie_GetWishlist_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServieServer).GetWishlist(ctx, req.(*Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserServie_ServiceDesc is the grpc.ServiceDesc for UserServie service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -102,6 +168,14 @@ var UserServie_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetHome",
 			Handler:    _UserServie_GetHome_Handler,
+		},
+		{
+			MethodName: "AddRemoveWishlist",
+			Handler:    _UserServie_AddRemoveWishlist_Handler,
+		},
+		{
+			MethodName: "GetWishlist",
+			Handler:    _UserServie_GetWishlist_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

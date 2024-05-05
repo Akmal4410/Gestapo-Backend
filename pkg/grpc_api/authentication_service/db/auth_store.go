@@ -19,7 +19,7 @@ func NewAuthStore(storage *database.Storage) *AuthStore {
 
 }
 
-func (store AuthStore) InsertUser(user *proto.SignupRequest) (id string, err error) {
+func (store *AuthStore) InsertUser(user *proto.SignupRequest) (id string, err error) {
 	var column string
 	var value string
 	if user.Email != "" {
@@ -54,7 +54,7 @@ func (store AuthStore) InsertUser(user *proto.SignupRequest) (id string, err err
 	return uuId.String(), nil
 }
 
-func (store AuthStore) ChangePassword(req *proto.ForgotPasswordRequest) (err error) {
+func (store *AuthStore) ChangePassword(req *proto.ForgotPasswordRequest) (err error) {
 	var column string
 	var value string
 	if req.Email != "" {
@@ -85,7 +85,7 @@ type TokenPayload struct {
 	UserType string
 }
 
-func (store AuthStore) GetTokenPayload(column, value string) (*TokenPayload, error) {
+func (store *AuthStore) GetTokenPayload(column, value string) (*TokenPayload, error) {
 	selectQuery := fmt.Sprintf(`SELECT id, user_name, user_type FROM user_data WHERE %s = $1;`, column)
 	rows := store.storage.DB.QueryRow(selectQuery, value)
 	if rows.Err() != nil {
