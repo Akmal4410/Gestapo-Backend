@@ -95,32 +95,38 @@ func (store *MerchantStore) InsertProduct(userId, productId string, req *entity.
 	if err != nil {
 		return err
 	}
-	inventoryId, err := uuid.NewRandom()
-	if err != nil {
-		return err
-	}
-	insertInventoryQuery := `INSERT INTO inventories
-		(id, quantity, created_at, updated_at)
-		VALUES ($1, $2, $3, $4);
-		`
-	_, err = tx.Exec(insertInventoryQuery, inventoryId.String(), req.Quantity, createdAt, updatedAt)
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
 
-	insertProductQuery := `INSERT INTO products
-		(id, merchent_id, category_id, product_name, description, images, size, price, inventory_id, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);
+	insertProductQuery := `
+		INSERT INTO products
+		(id, merchent_id, category_id, product_name, description, images, size, price, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
 		`
 	productImages := pq.StringArray(req.ProductImages)
 	productSizes := pq.Float64Array(req.Sizes)
 
-	_, err = tx.Exec(insertProductQuery, productId, userId, req.CategoryId, req.ProductName, req.Description, productImages, productSizes, req.Price, inventoryId, createdAt, updatedAt)
+	_, err = tx.Exec(insertProductQuery, productId, userId, req.CategoryId, req.ProductName, req.Description, productImages, productSizes, req.Price, createdAt, updatedAt)
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
+
+	for _, size := range req.Sizes {
+		inventoryId, err := uuid.NewRandom()
+		if err != nil {
+			return err
+		}
+		insertInventoryQuery := `
+		INSERT INTO inventories
+		(id, product_id, size, quantity, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6);
+		`
+		_, err = tx.Exec(insertInventoryQuery, inventoryId.String(), productId, size, req.Quantity, createdAt, updatedAt)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
 	tx.Commit()
 	return nil
 }
@@ -128,14 +134,13 @@ func (store *MerchantStore) InsertProduct(userId, productId string, req *entity.
 func (store *MerchantStore) UpdateProduct(id string, req *entity.EditProductReq) error {
 	updateQuery := `
 	UPDATE products
-	SET product_name = $2, description = $3, images = $4, size = $5, price = $6, updated_at = $7
+	SET product_name = $2, description = $3, images = $4, price = $5, updated_at = $6
 	WHERE id = $1;
 	`
 	updatedAt := time.Now()
 	productImages := pq.StringArray(req.ProductImages)
-	productSizes := pq.Float64Array(req.Sizes)
 
-	res, err := store.storage.DB.Exec(updateQuery, id, req.ProductName, req.Description, productImages, productSizes, req.Price, updatedAt)
+	res, err := store.storage.DB.Exec(updateQuery, id, req.ProductName, req.Description, productImages, req.Price, updatedAt)
 	if err != nil {
 		return err
 	}

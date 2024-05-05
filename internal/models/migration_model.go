@@ -33,12 +33,22 @@ type Categories struct {
 	UpdatedAt     time.Time `gorm:"NOT NULL"`
 	DeletedAt     gorm.DeletedAt
 }
-type Inventories struct {
-	ID        uuid.UUID `gorm:"NOT NULL;PRIMARY_KEY"`
-	Quantity  int       `gorm:"NOT NULL"`
-	CreatedAt time.Time `gorm:"NOT NULL"`
-	UpdatedAt time.Time `gorm:"NOT NULL"`
-	DeletedAt gorm.DeletedAt
+
+type Products struct {
+	ID          uuid.UUID  `gorm:"NOT NULL;PRIMARY_KEY"`
+	MerchentID  uuid.UUID  `gorm:"NOT NULL"`
+	Category    Categories `gorm:"foreignKey:CategoryID;references:ID"`
+	CategoryID  uuid.UUID  `gorm:"NOT NULL;index"`
+	Discount    Discounts  `gorm:"foreignKey:DiscountID;references:ID"`
+	DiscountID  *uuid.UUID
+	ProductName string          `gorm:"NOT NULL"`
+	Description string          `gorm:"NOT NULL"`
+	Images      pq.StringArray  `gorm:"type:text[]"`
+	Size        pq.Float64Array `gorm:"type:float[]"`
+	Price       float64         `gorm:"NOT NULL"`
+	CreatedAt   time.Time       `gorm:"NOT NULL"`
+	UpdatedAt   time.Time       `gorm:"NOT NULL"`
+	DeletedAt   gorm.DeletedAt
 }
 
 type Discounts struct {
@@ -53,24 +63,14 @@ type Discounts struct {
 	CreatedAt   time.Time `gorm:"NOT NULL"`
 	UpdatedAt   time.Time `gorm:"NOT NULL"`
 }
-
-type Products struct {
-	ID          uuid.UUID   `gorm:"NOT NULL;PRIMARY_KEY"`
-	MerchentID  uuid.UUID   `gorm:"NOT NULL"`
-	Category    Categories  `gorm:"foreignKey:CategoryID;references:ID"`
-	CategoryID  uuid.UUID   `gorm:"NOT NULL;index"`
-	Inventory   Inventories `gorm:"foreignKey:InventoryID;references:ID"`
-	InventoryID uuid.UUID   `gorm:"NOT NULL;index"`
-	Discount    Discounts   `gorm:"foreignKey:DiscountID;references:ID"`
-	DiscountID  *uuid.UUID
-	ProductName string          `gorm:"NOT NULL"`
-	Description string          `gorm:"NOT NULL"`
-	Images      pq.StringArray  `gorm:"type:text[]"`
-	Size        pq.Float64Array `gorm:"type:float[]"`
-	Price       float64         `gorm:"NOT NULL"`
-	CreatedAt   time.Time       `gorm:"NOT NULL"`
-	UpdatedAt   time.Time       `gorm:"NOT NULL"`
-	DeletedAt   gorm.DeletedAt
+type Inventories struct {
+	ID        uuid.UUID `gorm:"NOT NULL;PRIMARY_KEY"`
+	Product   Products  `gorm:"foreignKey:ProductID;references:ID"`
+	ProductID uuid.UUID `gorm:"NOT NULL;index"`
+	Size      float64   `gorm:"NOT NULL"`
+	Quantity  int       `gorm:"NOT NULL"`
+	CreatedAt time.Time `gorm:"NOT NULL"`
+	UpdatedAt time.Time `gorm:"NOT NULL"`
 }
 
 type Wishlists struct {
@@ -81,18 +81,27 @@ type Wishlists struct {
 	ProductID uuid.UUID `gorm:"NOT NULL;index"`
 	CreatedAt time.Time `gorm:"NOT NULL"`
 	UpdatedAt time.Time `gorm:"NOT NULL"`
-	DeletedAt gorm.DeletedAt
 }
 
 type Carts struct {
 	ID        uuid.UUID `gorm:"NOT NULL;PRIMARY_KEY"`
 	User      User_Data `gorm:"foreignKey:UserID;references:ID"`
 	UserID    uuid.UUID `gorm:"NOT NULL"`
-	Product   Products  `gorm:"foreignKey:ProductID;references:ID"`
-	ProductID uuid.UUID `gorm:"NOT NULL;index"`
-	Quantity  int       `gorm:"NOT NULL"`
-	Size      float64   `gorm:"NOT NULL"`
+	Price     float64   `gorm:"NOT NULL"`
 	CreatedAt time.Time `gorm:"NOT NULL"`
 	UpdatedAt time.Time `gorm:"NOT NULL"`
-	DeletedAt gorm.DeletedAt
+}
+
+type Cart_Items struct {
+	ID          uuid.UUID   `gorm:"NOT NULL;PRIMARY_KEY"`
+	Cart        Carts       `gorm:"foreignKey:CartID;references:ID"`
+	CartID      uuid.UUID   `gorm:"NOT NULL"`
+	Product     Products    `gorm:"foreignKey:ProductID;references:ID"`
+	ProductID   uuid.UUID   `gorm:"NOT NULL;index"`
+	Inventory   Inventories `gorm:"foreignKey:InventoryID;references:ID"`
+	InventoryID uuid.UUID   `gorm:"NOT NULL;index"`
+	Quantity    int         `gorm:"NOT NULL"`
+	Price       float64     `gorm:"NOT NULL"`
+	CreatedAt   time.Time   `gorm:"NOT NULL"`
+	UpdatedAt   time.Time   `gorm:"NOT NULL"`
 }

@@ -19,9 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	UserServie_GetHome_FullMethodName           = "/pb.UserServie/GetHome"
-	UserServie_AddRemoveWishlist_FullMethodName = "/pb.UserServie/AddRemoveWishlist"
-	UserServie_GetWishlist_FullMethodName       = "/pb.UserServie/GetWishlist"
+	UserServie_GetHome_FullMethodName               = "/pb.UserServie/GetHome"
+	UserServie_AddRemoveWishlist_FullMethodName     = "/pb.UserServie/AddRemoveWishlist"
+	UserServie_GetWishlist_FullMethodName           = "/pb.UserServie/GetWishlist"
+	UserServie_AddProductToCart_FullMethodName      = "/pb.UserServie/AddProductToCart"
+	UserServie_GetCartItmes_FullMethodName          = "/pb.UserServie/GetCartItmes"
+	UserServie_RemoveProductFromCart_FullMethodName = "/pb.UserServie/RemoveProductFromCart"
 )
 
 // UserServieClient is the client API for UserServie service.
@@ -31,6 +34,9 @@ type UserServieClient interface {
 	GetHome(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetHomeResponse, error)
 	AddRemoveWishlist(ctx context.Context, in *AddRemoveWishlistRequest, opts ...grpc.CallOption) (*Response, error)
 	GetWishlist(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetWishlistResponse, error)
+	AddProductToCart(ctx context.Context, in *AddToCartRequest, opts ...grpc.CallOption) (*Response, error)
+	GetCartItmes(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetCartItemsResponse, error)
+	RemoveProductFromCart(ctx context.Context, in *RemoveFromCartRequest, opts ...grpc.CallOption) (*Response, error)
 }
 
 type userServieClient struct {
@@ -68,6 +74,33 @@ func (c *userServieClient) GetWishlist(ctx context.Context, in *Request, opts ..
 	return out, nil
 }
 
+func (c *userServieClient) AddProductToCart(ctx context.Context, in *AddToCartRequest, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
+	err := c.cc.Invoke(ctx, UserServie_AddProductToCart_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServieClient) GetCartItmes(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetCartItemsResponse, error) {
+	out := new(GetCartItemsResponse)
+	err := c.cc.Invoke(ctx, UserServie_GetCartItmes_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServieClient) RemoveProductFromCart(ctx context.Context, in *RemoveFromCartRequest, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
+	err := c.cc.Invoke(ctx, UserServie_RemoveProductFromCart_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServieServer is the server API for UserServie service.
 // All implementations must embed UnimplementedUserServieServer
 // for forward compatibility
@@ -75,6 +108,9 @@ type UserServieServer interface {
 	GetHome(context.Context, *Request) (*GetHomeResponse, error)
 	AddRemoveWishlist(context.Context, *AddRemoveWishlistRequest) (*Response, error)
 	GetWishlist(context.Context, *Request) (*GetWishlistResponse, error)
+	AddProductToCart(context.Context, *AddToCartRequest) (*Response, error)
+	GetCartItmes(context.Context, *Request) (*GetCartItemsResponse, error)
+	RemoveProductFromCart(context.Context, *RemoveFromCartRequest) (*Response, error)
 	mustEmbedUnimplementedUserServieServer()
 }
 
@@ -90,6 +126,15 @@ func (UnimplementedUserServieServer) AddRemoveWishlist(context.Context, *AddRemo
 }
 func (UnimplementedUserServieServer) GetWishlist(context.Context, *Request) (*GetWishlistResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetWishlist not implemented")
+}
+func (UnimplementedUserServieServer) AddProductToCart(context.Context, *AddToCartRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddProductToCart not implemented")
+}
+func (UnimplementedUserServieServer) GetCartItmes(context.Context, *Request) (*GetCartItemsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCartItmes not implemented")
+}
+func (UnimplementedUserServieServer) RemoveProductFromCart(context.Context, *RemoveFromCartRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveProductFromCart not implemented")
 }
 func (UnimplementedUserServieServer) mustEmbedUnimplementedUserServieServer() {}
 
@@ -158,6 +203,60 @@ func _UserServie_GetWishlist_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserServie_AddProductToCart_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddToCartRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServieServer).AddProductToCart(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserServie_AddProductToCart_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServieServer).AddProductToCart(ctx, req.(*AddToCartRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserServie_GetCartItmes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServieServer).GetCartItmes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserServie_GetCartItmes_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServieServer).GetCartItmes(ctx, req.(*Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserServie_RemoveProductFromCart_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveFromCartRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServieServer).RemoveProductFromCart(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserServie_RemoveProductFromCart_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServieServer).RemoveProductFromCart(ctx, req.(*RemoveFromCartRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserServie_ServiceDesc is the grpc.ServiceDesc for UserServie service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -176,6 +275,18 @@ var UserServie_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetWishlist",
 			Handler:    _UserServie_GetWishlist_Handler,
+		},
+		{
+			MethodName: "AddProductToCart",
+			Handler:    _UserServie_AddProductToCart_Handler,
+		},
+		{
+			MethodName: "GetCartItmes",
+			Handler:    _UserServie_GetCartItmes_Handler,
+		},
+		{
+			MethodName: "RemoveProductFromCart",
+			Handler:    _UserServie_RemoveProductFromCart_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
