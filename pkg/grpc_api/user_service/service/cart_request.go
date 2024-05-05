@@ -97,6 +97,7 @@ func (handler *userService) GetCartItmes(ctx context.Context, in *proto.Request)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
 	for _, product := range cartItemEntities {
+
 		if product.ImageURL != "" {
 			url, err := handler.s3.GetPreSignedURL(product.ImageURL)
 			if err != nil {
@@ -116,6 +117,7 @@ func (handler *userService) GetCartItmes(ctx context.Context, in *proto.Request)
 			Size:         float32(cartItem.Size),
 			Price:        float32(cartItem.Price),
 			Quantity:     cartItem.Quantity,
+			CartItemId:   cartItem.CartItemID,
 		}
 		cartItems = append(cartItems, item)
 	}
@@ -124,6 +126,46 @@ func (handler *userService) GetCartItmes(ctx context.Context, in *proto.Request)
 		Status:  true,
 		Message: "Cart fetched successfully",
 		Data:    cartItems,
+	}
+	return response, nil
+}
+
+func (handler *userService) RemoveProductFromCart(ctx context.Context, in *proto.RemoveFromCartRequest) (*proto.Response, error) {
+	payload, ok := ctx.Value(utils.AuthorizationPayloadKey).(*token.AccessPayload)
+	if !ok {
+		err := errors.New("unable to retrieve user payload from context")
+		handler.log.LogError("Error", err)
+		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	}
+
+	res, err := handler.storage.CanDeleteCartItem(in.GetCartItemId(), payload.UserID)
+	if err != nil {
+		handler.log.LogError("Error while CanDeleteCartItem", err)
+		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	}
+	if !res {
+		err := errors.New("error while CanDeleteCartItem")
+		handler.log.LogError("Error", err)
+		return nil, status.Errorf(codes.NotFound, utils.NotFound)
+	}
+
+	err = handler.storage.RemoveFromCart(in.GetCartItemId(), payload.UserID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			handler.log.LogError("Error while RemoveFromCart")
+			return nil, status.Errorf(codes.NotFound, utils.NotFound)
+		}
+		if err.Error() == "not deleted" {
+			handler.log.LogError("Error while RemoveFromCart")
+			return nil, status.Errorf(codes.NotFound, utils.NotFound)
+		}
+		handler.log.LogError("Error while RemoveFromCart", err)
+		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	}
+	response := &proto.Response{
+		Code:    http.StatusOK,
+		Status:  true,
+		Message: "Item deleted from cart successfully",
 	}
 	return response, nil
 }

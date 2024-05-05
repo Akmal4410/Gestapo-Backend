@@ -40,10 +40,11 @@ type AddToCartReq struct {
 }
 
 type CartItemRes struct {
-	ProductID string  `json:"product_id"`
-	ImageURL  string  `json:"image_url"`
-	Name      string  `json:"name"`
-	Size      float64 `json:"size"`
-	Quantity  int32   `json:"quantity"`
-	Price     float64 `json:"price"`
+	ProductID  string  `json:"product_id"`
+	CartItemID string  `json:"cart_item_id"`
+	ImageURL   string  `json:"image_url"`
+	Name       string  `json:"name"`
+	Size       float64 `json:"size"`
+	Quantity   int32   `json:"quantity"`
+	Price      float64 `json:"price"`
 }

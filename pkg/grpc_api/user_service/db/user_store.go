@@ -155,7 +155,7 @@ func (store *UserStore) RemoveFromWishlist(req *entity.AddRemoveWishlistReq) err
 		return err
 	}
 	if n == 0 {
-		return fmt.Errorf("could not delete the product")
+		return fmt.Errorf("could not delete the product from wishlist")
 	}
 	return nil
 }
@@ -313,8 +313,9 @@ func (store *UserStore) GetInventoryID(productID string, size float64) (string, 
 	}
 	return inventoryID, nil
 }
-func (store *UserStore) GetCartItems(userId string) ([]entity.CartItemRes, error) {
-	var products []entity.CartItemRes
+
+func (store *UserStore) GetCartItems(userId string) ([]*entity.CartItemRes, error) {
+	var products []*entity.CartItemRes
 
 	selectQuery := `
 	SELECT
@@ -323,7 +324,8 @@ func (store *UserStore) GetCartItems(userId string) ([]entity.CartItemRes, error
 	p.product_name AS product_name,
 	i.size AS size,
 	ci.quantity AS quantity,
-	ci.price AS price
+	ci.price AS price,
+	ci.id AS cart_item_id
 	FROM
     products p
 	LEFT JOIN
@@ -334,7 +336,6 @@ func (store *UserStore) GetCartItems(userId string) ([]entity.CartItemRes, error
     carts c ON ci.cart_id = c.id
 	WHERE c.user_id = $1 AND ci.inventory_id = i.id;
 	`
-
 	rows, err := store.storage.DB.Query(selectQuery, userId)
 	if err != nil {
 		return nil, err
@@ -352,6 +353,7 @@ func (store *UserStore) GetCartItems(userId string) ([]entity.CartItemRes, error
 			&product.Size,
 			&product.Quantity,
 			&product.Price,
+			&product.CartItemID,
 		)
 		if err != nil {
 			return nil, err
@@ -359,7 +361,7 @@ func (store *UserStore) GetCartItems(userId string) ([]entity.CartItemRes, error
 		if len(images) > 0 {
 			product.ImageURL = images[0]
 		}
-		products = append(products, product)
+		products = append(products, &product)
 	}
 
 	err = rows.Err()
@@ -368,4 +370,41 @@ func (store *UserStore) GetCartItems(userId string) ([]entity.CartItemRes, error
 	}
 
 	return products, nil
+}
+
+func (store *UserStore) CanDeleteCartItem(cartItemId, userId string) (bool, error) {
+	query := `
+        SELECT COUNT(ci.id)
+        FROM cart_items ci
+        JOIN carts c ON ci.cart_id = c.id
+        WHERE ci.id = $1 AND c.user_id = $2
+    `
+	var count int
+	err := store.storage.DB.QueryRow(query, cartItemId, userId).Scan(&count)
+	if err != nil {
+		fmt.Println("Error executing query:", err)
+		return false, err
+	}
+	return count > 0, nil
+}
+
+func (store *UserStore) RemoveFromCart(cartItemId, userId string) error {
+	deleteQuery := `
+        DELETE FROM cart_items
+        WHERE id = $1
+		AND cart_id IN (SELECT id FROM carts WHERE user_id = $2);
+    `
+
+	res, err := store.storage.DB.Exec(deleteQuery, cartItemId, userId)
+	if err != nil {
+		return err
+	}
+	n, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if n == 0 {
+		return fmt.Errorf("not deleted")
+	}
+	return nil
 }

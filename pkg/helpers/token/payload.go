@@ -66,7 +66,7 @@ func NewAccessPayload(userID, userName, userType string) *AccessPayload {
 		UserType:  userType,
 		TokenType: accessToken,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 5)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 5)), //TODO:change token time
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 	}
