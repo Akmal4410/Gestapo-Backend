@@ -21,7 +21,6 @@ message HomeResponse {
     repeated ProductResponse products = 3;
 }
 
-
 message AddRemoveWishlistRequest {
     string action = 1;
     string product_id = 2;
@@ -32,6 +31,29 @@ message GetWishlistResponse {
     bool status = 2;
     string message = 3;
     repeated ProductResponse data = 4;
+}
+
+message AddToCartRequest {
+    string product_id = 1;
+    float size = 2;
+    int32 quantity = 3;
+    float price = 4; 
+}
+
+message GetCartItemsResponse {
+    int32 code = 1;
+    bool status = 2;
+    string message = 3;
+    repeated CartItemResponse data = 4;
+}
+
+message CartItemResponse {
+    string product_id = 1;
+    string product_image = 2;
+    string name = 3;
+    float size = 4;
+    float price = 5;
+    int32 quantity = 6;
 }
 
 service UserServie {
@@ -51,6 +73,19 @@ service UserServie {
     rpc GetWishlist (Request) returns (GetWishlistResponse) {
         option (google.api.http) = {
             get: "/user/wishlist"
+        };
+    } 
+
+    rpc AddProductToCart (AddToCartRequest) returns (Response) {
+        option (google.api.http) = {
+            post: "/user/cart"
+            body: "*"
+        };
+    } 
+
+    rpc GetCartItmes (Request) returns (GetCartItemsResponse) {
+        option (google.api.http) = {
+            get: "/user/cart"
         };
     } 
 }

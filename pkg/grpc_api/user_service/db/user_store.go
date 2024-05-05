@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -205,6 +206,165 @@ func (store *UserStore) GetWishlistProducts(userId string) ([]product_entity.Get
 
 	if len(products) == 0 {
 		return []product_entity.GetProductRes{}, nil
+	}
+
+	return products, nil
+}
+
+func (store *UserStore) CreateUserCart(req *entity.AddToCartReq) error {
+	createdAt := time.Now()
+	updatedAt := time.Now()
+
+	uuId, err := uuid.NewRandom()
+	if err != nil {
+		return err
+	}
+	insertQuery := `
+	INSERT INTO carts (id, user_id, price, created_at, updated_at)
+	VALUES ($1, $2, $3, $4, $5);
+	`
+	_, err = store.storage.DB.Exec(insertQuery, uuId, req.UserID, 0, createdAt, updatedAt)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (store *UserStore) AddToCard(req *entity.AddToCartReq) error {
+	createdAt := time.Now()
+	updatedAt := time.Now()
+
+	ctx := context.Background()
+
+	tx, err := store.storage.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	uuId, err := uuid.NewRandom()
+	if err != nil {
+		return err
+	}
+	insertProductQuery := `
+        INSERT INTO cart_items
+        (id, cart_id, product_id, inventory_id, quantity, price, created_at, updated_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
+        `
+
+	_, err = tx.Exec(insertProductQuery, uuId, req.CartID, req.ProductID, req.InventoryID, req.Quantity, req.Price, createdAt, updatedAt)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// Calculate total price of items in the cart
+	totalPriceQuery := `
+        SELECT SUM(quantity * price) FROM cart_items WHERE cart_id = $1;
+    `
+	var totalPrice float64
+	err = tx.QueryRow(totalPriceQuery, req.CartID).Scan(&totalPrice)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// Update price in the carts table
+	updateQuery := `
+        UPDATE carts
+        SET price = $1, updated_at = $2
+        WHERE id = $3;
+    `
+	_, err = tx.Exec(updateQuery, totalPrice, updatedAt, req.CartID)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	tx.Commit()
+	return nil
+}
+
+func (store *UserStore) GetCartID(userID string) (string, error) {
+	selectQuery := `SELECT id FROM carts WHERE user_id = $1;`
+
+	rows := store.storage.DB.QueryRow(selectQuery, userID)
+	if rows.Err() != nil {
+		return "", rows.Err()
+	}
+	var cartID string
+	err := rows.Scan(&cartID)
+	if err != nil {
+		return "", err
+	}
+	return cartID, nil
+}
+
+func (store *UserStore) GetInventoryID(productID string, size float64) (string, error) {
+	selectQuery := `SELECT id FROM inventories WHERE product_id = $1 AND size = $2;`
+
+	rows := store.storage.DB.QueryRow(selectQuery, productID, size)
+	if rows.Err() != nil {
+		return "", rows.Err()
+	}
+	var inventoryID string
+	err := rows.Scan(&inventoryID)
+	if err != nil {
+		return "", err
+	}
+	return inventoryID, nil
+}
+func (store *UserStore) GetCartItems(userId string) ([]entity.CartItemRes, error) {
+	var products []entity.CartItemRes
+
+	selectQuery := `
+	SELECT
+    p.id AS id,
+	p.images AS product_images,
+	p.product_name AS product_name,
+	i.size AS size,
+	ci.quantity AS quantity,
+	ci.price AS price
+	FROM
+    products p
+	LEFT JOIN
+    inventories i ON p.id = i.product_id
+	LEFT JOIN
+    cart_items ci ON p.id = ci.product_id
+	LEFT JOIN
+    carts c ON ci.cart_id = c.id
+	WHERE c.user_id = $1 AND ci.inventory_id = i.id;
+	`
+
+	rows, err := store.storage.DB.Query(selectQuery, userId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var product entity.CartItemRes
+		var images pq.StringArray
+
+		err := rows.Scan(
+			&product.ProductID,
+			&images,
+			&product.Name,
+			&product.Size,
+			&product.Quantity,
+			&product.Price,
+		)
+		if err != nil {
+			return nil, err
+		}
+		if len(images) > 0 {
+			product.ImageURL = images[0]
+		}
+		products = append(products, product)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
 	}
 
 	return products, nil
