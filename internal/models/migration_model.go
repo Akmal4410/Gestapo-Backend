@@ -105,3 +105,18 @@ type Cart_Items struct {
 	CreatedAt   time.Time   `gorm:"NOT NULL"`
 	UpdatedAt   time.Time   `gorm:"NOT NULL"`
 }
+
+type Addresses struct {
+	ID          uuid.UUID `gorm:"NOT NULL;PRIMARY_KEY"`
+	User        User_Data `gorm:"foreignKey:UserID;references:ID"`
+	UserID      uuid.UUID `gorm:"NOT NULL"`
+	Title       string    `gorm:"NOT NULL"`
+	AddressLine string    `gorm:"NOT NULL"`
+	Country     string
+	City        string
+	PostalCode  int64
+	Landmark    string
+	IsDefault   bool
+	CreatedAt   time.Time `gorm:"NOT NULL"`
+	UpdatedAt   time.Time `gorm:"NOT NULL"`
+}
