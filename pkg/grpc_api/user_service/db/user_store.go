@@ -408,3 +408,135 @@ func (store *UserStore) RemoveFromCart(cartItemId, userId string) error {
 	}
 	return nil
 }
+
+func (store *UserStore) AddAddress(req *entity.AddAddressReq) error {
+	createdAt := time.Now()
+	updatedAt := time.Now()
+
+	uuId, err := uuid.NewRandom()
+	if err != nil {
+		return err
+	}
+	insertQuery := `
+	INSERT INTO addresses 
+	(id, user_id, title, address_line, country, city, postal_code, landmark, is_default, created_at, updated_at)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);
+	`
+	_, err = store.storage.DB.Exec(insertQuery, uuId, req.UserID, req.Title, req.AddressLine, req.Country, req.City, req.PostalCode, req.Landmark, req.IsDefault, createdAt, updatedAt)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (store *UserStore) GetAddresses(userId string) ([]*entity.GetAddressRes, error) {
+	var addresses []*entity.GetAddressRes
+	// , country, city, postal_code, landmark
+	selectQuery := `
+	SELECT id, title, address_line
+	FROM addresses
+	WHERE user_id = $1;
+	`
+	rows, err := store.storage.DB.Query(selectQuery, userId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var address entity.GetAddressRes
+
+		err := rows.Scan(
+			&address.AddressID,
+			&address.Title,
+			&address.AddressLine,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		addresses = append(addresses, &address)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+	return addresses, nil
+}
+
+func (store *UserStore) GetAddressById(addressID string) (*entity.GetAddressRes, error) {
+
+	selectQuery := `
+	SELECT id, user_id, title, address_line, country, city, postal_code, landmark
+	FROM addresses
+	WHERE id = $1;
+	`
+
+	rows := store.storage.DB.QueryRow(selectQuery, addressID)
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+	var address entity.GetAddressRes
+	err := rows.Scan(
+		&address.AddressID,
+		&address.UserID,
+		&address.Title,
+		&address.AddressLine,
+		&address.Country,
+		&address.City,
+		&address.PostalCode,
+		&address.Landmark,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &address, nil
+}
+
+func (store *UserStore) EditAddress(addressID string, req *entity.EditAddressReq) error {
+	updateQuery := `
+	UPDATE addresses
+	SET title = COALESCE($2, title),
+		address_line = COALESCE($3, address_line),
+		country = COALESCE($4, country),
+		city = COALESCE($5, city),
+		postal_code = COALESCE($6, postal_code),
+		landmark = COALESCE($7, landmark),
+		is_default = COALESCE($8, is_default),
+		updated_at = $9
+	WHERE id = $1;
+	`
+	updatedAt := time.Now()
+	res, err := store.storage.DB.Exec(updateQuery, addressID, req.Title, req.AddressLine, req.Country, req.City, req.PostalCode, req.Landmark, req.IsDefault, updatedAt)
+	if err != nil {
+		return err
+	}
+	n, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if n == 0 {
+		return fmt.Errorf("couldnot update the address")
+	}
+	return nil
+}
+
+func (store *UserStore) DeleteAddress(addressID string) error {
+	deleteQuery := `
+        DELETE FROM addresses
+        WHERE id = $1;
+    `
+
+	res, err := store.storage.DB.Exec(deleteQuery, addressID)
+	if err != nil {
+		return err
+	}
+	n, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if n == 0 {
+		return fmt.Errorf("could not delete the address")
+	}
+	return nil
+}

@@ -25,6 +25,11 @@ const (
 	UserServie_AddProductToCart_FullMethodName      = "/pb.UserServie/AddProductToCart"
 	UserServie_GetCartItmes_FullMethodName          = "/pb.UserServie/GetCartItmes"
 	UserServie_RemoveProductFromCart_FullMethodName = "/pb.UserServie/RemoveProductFromCart"
+	UserServie_AddAddress_FullMethodName            = "/pb.UserServie/AddAddress"
+	UserServie_GetAddresses_FullMethodName          = "/pb.UserServie/GetAddresses"
+	UserServie_GetAddressByID_FullMethodName        = "/pb.UserServie/GetAddressByID"
+	UserServie_EditAddress_FullMethodName           = "/pb.UserServie/EditAddress"
+	UserServie_DeleteAddress_FullMethodName         = "/pb.UserServie/DeleteAddress"
 )
 
 // UserServieClient is the client API for UserServie service.
@@ -37,6 +42,12 @@ type UserServieClient interface {
 	AddProductToCart(ctx context.Context, in *AddToCartRequest, opts ...grpc.CallOption) (*Response, error)
 	GetCartItmes(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetCartItemsResponse, error)
 	RemoveProductFromCart(ctx context.Context, in *RemoveFromCartRequest, opts ...grpc.CallOption) (*Response, error)
+	// ------ Address Related------------
+	AddAddress(ctx context.Context, in *AddAddressRequest, opts ...grpc.CallOption) (*Response, error)
+	GetAddresses(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetAddressesResponse, error)
+	GetAddressByID(ctx context.Context, in *AddressIdRequest, opts ...grpc.CallOption) (*GetAddressByIdResponse, error)
+	EditAddress(ctx context.Context, in *EditAddressRequest, opts ...grpc.CallOption) (*Response, error)
+	DeleteAddress(ctx context.Context, in *AddressIdRequest, opts ...grpc.CallOption) (*Response, error)
 }
 
 type userServieClient struct {
@@ -101,6 +112,51 @@ func (c *userServieClient) RemoveProductFromCart(ctx context.Context, in *Remove
 	return out, nil
 }
 
+func (c *userServieClient) AddAddress(ctx context.Context, in *AddAddressRequest, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
+	err := c.cc.Invoke(ctx, UserServie_AddAddress_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServieClient) GetAddresses(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetAddressesResponse, error) {
+	out := new(GetAddressesResponse)
+	err := c.cc.Invoke(ctx, UserServie_GetAddresses_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServieClient) GetAddressByID(ctx context.Context, in *AddressIdRequest, opts ...grpc.CallOption) (*GetAddressByIdResponse, error) {
+	out := new(GetAddressByIdResponse)
+	err := c.cc.Invoke(ctx, UserServie_GetAddressByID_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServieClient) EditAddress(ctx context.Context, in *EditAddressRequest, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
+	err := c.cc.Invoke(ctx, UserServie_EditAddress_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServieClient) DeleteAddress(ctx context.Context, in *AddressIdRequest, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
+	err := c.cc.Invoke(ctx, UserServie_DeleteAddress_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServieServer is the server API for UserServie service.
 // All implementations must embed UnimplementedUserServieServer
 // for forward compatibility
@@ -111,6 +167,12 @@ type UserServieServer interface {
 	AddProductToCart(context.Context, *AddToCartRequest) (*Response, error)
 	GetCartItmes(context.Context, *Request) (*GetCartItemsResponse, error)
 	RemoveProductFromCart(context.Context, *RemoveFromCartRequest) (*Response, error)
+	// ------ Address Related------------
+	AddAddress(context.Context, *AddAddressRequest) (*Response, error)
+	GetAddresses(context.Context, *Request) (*GetAddressesResponse, error)
+	GetAddressByID(context.Context, *AddressIdRequest) (*GetAddressByIdResponse, error)
+	EditAddress(context.Context, *EditAddressRequest) (*Response, error)
+	DeleteAddress(context.Context, *AddressIdRequest) (*Response, error)
 	mustEmbedUnimplementedUserServieServer()
 }
 
@@ -135,6 +197,21 @@ func (UnimplementedUserServieServer) GetCartItmes(context.Context, *Request) (*G
 }
 func (UnimplementedUserServieServer) RemoveProductFromCart(context.Context, *RemoveFromCartRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveProductFromCart not implemented")
+}
+func (UnimplementedUserServieServer) AddAddress(context.Context, *AddAddressRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddAddress not implemented")
+}
+func (UnimplementedUserServieServer) GetAddresses(context.Context, *Request) (*GetAddressesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAddresses not implemented")
+}
+func (UnimplementedUserServieServer) GetAddressByID(context.Context, *AddressIdRequest) (*GetAddressByIdResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAddressByID not implemented")
+}
+func (UnimplementedUserServieServer) EditAddress(context.Context, *EditAddressRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EditAddress not implemented")
+}
+func (UnimplementedUserServieServer) DeleteAddress(context.Context, *AddressIdRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteAddress not implemented")
 }
 func (UnimplementedUserServieServer) mustEmbedUnimplementedUserServieServer() {}
 
@@ -257,6 +334,96 @@ func _UserServie_RemoveProductFromCart_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserServie_AddAddress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddAddressRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServieServer).AddAddress(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserServie_AddAddress_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServieServer).AddAddress(ctx, req.(*AddAddressRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserServie_GetAddresses_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServieServer).GetAddresses(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserServie_GetAddresses_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServieServer).GetAddresses(ctx, req.(*Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserServie_GetAddressByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddressIdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServieServer).GetAddressByID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserServie_GetAddressByID_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServieServer).GetAddressByID(ctx, req.(*AddressIdRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserServie_EditAddress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EditAddressRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServieServer).EditAddress(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserServie_EditAddress_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServieServer).EditAddress(ctx, req.(*EditAddressRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserServie_DeleteAddress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddressIdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServieServer).DeleteAddress(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserServie_DeleteAddress_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServieServer).DeleteAddress(ctx, req.(*AddressIdRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserServie_ServiceDesc is the grpc.ServiceDesc for UserServie service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -287,6 +454,26 @@ var UserServie_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RemoveProductFromCart",
 			Handler:    _UserServie_RemoveProductFromCart_Handler,
+		},
+		{
+			MethodName: "AddAddress",
+			Handler:    _UserServie_AddAddress_Handler,
+		},
+		{
+			MethodName: "GetAddresses",
+			Handler:    _UserServie_GetAddresses_Handler,
+		},
+		{
+			MethodName: "GetAddressByID",
+			Handler:    _UserServie_GetAddressByID_Handler,
+		},
+		{
+			MethodName: "EditAddress",
+			Handler:    _UserServie_EditAddress_Handler,
+		},
+		{
+			MethodName: "DeleteAddress",
+			Handler:    _UserServie_DeleteAddress_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

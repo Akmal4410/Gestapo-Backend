@@ -48,3 +48,36 @@ type CartItemRes struct {
 	Quantity   int32   `json:"quantity"`
 	Price      float64 `json:"price"`
 }
+
+type AddAddressReq struct {
+	Title       string  `json:"title" validate:"required"`
+	AddressLine string  `json:"address_line" validate:"required"`
+	Country     string  `json:"country" validate:"required"`
+	City        string  `json:"city" validate:"required"`
+	PostalCode  *int64  `json:"postal_code"`
+	Landmark    *string `json:"landmark"`
+	IsDefault   *bool   `json:"is_default"`
+	UserID      string  `json:"user_id"`
+}
+
+type GetAddressRes struct {
+	AddressID   string  `json:"address_id"`
+	UserID      string  `json:"user_id"`
+	Title       string  `json:"title"`
+	AddressLine string  `json:"address_line"`
+	Country     *string `json:"country"`
+	City        *string `json:"city"`
+	PostalCode  *int64  `json:"postal_code"`
+	Landmark    *string `json:"landmark"`
+	IsDefault   *bool   `json:"is_default"`
+}
+
+type EditAddressReq struct {
+	Title       *string `json:"title"`
+	AddressLine *string `json:"address_line"`
+	Country     *string `json:"country"`
+	City        *string `json:"city"`
+	PostalCode  *int64  `json:"postal_code"`
+	Landmark    *string `json:"landmark"`
+	IsDefault   *bool   `json:"is_default"`
+}
