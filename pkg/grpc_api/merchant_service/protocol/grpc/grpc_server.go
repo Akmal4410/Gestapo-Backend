@@ -14,7 +14,6 @@ import (
 	"github.com/akmal4410/gestapo/pkg/helpers/interceptor"
 	"github.com/akmal4410/gestapo/pkg/helpers/logger"
 	"github.com/akmal4410/gestapo/pkg/helpers/token"
-	"github.com/akmal4410/gestapo/pkg/utils"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -29,7 +28,7 @@ func RunGRPCService(ctx context.Context, storage *database.Storage, config *conf
 	grpcServer := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			interceptor.AccessMiddleware(),
-			interceptor.RolMiddleware(utils.MERCHANT),
+			interceptor.AdminRoleMiddleware(),
 		),
 	)
 

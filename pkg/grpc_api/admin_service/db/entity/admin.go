@@ -22,3 +22,18 @@ type GetUserRes struct {
 	Gender       *string    `json:"gender,omitempty"`
 	UserType     string     `json:"user_type,omitempty"`
 }
+
+type AddPromocodeReq struct {
+	Code        string  `json:"code" validate:"required"`
+	Title       string  `json:"title" validate:"required"`
+	Description string  `json:"description" validate:"required"`
+	Percentage  float64 `json:"percentage" validate:"required"`
+}
+
+type PromocodeRes struct {
+	ID          string  `json:"id"`
+	Code        string  `json:"code"`
+	Title       string  `json:"title"`
+	Description string  `json:"description"`
+	Percentage  float64 `json:"percentage"`
+}

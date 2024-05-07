@@ -53,7 +53,6 @@ func (store AdminStore) AddCategory(req *proto.AddCategoryRequest) error {
 }
 
 func (store *AdminStore) GetCategories() ([]*proto.CategoryRes, error) {
-
 	var categories []*proto.CategoryRes
 
 	selectQuery := `
@@ -124,4 +123,71 @@ func (store *AdminStore) GetUsers() ([]entity.GetUserRes, error) {
 		return nil, err
 	}
 	return users, nil
+}
+
+func (store *AdminStore) CheckPromocodeExist(promocode string) (bool, error) {
+	checkQuery := `SELECT * FROM promo_codes WHERE code = $1;`
+	res, err := store.storage.DB.Exec(checkQuery, promocode)
+	if err != nil {
+		return false, err
+	}
+
+	result, err := res.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+
+	return result != 0, nil
+}
+
+func (store AdminStore) AddPromocode(req *entity.AddPromocodeReq) error {
+	createdAt := time.Now()
+	updatedAt := time.Now()
+
+	insertQuery := `
+	INSERT INTO promo_codes (id, code, title, description, percent, created_at, updated_at)
+	VALUES ($1, $2, $3, $4, $5, $6, $7);
+	`
+
+	uuId, err := uuid.NewRandom()
+	if err != nil {
+		return err
+	}
+	_, err = store.storage.DB.Exec(insertQuery, uuId, req.Code, req.Title, req.Description, req.Percentage, createdAt, updatedAt)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (store *AdminStore) GetPromocodes() ([]*entity.PromocodeRes, error) {
+	var promocodes []*entity.PromocodeRes
+
+	selectQuery := `
+	SELECT id, code, title, description, percent
+	FROM promo_codes 
+	ORDER BY created_at DESC;
+	`
+
+	rows, err := store.storage.DB.Query(selectQuery)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var promocode entity.PromocodeRes
+		err := rows.Scan(&promocode.ID, &promocode.Code, &promocode.Title, &promocode.Description, &promocode.Percentage)
+		if err != nil {
+			return nil, err
+		}
+		promocodes = append(promocodes, &promocode)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return promocodes, nil
 }

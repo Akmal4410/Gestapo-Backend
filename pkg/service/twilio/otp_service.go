@@ -8,35 +8,26 @@ import (
 	twilioApi "github.com/twilio/twilio-go/rest/verify/v2"
 )
 
-var (
-	accountSid string
-	authToken  string
-	serviceSid string
-)
-
 type TwilioService interface {
 	SendOTP(to string) error
 	VerfiyOTP(to, code string) (bool, error)
 }
 
-type OTPService struct{}
-
-func NewOTPService() TwilioService {
-	return &OTPService{}
+type OTPService struct {
+	twilio *config.Twilio
 }
 
-func LoadEnv() {
-	accountSid = config.EnvAccountSid()
-	authToken = config.EnvAuthToken()
-	serviceSid = config.EnvServiceSid()
+func NewOTPService(twilio *config.Twilio) TwilioService {
+	return &OTPService{
+		twilio: twilio,
+	}
 }
 
 func (service *OTPService) SendOTP(to string) error {
-	LoadEnv()
 
 	var client = twilio.NewRestClientWithParams(twilio.ClientParams{
-		Username: accountSid,
-		Password: authToken,
+		Username: service.twilio.AccountSid,
+		Password: service.twilio.AuthToken,
 	})
 
 	params := &twilioApi.CreateVerificationParams{}
@@ -44,7 +35,7 @@ func (service *OTPService) SendOTP(to string) error {
 	params.SetChannel("sms")
 	// params.SetCustomMessage("Your [Gestapo] verification code is:\n")
 
-	resp, err := client.VerifyV2.CreateVerification(serviceSid, params)
+	resp, err := client.VerifyV2.CreateVerification(service.twilio.ServiceSid, params)
 	if err != nil {
 		return err
 	}
@@ -54,17 +45,16 @@ func (service *OTPService) SendOTP(to string) error {
 }
 
 func (service OTPService) VerfiyOTP(to, code string) (bool, error) {
-	LoadEnv()
 
 	var client *twilio.RestClient = twilio.NewRestClientWithParams(twilio.ClientParams{
-		Username: accountSid,
-		Password: authToken,
+		Username: service.twilio.AccountSid,
+		Password: service.twilio.AuthToken,
 	})
 	params := &twilioApi.CreateVerificationCheckParams{}
 	params.SetTo(to)
 	params.SetCode(code)
 
-	resp, err := client.VerifyV2.CreateVerificationCheck(serviceSid, params)
+	resp, err := client.VerifyV2.CreateVerificationCheck(service.twilio.ServiceSid, params)
 
 	if err != nil {
 		fmt.Println("error :", err.Error())

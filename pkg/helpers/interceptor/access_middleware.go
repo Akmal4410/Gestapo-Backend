@@ -87,9 +87,8 @@ func (interceptor *Interceptor) AccessMiddleware() grpc.UnaryServerInterceptor {
 }
 
 // Currently used by merchant so modify if needed
-func (interceptor *Interceptor) RolMiddleware(requiredRole string) grpc.UnaryServerInterceptor {
+func (interceptor *Interceptor) MerchantRoleMiddleware() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-		interceptor.log.LogInfo("Calling gRPC meathod :", info.FullMethod)
 		if ok := isMerchantCanOnlyAccess(info.FullMethod); !ok {
 			return handler(ctx, req)
 		}
@@ -99,8 +98,27 @@ func (interceptor *Interceptor) RolMiddleware(requiredRole string) grpc.UnarySer
 			interceptor.log.LogError("Error", err)
 			return nil, status.Errorf(codes.Internal, err.Error())
 		}
-		if payload.UserType != requiredRole {
-			err := fmt.Errorf("user does not have required role: %s", requiredRole)
+		if payload.UserType != utils.MERCHANT {
+			err := fmt.Errorf("user does not have required role: %s", utils.MERCHANT)
+			interceptor.log.LogError("Error", err)
+			return nil, status.Errorf(codes.PermissionDenied, err.Error())
+		}
+		ctx = context.WithValue(ctx, utils.AuthorizationPayloadKey, payload)
+		return handler(ctx, req)
+	}
+}
+
+// Currently used by merchant so modify if needed
+func (interceptor *Interceptor) AdminRoleMiddleware() grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		payload, ok := ctx.Value(utils.AuthorizationPayloadKey).(*token.AccessPayload)
+		if !ok {
+			err := errors.New("unable to retrieve user payload from context")
+			interceptor.log.LogError("Error", err)
+			return nil, status.Errorf(codes.Internal, err.Error())
+		}
+		if payload.UserType != utils.ADMIN {
+			err := fmt.Errorf("user does not have required role: %s", utils.ADMIN)
 			interceptor.log.LogError("Error", err)
 			return nil, status.Errorf(codes.PermissionDenied, err.Error())
 		}
