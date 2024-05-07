@@ -19,9 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	AdminService_CreateCategory_FullMethodName = "/pb.AdminService/CreateCategory"
-	AdminService_GetCategories_FullMethodName  = "/pb.AdminService/GetCategories"
-	AdminService_GetUsers_FullMethodName       = "/pb.AdminService/GetUsers"
+	AdminService_CreateCategory_FullMethodName  = "/pb.AdminService/CreateCategory"
+	AdminService_GetCategories_FullMethodName   = "/pb.AdminService/GetCategories"
+	AdminService_GetUsers_FullMethodName        = "/pb.AdminService/GetUsers"
+	AdminService_CreatePromocode_FullMethodName = "/pb.AdminService/CreatePromocode"
+	AdminService_GetPromocodes_FullMethodName   = "/pb.AdminService/GetPromocodes"
 )
 
 // AdminServiceClient is the client API for AdminService service.
@@ -31,6 +33,8 @@ type AdminServiceClient interface {
 	CreateCategory(ctx context.Context, in *AddCategoryRequest, opts ...grpc.CallOption) (*Response, error)
 	GetCategories(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetCategoryResponse, error)
 	GetUsers(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetUsersResponse, error)
+	CreatePromocode(ctx context.Context, in *CreatePromocodeRequest, opts ...grpc.CallOption) (*Response, error)
+	GetPromocodes(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetPromocodeResponse, error)
 }
 
 type adminServiceClient struct {
@@ -68,6 +72,24 @@ func (c *adminServiceClient) GetUsers(ctx context.Context, in *Request, opts ...
 	return out, nil
 }
 
+func (c *adminServiceClient) CreatePromocode(ctx context.Context, in *CreatePromocodeRequest, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
+	err := c.cc.Invoke(ctx, AdminService_CreatePromocode_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) GetPromocodes(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetPromocodeResponse, error) {
+	out := new(GetPromocodeResponse)
+	err := c.cc.Invoke(ctx, AdminService_GetPromocodes_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AdminServiceServer is the server API for AdminService service.
 // All implementations must embed UnimplementedAdminServiceServer
 // for forward compatibility
@@ -75,6 +97,8 @@ type AdminServiceServer interface {
 	CreateCategory(context.Context, *AddCategoryRequest) (*Response, error)
 	GetCategories(context.Context, *Request) (*GetCategoryResponse, error)
 	GetUsers(context.Context, *Request) (*GetUsersResponse, error)
+	CreatePromocode(context.Context, *CreatePromocodeRequest) (*Response, error)
+	GetPromocodes(context.Context, *Request) (*GetPromocodeResponse, error)
 	mustEmbedUnimplementedAdminServiceServer()
 }
 
@@ -90,6 +114,12 @@ func (UnimplementedAdminServiceServer) GetCategories(context.Context, *Request) 
 }
 func (UnimplementedAdminServiceServer) GetUsers(context.Context, *Request) (*GetUsersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUsers not implemented")
+}
+func (UnimplementedAdminServiceServer) CreatePromocode(context.Context, *CreatePromocodeRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreatePromocode not implemented")
+}
+func (UnimplementedAdminServiceServer) GetPromocodes(context.Context, *Request) (*GetPromocodeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPromocodes not implemented")
 }
 func (UnimplementedAdminServiceServer) mustEmbedUnimplementedAdminServiceServer() {}
 
@@ -158,6 +188,42 @@ func _AdminService_GetUsers_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AdminService_CreatePromocode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreatePromocodeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).CreatePromocode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_CreatePromocode_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).CreatePromocode(ctx, req.(*CreatePromocodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AdminService_GetPromocodes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).GetPromocodes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_GetPromocodes_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).GetPromocodes(ctx, req.(*Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AdminService_ServiceDesc is the grpc.ServiceDesc for AdminService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -176,6 +242,14 @@ var AdminService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUsers",
 			Handler:    _AdminService_GetUsers_Handler,
+		},
+		{
+			MethodName: "CreatePromocode",
+			Handler:    _AdminService_CreatePromocode_Handler,
+		},
+		{
+			MethodName: "GetPromocodes",
+			Handler:    _AdminService_GetPromocodes_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

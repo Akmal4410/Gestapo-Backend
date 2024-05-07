@@ -24,6 +24,27 @@ message GetCategoryResponse {
     repeated CategoryRes data = 4;
 }
 
+message CreatePromocodeRequest {
+    string code = 1;
+    string title = 2;
+    string description = 3;
+    float percentage = 4;
+}
+
+message GetPromocodeResponse {
+    int32 code = 1;
+    bool status = 2;
+    string message = 3;
+    repeated PromocodeResponse data = 4;
+}
+
+message PromocodeResponse {
+    string promo_id = 1;
+    string code = 2;
+    string title = 3;
+    string discription = 4;
+    float percentage = 5;
+}
 
 service AdminService {
     rpc CreateCategory (AddCategoryRequest) returns (Response) {
@@ -42,6 +63,19 @@ service AdminService {
     rpc GetUsers (Request) returns (GetUsersResponse) {
         option (google.api.http) = {
             get: "/admin/user"
+        };
+    }
+
+    rpc CreatePromocode (CreatePromocodeRequest) returns (Response) {
+        option (google.api.http) = {
+            post: "/admin/promocode"
+            body: "*"
+        };
+    }
+
+    rpc GetPromocodes (Request) returns (GetPromocodeResponse) {
+        option (google.api.http) = {
+            get: "/admin/promocode"
         };
     }
 }

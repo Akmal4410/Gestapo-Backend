@@ -39,7 +39,7 @@ func NewAuthenticationService(storage *database.Storage, config *config.Config, 
 		config.AwsS3.AccessKey,
 		config.AwsS3.SecretKey,
 	)
-	twilio := twilio.NewOTPService()
+	twilio := twilio.NewOTPService(server.config.Twilio)
 	email := mail.NewGmailService(server.config.Email)
 	authStore := db.NewAuthStore(storage)
 

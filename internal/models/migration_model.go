@@ -120,3 +120,14 @@ type Addresses struct {
 	CreatedAt   time.Time `gorm:"NOT NULL"`
 	UpdatedAt   time.Time `gorm:"NOT NULL"`
 }
+
+type Promo_Codes struct {
+	ID          uuid.UUID `gorm:"NOT NULL;PRIMARY_KEY"`
+	Code        string    `gorm:"NOT NULL;UNIQUE"`
+	Title       string    `gorm:"NOT NULL"`
+	Description string    `gorm:"NOT NULL"`
+	Percent     float64   `gorm:"NOT NULL"`
+	CreatedAt   time.Time `gorm:"NOT NULL"`
+	UpdatedAt   time.Time `gorm:"NOT NULL"`
+	DeletedAt   gorm.DeletedAt
+}
