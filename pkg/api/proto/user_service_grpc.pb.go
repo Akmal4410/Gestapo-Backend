@@ -30,6 +30,7 @@ const (
 	UserServie_GetAddressByID_FullMethodName        = "/pb.UserServie/GetAddressByID"
 	UserServie_EditAddress_FullMethodName           = "/pb.UserServie/EditAddress"
 	UserServie_DeleteAddress_FullMethodName         = "/pb.UserServie/DeleteAddress"
+	UserServie_CreateOrder_FullMethodName           = "/pb.UserServie/CreateOrder"
 )
 
 // UserServieClient is the client API for UserServie service.
@@ -48,6 +49,7 @@ type UserServieClient interface {
 	GetAddressByID(ctx context.Context, in *AddressIdRequest, opts ...grpc.CallOption) (*GetAddressByIdResponse, error)
 	EditAddress(ctx context.Context, in *EditAddressRequest, opts ...grpc.CallOption) (*Response, error)
 	DeleteAddress(ctx context.Context, in *AddressIdRequest, opts ...grpc.CallOption) (*Response, error)
+	CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*Response, error)
 }
 
 type userServieClient struct {
@@ -157,6 +159,15 @@ func (c *userServieClient) DeleteAddress(ctx context.Context, in *AddressIdReque
 	return out, nil
 }
 
+func (c *userServieClient) CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
+	err := c.cc.Invoke(ctx, UserServie_CreateOrder_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServieServer is the server API for UserServie service.
 // All implementations must embed UnimplementedUserServieServer
 // for forward compatibility
@@ -173,6 +184,7 @@ type UserServieServer interface {
 	GetAddressByID(context.Context, *AddressIdRequest) (*GetAddressByIdResponse, error)
 	EditAddress(context.Context, *EditAddressRequest) (*Response, error)
 	DeleteAddress(context.Context, *AddressIdRequest) (*Response, error)
+	CreateOrder(context.Context, *CreateOrderRequest) (*Response, error)
 	mustEmbedUnimplementedUserServieServer()
 }
 
@@ -212,6 +224,9 @@ func (UnimplementedUserServieServer) EditAddress(context.Context, *EditAddressRe
 }
 func (UnimplementedUserServieServer) DeleteAddress(context.Context, *AddressIdRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteAddress not implemented")
+}
+func (UnimplementedUserServieServer) CreateOrder(context.Context, *CreateOrderRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateOrder not implemented")
 }
 func (UnimplementedUserServieServer) mustEmbedUnimplementedUserServieServer() {}
 
@@ -424,6 +439,24 @@ func _UserServie_DeleteAddress_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserServie_CreateOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateOrderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServieServer).CreateOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserServie_CreateOrder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServieServer).CreateOrder(ctx, req.(*CreateOrderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserServie_ServiceDesc is the grpc.ServiceDesc for UserServie service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -474,6 +507,10 @@ var UserServie_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteAddress",
 			Handler:    _UserServie_DeleteAddress_Handler,
+		},
+		{
+			MethodName: "CreateOrder",
+			Handler:    _UserServie_CreateOrder_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

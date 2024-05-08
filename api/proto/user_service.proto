@@ -182,4 +182,12 @@ service UserServie {
             delete: "/user/address/{address_id}"
         };
     } 
+
+    rpc CreateOrder (CreateOrderRequest) returns (Response){
+        option (google.api.http) = {
+            post: "/user/order"
+            body: "*"
+        };
+    }
+
 }

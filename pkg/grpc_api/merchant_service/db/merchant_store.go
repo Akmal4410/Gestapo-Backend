@@ -113,6 +113,7 @@ func (store *MerchantStore) InsertProduct(userId, productId string, req *entity.
 	for _, size := range req.Sizes {
 		inventoryId, err := uuid.NewRandom()
 		if err != nil {
+			tx.Rollback()
 			return err
 		}
 		insertInventoryQuery := `

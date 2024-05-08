@@ -73,4 +73,10 @@ message DiscountResponse {
     uint32 card_color = 6;
 }
 
-
+message CreateOrderRequest {
+    string address_id = 1;
+    string cart_id = 2;
+    optional string promo_id = 3;
+    float amount = 4;
+    string payment_mode = 5;
+}
