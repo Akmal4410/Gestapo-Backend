@@ -87,11 +87,10 @@ func (store *OrderStore) CreateOrder(req *entity.CreateOrderReq) error {
 		return err
 	}
 
-	//select all the order items
+	//select all the cart items
 	selectOrderItemsQuery := `
-	SELECT
-    product_id, quantity, price 
-	FROM order_items
+	SELECT product_id, quantity, price 
+	FROM cart_items 
 	WHERE cart_id = $1;
 	`
 	rows, err := store.storage.DB.Query(selectOrderItemsQuery, req.CartID)
@@ -103,7 +102,7 @@ func (store *OrderStore) CreateOrder(req *entity.CreateOrderReq) error {
 
 	var cartItems []*user_entity.CartItemRes
 	for rows.Next() {
-		var item *user_entity.CartItemRes
+		var item user_entity.CartItemRes
 
 		err := rows.Scan(
 			&item.ProductID,
@@ -115,7 +114,7 @@ func (store *OrderStore) CreateOrder(req *entity.CreateOrderReq) error {
 			tx.Rollback()
 			return err
 		}
-		cartItems = append(cartItems, item)
+		cartItems = append(cartItems, &item)
 	}
 
 	err = rows.Err()
@@ -161,7 +160,7 @@ func (store *OrderStore) CreateOrder(req *entity.CreateOrderReq) error {
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
 		`
 
-		_, err = tx.Exec(insertOrderItemQuery, orderItemID, item.ProductID, item.Quantity, amount, utils.OrderActive, createdAt, updatedAt)
+		_, err = tx.Exec(insertOrderItemQuery, orderItemID, orderDetailID, item.ProductID, item.Quantity, amount, utils.OrderActive, createdAt, updatedAt)
 		if err != nil {
 			tx.Rollback()
 			return err

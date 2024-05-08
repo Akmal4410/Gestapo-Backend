@@ -46,7 +46,7 @@ func (handler *userService) CreateOrder(ctx context.Context, req *proto.CreateOr
 	response, err := orderClient.CreateOrder(serviceCtx, req)
 	if err != nil {
 		handler.log.LogError("error parsing order service context :", err)
-		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+		return nil, err
 	}
 	return response, nil
 }
