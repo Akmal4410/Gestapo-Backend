@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package pb;
+
+import "api/proto/common_service.proto";
+
+option go_package = "api/proto";
+
+service OrderService {
+    rpc CreateOrder (CreateOrderRequest) returns (Response);
+}

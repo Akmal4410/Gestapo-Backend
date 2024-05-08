@@ -691,6 +691,85 @@ func (x *DiscountResponse) GetCardColor() uint32 {
 	return 0
 }
 
+type CreateOrderRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	AddressId   string  `protobuf:"bytes,1,opt,name=address_id,json=addressId,proto3" json:"address_id,omitempty"`
+	CartId      string  `protobuf:"bytes,2,opt,name=cart_id,json=cartId,proto3" json:"cart_id,omitempty"`
+	PromoId     *string `protobuf:"bytes,3,opt,name=promo_id,json=promoId,proto3,oneof" json:"promo_id,omitempty"`
+	Amount      float32 `protobuf:"fixed32,4,opt,name=amount,proto3" json:"amount,omitempty"`
+	PaymentMode string  `protobuf:"bytes,5,opt,name=payment_mode,json=paymentMode,proto3" json:"payment_mode,omitempty"`
+}
+
+func (x *CreateOrderRequest) Reset() {
+	*x = CreateOrderRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_proto_common_service_proto_msgTypes[9]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CreateOrderRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateOrderRequest) ProtoMessage() {}
+
+func (x *CreateOrderRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_common_service_proto_msgTypes[9]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateOrderRequest.ProtoReflect.Descriptor instead.
+func (*CreateOrderRequest) Descriptor() ([]byte, []int) {
+	return file_api_proto_common_service_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *CreateOrderRequest) GetAddressId() string {
+	if x != nil {
+		return x.AddressId
+	}
+	return ""
+}
+
+func (x *CreateOrderRequest) GetCartId() string {
+	if x != nil {
+		return x.CartId
+	}
+	return ""
+}
+
+func (x *CreateOrderRequest) GetPromoId() string {
+	if x != nil && x.PromoId != nil {
+		return *x.PromoId
+	}
+	return ""
+}
+
+func (x *CreateOrderRequest) GetAmount() float32 {
+	if x != nil {
+		return x.Amount
+	}
+	return 0
+}
+
+func (x *CreateOrderRequest) GetPaymentMode() string {
+	if x != nil {
+		return x.PaymentMode
+	}
+	return ""
+}
+
 var File_api_proto_common_service_proto protoreflect.FileDescriptor
 
 var file_api_proto_common_service_proto_rawDesc = []byte{
@@ -794,8 +873,19 @@ var file_api_proto_common_service_proto_rawDesc = []byte{
 	0x01, 0x28, 0x09, 0x52, 0x0c, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x49, 0x6d, 0x61, 0x67,
 	0x65, 0x12, 0x1d, 0x0a, 0x0a, 0x63, 0x61, 0x72, 0x64, 0x5f, 0x63, 0x6f, 0x6c, 0x6f, 0x72, 0x18,
 	0x06, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x09, 0x63, 0x61, 0x72, 0x64, 0x43, 0x6f, 0x6c, 0x6f, 0x72,
-	0x42, 0x0b, 0x5a, 0x09, 0x61, 0x70, 0x69, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x06, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x22, 0xb4, 0x01, 0x0a, 0x12, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x4f, 0x72, 0x64, 0x65, 0x72,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x1d, 0x0a, 0x0a, 0x61, 0x64, 0x64, 0x72, 0x65,
+	0x73, 0x73, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x61, 0x64, 0x64,
+	0x72, 0x65, 0x73, 0x73, 0x49, 0x64, 0x12, 0x17, 0x0a, 0x07, 0x63, 0x61, 0x72, 0x74, 0x5f, 0x69,
+	0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x63, 0x61, 0x72, 0x74, 0x49, 0x64, 0x12,
+	0x1e, 0x0a, 0x08, 0x70, 0x72, 0x6f, 0x6d, 0x6f, 0x5f, 0x69, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28,
+	0x09, 0x48, 0x00, 0x52, 0x07, 0x70, 0x72, 0x6f, 0x6d, 0x6f, 0x49, 0x64, 0x88, 0x01, 0x01, 0x12,
+	0x16, 0x0a, 0x06, 0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x18, 0x04, 0x20, 0x01, 0x28, 0x02, 0x52,
+	0x06, 0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x12, 0x21, 0x0a, 0x0c, 0x70, 0x61, 0x79, 0x6d, 0x65,
+	0x6e, 0x74, 0x5f, 0x6d, 0x6f, 0x64, 0x65, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x70,
+	0x61, 0x79, 0x6d, 0x65, 0x6e, 0x74, 0x4d, 0x6f, 0x64, 0x65, 0x42, 0x0b, 0x0a, 0x09, 0x5f, 0x70,
+	0x72, 0x6f, 0x6d, 0x6f, 0x5f, 0x69, 0x64, 0x42, 0x0b, 0x5a, 0x09, 0x61, 0x70, 0x69, 0x2f, 0x70,
+	0x72, 0x6f, 0x74, 0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -810,7 +900,7 @@ func file_api_proto_common_service_proto_rawDescGZIP() []byte {
 	return file_api_proto_common_service_proto_rawDescData
 }
 
-var file_api_proto_common_service_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_api_proto_common_service_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_api_proto_common_service_proto_goTypes = []interface{}{
 	(*Request)(nil),                // 0: pb.Request
 	(*Response)(nil),               // 1: pb.Response
@@ -821,18 +911,19 @@ var file_api_proto_common_service_proto_goTypes = []interface{}{
 	(*GetProductsResponse)(nil),    // 6: pb.GetProductsResponse
 	(*GetProductByIdResponse)(nil), // 7: pb.GetProductByIdResponse
 	(*DiscountResponse)(nil),       // 8: pb.DiscountResponse
-	(*timestamppb.Timestamp)(nil),  // 9: google.protobuf.Timestamp
+	(*CreateOrderRequest)(nil),     // 9: pb.CreateOrderRequest
+	(*timestamppb.Timestamp)(nil),  // 10: google.protobuf.Timestamp
 }
 var file_api_proto_common_service_proto_depIdxs = []int32{
-	3, // 0: pb.GetUsersResponse.data:type_name -> pb.UserResponse
-	9, // 1: pb.UserResponse.dob:type_name -> google.protobuf.Timestamp
-	5, // 2: pb.GetProductsResponse.data:type_name -> pb.ProductResponse
-	5, // 3: pb.GetProductByIdResponse.data:type_name -> pb.ProductResponse
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	3,  // 0: pb.GetUsersResponse.data:type_name -> pb.UserResponse
+	10, // 1: pb.UserResponse.dob:type_name -> google.protobuf.Timestamp
+	5,  // 2: pb.GetProductsResponse.data:type_name -> pb.ProductResponse
+	5,  // 3: pb.GetProductByIdResponse.data:type_name -> pb.ProductResponse
+	4,  // [4:4] is the sub-list for method output_type
+	4,  // [4:4] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_api_proto_common_service_proto_init() }
@@ -949,17 +1040,30 @@ func file_api_proto_common_service_proto_init() {
 				return nil
 			}
 		}
+		file_api_proto_common_service_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*CreateOrderRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	file_api_proto_common_service_proto_msgTypes[3].OneofWrappers = []interface{}{}
 	file_api_proto_common_service_proto_msgTypes[4].OneofWrappers = []interface{}{}
 	file_api_proto_common_service_proto_msgTypes[5].OneofWrappers = []interface{}{}
+	file_api_proto_common_service_proto_msgTypes[9].OneofWrappers = []interface{}{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_api_proto_common_service_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   9,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

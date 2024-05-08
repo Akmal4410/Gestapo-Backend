@@ -31,6 +31,12 @@ const (
 	REMOVE_WISHLIST string = "remove-wishlist"
 )
 
+// constants for all supported Payment Mode
+const (
+	COD   string = "COD"
+	OTHER string = "OTHER"
+)
+
 // IsSupportedSignupAction returns true if the SignupAction is supported
 func IsSupportedSignupAction(action string) bool {
 	switch action {
@@ -90,6 +96,15 @@ func IsValidCode(code string) bool {
 func IsSupportedAddRemoveWishlistAction(action string) bool {
 	switch action {
 	case ADD_WISHLIST, REMOVE_WISHLIST:
+		return true
+	}
+	return false
+}
+
+// IsSupportedPaymentMode returns true if the Payment mode is supported
+func IsSupportedPaymentMode(mode string) bool {
+	switch mode {
+	case COD, OTHER:
 		return true
 	}
 	return false

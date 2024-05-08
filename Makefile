@@ -38,6 +38,11 @@ product_server:
 	@echo Running product service
 	go run cmd/product_service/main.go
 
+order_server:
+	@echo Running product service
+	go run cmd/order_service/main.go
+
+
 grpc_gateway:
 	@echo Running grpc gateway
 	go run cmd/grpc_gateway/main.go

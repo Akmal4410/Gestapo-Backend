@@ -24,7 +24,7 @@ type User_Data struct {
 	DeletedAt     gorm.DeletedAt
 }
 
-//PRODUCTS------------------------------
+// PRODUCTS------------------------------
 
 type Categories struct {
 	ID            uuid.UUID `gorm:"NOT NULL;PRIMARY_KEY"`
@@ -119,6 +119,7 @@ type Addresses struct {
 	IsDefault   bool
 	CreatedAt   time.Time `gorm:"NOT NULL"`
 	UpdatedAt   time.Time `gorm:"NOT NULL"`
+	DeletedAt   gorm.DeletedAt
 }
 
 type Promo_Codes struct {
@@ -130,4 +131,63 @@ type Promo_Codes struct {
 	CreatedAt   time.Time `gorm:"NOT NULL"`
 	UpdatedAt   time.Time `gorm:"NOT NULL"`
 	DeletedAt   gorm.DeletedAt
+}
+
+type Payment_Details struct {
+	ID        uuid.UUID `gorm:"NOT NULL;PRIMARY_KEY"`
+	Amount    string    `gorm:"NOT NULL"`
+	Provider  string    `gorm:"NOT NULL"`
+	Status    string    `gorm:"NOT NULL"`
+	CreatedAt time.Time `gorm:"NOT NULL"`
+	UpdatedAt time.Time `gorm:"NOT NULL"`
+}
+
+type Order_Details struct {
+	ID        uuid.UUID       `gorm:"NOT NULL;PRIMARY_KEY"`
+	User      User_Data       `gorm:"foreignKey:UserID;references:ID"`
+	UserID    uuid.UUID       `gorm:"NOT NULL"`
+	Payment   Payment_Details `gorm:"foreignKey:PaymentID;references:ID"`
+	PaymentID uuid.UUID       `gorm:"NOT NULL"`
+	Address   Addresses       `gorm:"foreignKey:AddressID;references:ID"`
+	AddressID uuid.UUID       `gorm:"NOT NULL"`
+	PromoCode Promo_Codes     `gorm:"foreignKey:PromoID;references:ID"`
+	PromoID   uuid.UUID
+	Amount    float64   `gorm:"NOT NULL"`
+	CreatedAt time.Time `gorm:"NOT NULL"`
+	UpdatedAt time.Time `gorm:"NOT NULL"`
+	DeletedAt gorm.DeletedAt
+}
+
+type Order_Items struct {
+	ID        uuid.UUID     `gorm:"NOT NULL;PRIMARY_KEY"`
+	Order     Order_Details `gorm:"foreignKey:OrderID;references:ID"`
+	OrderID   uuid.UUID     `gorm:"NOT NULL"`
+	Product   Products      `gorm:"foreignKey:ProductID;references:ID"`
+	ProductID uuid.UUID     `gorm:"NOT NULL;index"`
+	Quantity  int           `gorm:"NOT NULL"`
+	Amount    float64       `gorm:"NOT NULL"`
+	Status    string        `gorm:"NOT NULL"`
+	CreatedAt time.Time     `gorm:"NOT NULL"`
+	UpdatedAt time.Time     `gorm:"NOT NULL"`
+	DeletedAt gorm.DeletedAt
+}
+
+type Tracking_Details struct {
+	ID          uuid.UUID   `gorm:"NOT NULL;PRIMARY_KEY"`
+	OrderItem   Order_Items `gorm:"foreignKey:OrderItemID;references:ID"`
+	OrderItemID uuid.UUID   `gorm:"NOT NULL"`
+	Status      int         `gorm:"NOT NULL"`
+	CreatedAt   time.Time   `gorm:"NOT NULL"`
+	UpdatedAt   time.Time   `gorm:"NOT NULL"`
+	DeletedAt   gorm.DeletedAt
+}
+
+type Tracking_Items struct {
+	ID             uuid.UUID        `gorm:"NOT NULL;PRIMARY_KEY"`
+	TrackingDetail Tracking_Details `gorm:"foreignKey:TrackingID;references:ID"`
+	TrackingID     uuid.UUID        `gorm:"NOT NULL"`
+	Title          string           `gorm:"NOT NULL"`
+	Summary        string           `gorm:"NOT NULL"`
+	CreatedAt      time.Time        `gorm:"NOT NULL"`
+	UpdatedAt      time.Time        `gorm:"NOT NULL"`
 }
