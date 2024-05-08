@@ -134,12 +134,13 @@ type Promo_Codes struct {
 }
 
 type Payment_Details struct {
-	ID        uuid.UUID `gorm:"NOT NULL;PRIMARY_KEY"`
-	Amount    string    `gorm:"NOT NULL"`
-	Provider  string    `gorm:"NOT NULL"`
-	Status    string    `gorm:"NOT NULL"`
-	CreatedAt time.Time `gorm:"NOT NULL"`
-	UpdatedAt time.Time `gorm:"NOT NULL"`
+	ID            uuid.UUID `gorm:"NOT NULL;PRIMARY_KEY"`
+	Amount        string    `gorm:"NOT NULL"`
+	Provider      string    `gorm:"NOT NULL"`
+	Status        string    `gorm:"NOT NULL"`
+	TransactionID string
+	CreatedAt     time.Time `gorm:"NOT NULL"`
+	UpdatedAt     time.Time `gorm:"NOT NULL"`
 }
 
 type Order_Details struct {

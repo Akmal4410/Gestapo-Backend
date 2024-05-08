@@ -48,6 +48,7 @@ func (handler *userService) AddProductToCart(ctx context.Context, in *proto.AddT
 			return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 		}
 	}
+
 	cartID, err := handler.storage.GetCartID(req.UserID)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -57,6 +58,7 @@ func (handler *userService) AddProductToCart(ctx context.Context, in *proto.AddT
 		handler.log.LogError("Error while GetCartID", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
+
 	inventoryID, err := handler.storage.GetInventoryID(req.ProductID, req.Size)
 	if err != nil {
 		if err == sql.ErrNoRows {

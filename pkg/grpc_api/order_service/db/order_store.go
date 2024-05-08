@@ -60,11 +60,11 @@ func (store *OrderStore) CreateOrder(req *entity.CreateOrderReq) error {
 
 	insertPaymentQuery := `
 	INSERT INTO payment_details
-	(id, amount, provider, status, created_at, updated_at)
+	(id, amount, provider, status, transaction_id,  created_at, updated_at)
 	VALUES ($1, $2, $3, $4, $5, $6);
 	`
 
-	_, err = tx.Exec(insertPaymentQuery, paymentID, req.Amount, req.PaymentMode, status, createdAt, updatedAt)
+	_, err = tx.Exec(insertPaymentQuery, paymentID, req.Amount, req.PaymentMode, status, req.TransactionID, createdAt, updatedAt)
 	if err != nil {
 		tx.Rollback()
 		return err
