@@ -39,7 +39,7 @@ product_server:
 	go run cmd/product_service/main.go
 
 order_server:
-	@echo Running product service
+	@echo Running order service
 	go run cmd/order_service/main.go
 
 

@@ -40,6 +40,7 @@ type UserServieClient interface {
 	GetHome(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetHomeResponse, error)
 	AddRemoveWishlist(ctx context.Context, in *AddRemoveWishlistRequest, opts ...grpc.CallOption) (*Response, error)
 	GetWishlist(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetWishlistResponse, error)
+	// ------ Cart Related------------
 	AddProductToCart(ctx context.Context, in *AddToCartRequest, opts ...grpc.CallOption) (*Response, error)
 	GetCartItmes(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetCartItemsResponse, error)
 	RemoveProductFromCart(ctx context.Context, in *RemoveFromCartRequest, opts ...grpc.CallOption) (*Response, error)
@@ -49,6 +50,7 @@ type UserServieClient interface {
 	GetAddressByID(ctx context.Context, in *AddressIdRequest, opts ...grpc.CallOption) (*GetAddressByIdResponse, error)
 	EditAddress(ctx context.Context, in *EditAddressRequest, opts ...grpc.CallOption) (*Response, error)
 	DeleteAddress(ctx context.Context, in *AddressIdRequest, opts ...grpc.CallOption) (*Response, error)
+	// ------ Order Related------------
 	CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*Response, error)
 }
 
@@ -175,6 +177,7 @@ type UserServieServer interface {
 	GetHome(context.Context, *Request) (*GetHomeResponse, error)
 	AddRemoveWishlist(context.Context, *AddRemoveWishlistRequest) (*Response, error)
 	GetWishlist(context.Context, *Request) (*GetWishlistResponse, error)
+	// ------ Cart Related------------
 	AddProductToCart(context.Context, *AddToCartRequest) (*Response, error)
 	GetCartItmes(context.Context, *Request) (*GetCartItemsResponse, error)
 	RemoveProductFromCart(context.Context, *RemoveFromCartRequest) (*Response, error)
@@ -184,6 +187,7 @@ type UserServieServer interface {
 	GetAddressByID(context.Context, *AddressIdRequest) (*GetAddressByIdResponse, error)
 	EditAddress(context.Context, *EditAddressRequest) (*Response, error)
 	DeleteAddress(context.Context, *AddressIdRequest) (*Response, error)
+	// ------ Order Related------------
 	CreateOrder(context.Context, *CreateOrderRequest) (*Response, error)
 	mustEmbedUnimplementedUserServieServer()
 }

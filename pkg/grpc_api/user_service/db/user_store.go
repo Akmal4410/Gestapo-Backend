@@ -241,6 +241,34 @@ func (store *UserStore) AddToCard(req *entity.AddToCartReq) error {
 		return err
 	}
 
+	var cartID string
+
+	selectCartIDQuery := `SELECT id FROM carts WHERE user_id = $1;`
+	rows := tx.QueryRow(selectCartIDQuery, req.UserID)
+	if rows.Err() != nil {
+		tx.Rollback()
+		return rows.Err()
+	}
+	err = rows.Scan(&cartID)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	var inventoryID string
+
+	selectInventoryIDQuery := `SELECT id FROM inventories WHERE product_id = $1 AND size = $2;`
+	rows = store.storage.DB.QueryRow(selectInventoryIDQuery, req.ProductID, req.Size)
+	if rows.Err() != nil {
+		tx.Rollback()
+		return rows.Err()
+	}
+	err = rows.Scan(&inventoryID)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
 	uuId, err := uuid.NewRandom()
 	if err != nil {
 		return err
@@ -251,7 +279,7 @@ func (store *UserStore) AddToCard(req *entity.AddToCartReq) error {
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
         `
 
-	_, err = tx.Exec(insertProductQuery, uuId, req.CartID, req.ProductID, req.InventoryID, req.Quantity, req.Price, createdAt, updatedAt)
+	_, err = tx.Exec(insertProductQuery, uuId, cartID, req.ProductID, inventoryID, req.Quantity, req.Price, createdAt, updatedAt)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -262,7 +290,7 @@ func (store *UserStore) AddToCard(req *entity.AddToCartReq) error {
         SELECT SUM(quantity * price) FROM cart_items WHERE cart_id = $1;
     `
 	var totalPrice float64
-	err = tx.QueryRow(totalPriceQuery, req.CartID).Scan(&totalPrice)
+	err = tx.QueryRow(totalPriceQuery, cartID).Scan(&totalPrice)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -274,7 +302,7 @@ func (store *UserStore) AddToCard(req *entity.AddToCartReq) error {
         SET price = $1, updated_at = $2
         WHERE id = $3;
     `
-	_, err = tx.Exec(updateQuery, totalPrice, updatedAt, req.CartID)
+	_, err = tx.Exec(updateQuery, totalPrice, updatedAt, cartID)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -284,48 +312,18 @@ func (store *UserStore) AddToCard(req *entity.AddToCartReq) error {
 	return nil
 }
 
-func (store *UserStore) GetCartID(userID string) (string, error) {
-	selectQuery := `SELECT id FROM carts WHERE user_id = $1;`
-
-	rows := store.storage.DB.QueryRow(selectQuery, userID)
-	if rows.Err() != nil {
-		return "", rows.Err()
-	}
-	var cartID string
-	err := rows.Scan(&cartID)
-	if err != nil {
-		return "", err
-	}
-	return cartID, nil
-}
-
-func (store *UserStore) GetInventoryID(productID string, size float64) (string, error) {
-	selectQuery := `SELECT id FROM inventories WHERE product_id = $1 AND size = $2;`
-
-	rows := store.storage.DB.QueryRow(selectQuery, productID, size)
-	if rows.Err() != nil {
-		return "", rows.Err()
-	}
-	var inventoryID string
-	err := rows.Scan(&inventoryID)
-	if err != nil {
-		return "", err
-	}
-	return inventoryID, nil
-}
-
 func (store *UserStore) GetCartItems(userId string) ([]*entity.CartItemRes, error) {
 	var products []*entity.CartItemRes
 
 	selectQuery := `
 	SELECT
-    p.id AS id,
 	p.images AS product_images,
 	p.product_name AS product_name,
 	i.size AS size,
 	ci.quantity AS quantity,
 	ci.price AS price,
-	ci.id AS cart_item_id
+	ci.id AS cart_item_id,
+	c.id AS cart_id
 	FROM
     products p
 	LEFT JOIN
@@ -347,13 +345,13 @@ func (store *UserStore) GetCartItems(userId string) ([]*entity.CartItemRes, erro
 		var images pq.StringArray
 
 		err := rows.Scan(
-			&product.ProductID,
 			&images,
 			&product.Name,
 			&product.Size,
 			&product.Quantity,
 			&product.Price,
 			&product.CartItemID,
+			&product.CartID,
 		)
 		if err != nil {
 			return nil, err
@@ -372,7 +370,7 @@ func (store *UserStore) GetCartItems(userId string) ([]*entity.CartItemRes, erro
 	return products, nil
 }
 
-func (store *UserStore) CanDeleteCartItem(cartItemId, userId string) (bool, error) {
+func (store *UserStore) CanEditDeleteCartItem(cartItemId, userId string) (bool, error) {
 	query := `
         SELECT COUNT(ci.id)
         FROM cart_items ci

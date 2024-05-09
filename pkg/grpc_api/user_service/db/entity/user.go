@@ -30,17 +30,21 @@ type AddRemoveWishlistReq struct {
 }
 
 type AddToCartReq struct {
-	ProductID   string  `json:"product_id" validate:"required"`
-	Size        float64 `json:"size" validate:"required"`
-	Quantity    int32   `json:"quantity" validate:"required"`
-	Price       float64 `json:"price" validate:"required"`
-	UserID      string  `json:"user_id" validate:"required"`
-	CartID      string  `json:"cart_id"`
-	InventoryID string  `json:"inventory_id"`
+	ProductID string  `json:"product_id" validate:"required"`
+	Size      float64 `json:"size" validate:"required"`
+	Quantity  int32   `json:"quantity" validate:"required"`
+	Price     float64 `json:"price" validate:"required"`
+	UserID    string  `json:"user_id" validate:"required"`
+}
+
+type UpdateCartReq struct {
+	CartItemID string `json:"cart_item_id" validate:"required"`
+	Quantity   int32  `json:"quantity" validate:"required"`
 }
 
 type CartItemRes struct {
 	ProductID  string  `json:"product_id"`
+	CartID     string  `json:"cart_id"`
 	CartItemID string  `json:"cart_item_id"`
 	ImageURL   string  `json:"image_url"`
 	Name       string  `json:"name"`

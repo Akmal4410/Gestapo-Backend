@@ -49,28 +49,6 @@ func (handler *userService) AddProductToCart(ctx context.Context, in *proto.AddT
 		}
 	}
 
-	cartID, err := handler.storage.GetCartID(req.UserID)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			handler.log.LogError("Error while GetCartID", err)
-			return nil, status.Errorf(codes.NotFound, utils.NotFound)
-		}
-		handler.log.LogError("Error while GetCartID", err)
-		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
-	}
-
-	inventoryID, err := handler.storage.GetInventoryID(req.ProductID, req.Size)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			handler.log.LogError("Error while GetCartID", err)
-			return nil, status.Errorf(codes.NotFound, utils.NotFound)
-		}
-		handler.log.LogError("Error while GetCartID", err)
-		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
-	}
-	req.CartID = cartID
-	req.InventoryID = inventoryID
-
 	err = handler.storage.AddToCard(req)
 	if err != nil {
 		handler.log.LogError("Error while AddToCard", err)
@@ -113,7 +91,7 @@ func (handler *userService) GetCartItmes(ctx context.Context, in *proto.Request)
 	var cartItems []*proto.CartItemResponse
 	for _, cartItem := range cartItemEntities {
 		item := &proto.CartItemResponse{
-			ProductId:    cartItem.ProductID,
+			CartId:       cartItem.CartID,
 			ProductImage: cartItem.ImageURL,
 			Name:         cartItem.Name,
 			Size:         float32(cartItem.Size),
@@ -140,13 +118,24 @@ func (handler *userService) RemoveProductFromCart(ctx context.Context, in *proto
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
 
-	res, err := handler.storage.CanDeleteCartItem(in.GetCartItemId(), payload.UserID)
+	//check cart_item is present or not
+	res, err := handler.storage.CheckDataExist("cart_items", "id", in.GetCartItemId())
 	if err != nil {
-		handler.log.LogError("Error while CanDeleteCartItem", err)
+		handler.log.LogError("Error ", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
 	if !res {
-		err := errors.New("error while CanDeleteCartItem")
+		handler.log.LogError("Error CartItem not found")
+		return nil, status.Errorf(codes.NotFound, utils.NotFound)
+	}
+
+	res, err = handler.storage.CanEditDeleteCartItem(in.GetCartItemId(), payload.UserID)
+	if err != nil {
+		handler.log.LogError("Error while CanEditDeleteCartItem", err)
+		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	}
+	if !res {
+		err := errors.New("error while CanEditDeleteCartItem: Not found")
 		handler.log.LogError("Error", err)
 		return nil, status.Errorf(codes.NotFound, utils.NotFound)
 	}
