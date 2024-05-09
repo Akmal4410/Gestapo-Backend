@@ -120,25 +120,31 @@ func (store *OrderStore) CreateOrder(req *entity.CreateOrderReq) error {
 		tx.Rollback()
 		return err
 	}
-	//////////////////////////////
+
 	var discountedPercent *float64
 	if req.PromoID != nil {
 		selectQuery := `SELECT percent FROM promo_codes WHERE id = $1;`
-
 		err = tx.QueryRow(selectQuery, req.PromoID).Scan(&discountedPercent)
 		if err != nil {
-			fmt.Println("Error executing query:", err)
 			tx.Rollback()
 			return err
 		}
 	}
-	fmt.Println("Discount price :", discountedPercent)
 
 	for _, item := range cartItems {
 		amount := item.Price
 		if discountedPercent != nil {
 			amount = amount * (1 - *discountedPercent/100)
 		}
+
+		var size float32
+		selectSizeQuery := `SELECT size FROM inventories WHERE id = $1;`
+		err = tx.QueryRow(selectSizeQuery, item.InventoryID).Scan(&size)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+
 		orderItemID, err := uuid.NewRandom()
 		if err != nil {
 			tx.Rollback()
@@ -147,11 +153,11 @@ func (store *OrderStore) CreateOrder(req *entity.CreateOrderReq) error {
 
 		insertOrderItemQuery := `
 		INSERT INTO order_items
-		(id, order_id, product_id, quantity, amount, status, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
+		(id, order_id, product_id, size, quantity, amount, status, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);
 		`
 
-		_, err = tx.Exec(insertOrderItemQuery, orderItemID, orderDetailID, item.ProductID, item.Quantity, amount, utils.OrderActive, createdAt, updatedAt)
+		_, err = tx.Exec(insertOrderItemQuery, orderItemID, orderDetailID, item.ProductID, size, item.Quantity, amount, utils.OrderActive, createdAt, updatedAt)
 		if err != nil {
 			tx.Rollback()
 			return err
