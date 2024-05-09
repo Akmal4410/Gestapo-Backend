@@ -320,6 +320,7 @@ func (store *UserStore) GetCartItems(userId string) ([]*entity.CartItemRes, erro
 	p.images AS product_images,
 	p.product_name AS product_name,
 	i.size AS size,
+	i.quantity AS available_quantity,
 	ci.quantity AS quantity,
 	ci.price AS price,
 	ci.id AS cart_item_id,
@@ -348,6 +349,7 @@ func (store *UserStore) GetCartItems(userId string) ([]*entity.CartItemRes, erro
 			&images,
 			&product.Name,
 			&product.Size,
+			&product.AvailableQuantity,
 			&product.Quantity,
 			&product.Price,
 			&product.CartItemID,
@@ -370,7 +372,49 @@ func (store *UserStore) GetCartItems(userId string) ([]*entity.CartItemRes, erro
 	return products, nil
 }
 
-func (store *UserStore) CanEditDeleteCartItem(cartItemId, userId string) (bool, error) {
+func (store *UserStore) GetCartById(cartID string) (*entity.CartRes, error) {
+
+	selectQuery := `
+	SELECT id, user_id, price FROM carts WHERE id = $1;
+	`
+
+	rows := store.storage.DB.QueryRow(selectQuery, cartID)
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+	var cart entity.CartRes
+	err := rows.Scan(
+		&cart.CartID,
+		&cart.UserID,
+		&cart.Price,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &cart, nil
+}
+
+func (store *UserStore) CheckoutCartItems(cartItems []*entity.CheckoutReq) error {
+	for _, cartItem := range cartItems {
+		updateQuery := `
+		UPDATE cart_items
+		SET quantity = $2, updated_at = $3
+		WHERE id = $1;
+		`
+		updatedAt := time.Now()
+		res, err := store.storage.DB.Exec(updateQuery, cartItem.CartItemID, cartItem.Quantity, updatedAt)
+		if err != nil {
+			return err
+		}
+		_, err = res.RowsAffected()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (store *UserStore) CanDeleteCartItem(cartItemId, userId string) (bool, error) {
 	query := `
         SELECT COUNT(ci.id)
         FROM cart_items ci

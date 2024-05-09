@@ -40,6 +40,16 @@ message AddToCartRequest {
     float price = 4; 
 }
 
+message CheckoutCartItemsRequest{
+    string cart_id = 1;
+    repeated CheckoutRequest data = 2;
+}
+
+message CheckoutRequest {
+    string cart_item_id = 1;
+    int32 quantity = 2;
+}
+
 message GetCartItemsResponse {
     int32 code = 1;
     bool status = 2;
@@ -55,6 +65,7 @@ message CartItemResponse {
     float size = 5;
     float price = 6;
     int32 quantity = 7;
+    int32 available_quantity = 8;
 }
 
 message RemoveFromCartRequest {
@@ -145,6 +156,13 @@ service UserServie {
             get: "/user/cart"
         };
     }
+
+    rpc CheckoutCartItems (CheckoutCartItemsRequest) returns (Response) {
+        option (google.api.http) = {
+            patch: "/user/cart/{cart_id}"
+            body: "*"
+        };
+    } 
 
     rpc RemoveProductFromCart (RemoveFromCartRequest) returns (Response) {
         option (google.api.http) = {

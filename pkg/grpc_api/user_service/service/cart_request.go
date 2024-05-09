@@ -91,13 +91,14 @@ func (handler *userService) GetCartItmes(ctx context.Context, in *proto.Request)
 	var cartItems []*proto.CartItemResponse
 	for _, cartItem := range cartItemEntities {
 		item := &proto.CartItemResponse{
-			CartId:       cartItem.CartID,
-			ProductImage: cartItem.ImageURL,
-			Name:         cartItem.Name,
-			Size:         float32(cartItem.Size),
-			Price:        float32(cartItem.Price),
-			Quantity:     cartItem.Quantity,
-			CartItemId:   cartItem.CartItemID,
+			CartId:            cartItem.CartID,
+			CartItemId:        cartItem.CartItemID,
+			ProductImage:      cartItem.ImageURL,
+			Name:              cartItem.Name,
+			Size:              float32(cartItem.Size),
+			Price:             float32(cartItem.Price),
+			Quantity:          cartItem.Quantity,
+			AvailableQuantity: cartItem.AvailableQuantity,
 		}
 		cartItems = append(cartItems, item)
 	}
@@ -106,6 +107,62 @@ func (handler *userService) GetCartItmes(ctx context.Context, in *proto.Request)
 		Status:  true,
 		Message: "Cart fetched successfully",
 		Data:    cartItems,
+	}
+	return response, nil
+}
+
+func (handler *userService) CheckoutCartItems(ctx context.Context, in *proto.CheckoutCartItemsRequest) (*proto.Response, error) {
+	payload, ok := ctx.Value(utils.AuthorizationPayloadKey).(*token.AccessPayload)
+	if !ok {
+		err := errors.New("unable to retrieve user payload from context")
+		handler.log.LogError("Error", err)
+		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	}
+
+	var cartItems []*entity.CheckoutReq
+	for _, data := range in.Data {
+		cartItem := entity.CheckoutReq{
+			CartItemID: data.CartItemId,
+			Quantity:   data.Quantity,
+		}
+		cartItems = append(cartItems, &cartItem)
+	}
+
+	req := &entity.CheckoutCartItemsReq{
+		CartID: in.CartId,
+		Data:   cartItems,
+	}
+	err := helpers.ValidateBody(nil, req)
+	if err != nil {
+		handler.log.LogError("Error while ValidateBody", err)
+		return nil, status.Errorf(codes.InvalidArgument, utils.InvalidRequest)
+	}
+
+	cartEntity, err := handler.storage.GetCartById(in.GetCartId())
+	if err != nil {
+		if err == sql.ErrNoRows {
+			handler.log.LogError("Error while GetCartById Not Found")
+			return nil, status.Errorf(codes.NotFound, utils.NotFound)
+		}
+		handler.log.LogError("Error while GetCartById", err)
+		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	}
+
+	if cartEntity.UserID != payload.UserID {
+		handler.log.LogError("Cart doesn't belong the user")
+		return nil, status.Errorf(codes.PermissionDenied, utils.PermissionDenied)
+	}
+
+	err = handler.storage.CheckoutCartItems(cartItems)
+	if err != nil {
+		handler.log.LogError("Error while CheckoutCartItems", err)
+		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	}
+
+	response := &proto.Response{
+		Code:    http.StatusOK,
+		Status:  true,
+		Message: "Cart Items updated successfully and proceed to checkout",
 	}
 	return response, nil
 }
@@ -129,7 +186,7 @@ func (handler *userService) RemoveProductFromCart(ctx context.Context, in *proto
 		return nil, status.Errorf(codes.NotFound, utils.NotFound)
 	}
 
-	res, err = handler.storage.CanEditDeleteCartItem(in.GetCartItemId(), payload.UserID)
+	res, err = handler.storage.CanDeleteCartItem(in.GetCartItemId(), payload.UserID)
 	if err != nil {
 		handler.log.LogError("Error while CanEditDeleteCartItem", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
