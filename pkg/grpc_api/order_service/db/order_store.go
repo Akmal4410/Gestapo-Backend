@@ -23,9 +23,7 @@ func NewOrderStore(storage *database.Storage) *OrderStore {
 
 // returns true if the user has order more than two time
 func (store *OrderStore) CheckCODIsAvailable(UserID string) (bool, error) {
-	selectQuery := `
-	SELECT COUNT(user_id) FROM order_details WHERE user_id = $1;
-	`
+	selectQuery := `SELECT COUNT(user_id) FROM order_details WHERE user_id = $1;`
 	var count int
 	err := store.storage.DB.QueryRow(selectQuery, UserID).Scan(&count)
 	if err != nil {
@@ -40,13 +38,12 @@ func (store *OrderStore) CreateOrder(req *entity.CreateOrderReq) error {
 	updatedAt := time.Now()
 
 	ctx := context.Background()
-
-	paymentID, err := uuid.NewRandom()
+	tx, err := store.storage.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
 
-	tx, err := store.storage.DB.BeginTx(ctx, nil)
+	paymentID, err := uuid.NewRandom()
 	if err != nil {
 		return err
 	}
@@ -61,7 +58,7 @@ func (store *OrderStore) CreateOrder(req *entity.CreateOrderReq) error {
 	insertPaymentQuery := `
 	INSERT INTO payment_details
 	(id, amount, provider, status, transaction_id,  created_at, updated_at)
-	VALUES ($1, $2, $3, $4, $5, $6);
+	VALUES ($1, $2, $3, $4, $5, $6, $7);
 	`
 
 	_, err = tx.Exec(insertPaymentQuery, paymentID, req.Amount, req.PaymentMode, status, req.TransactionID, createdAt, updatedAt)
@@ -89,7 +86,7 @@ func (store *OrderStore) CreateOrder(req *entity.CreateOrderReq) error {
 
 	//select all the cart items
 	selectOrderItemsQuery := `
-	SELECT product_id, quantity, price 
+	SELECT product_id, inventory_id, quantity, price 
 	FROM cart_items 
 	WHERE cart_id = $1;
 	`
@@ -106,6 +103,7 @@ func (store *OrderStore) CreateOrder(req *entity.CreateOrderReq) error {
 
 		err := rows.Scan(
 			&item.ProductID,
+			&item.InventoryID,
 			&item.Quantity,
 			&item.Price,
 		)
@@ -123,30 +121,23 @@ func (store *OrderStore) CreateOrder(req *entity.CreateOrderReq) error {
 		return err
 	}
 	//////////////////////////////
-	var discountedPrice float64
+	var discountedPercent *float64
 	if req.PromoID != nil {
-		selectQuery := `
-		SELECT c.price * (1 - p.percent / 100) AS discounted_price
-		FROM carts c 
-		INNER JOIN promo_codes p ON p.id = $2
-		WHERE c.id = $1;
-		`
+		selectQuery := `SELECT percent FROM promo_codes WHERE id = $1;`
 
-		err = tx.QueryRow(selectQuery, req.CartID, req.PromoID).Scan(&discountedPrice)
+		err = tx.QueryRow(selectQuery, req.PromoID).Scan(&discountedPercent)
 		if err != nil {
 			fmt.Println("Error executing query:", err)
 			tx.Rollback()
 			return err
 		}
 	}
-
-	//////////////////////////////
+	fmt.Println("Discount price :", discountedPercent)
 
 	for _, item := range cartItems {
-		//Inserting into order_items table
 		amount := item.Price
-		if discountedPrice != 0 {
-			amount = item.Price - (discountedPrice / float64(len(cartItems)))
+		if discountedPercent != nil {
+			amount = amount * (1 - *discountedPercent/100)
 		}
 		orderItemID, err := uuid.NewRandom()
 		if err != nil {
@@ -203,13 +194,31 @@ func (store *OrderStore) CreateOrder(req *entity.CreateOrderReq) error {
 			tx.Rollback()
 			return err
 		}
+
+		// Update quantity in inventories in table
+		updateQuery := `
+        UPDATE inventories
+        SET quantity = quantity - $1, updated_at = $2
+        WHERE id = $3;
+    	`
+		res, err := tx.Exec(updateQuery, item.Quantity, updatedAt, item.InventoryID)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+		n, err := res.RowsAffected()
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+		if n == 0 {
+			tx.Rollback()
+			return fmt.Errorf("could update inventories")
+		}
 	}
 
 	//Deleting the cart_items
-	deleteCartItemsQuery := `
-	DELETE FROM cart_items
-	WHERE cart_id = $1;
-	`
+	deleteCartItemsQuery := `DELETE FROM cart_items WHERE cart_id = $1;`
 
 	res, err := store.storage.DB.Exec(deleteCartItemsQuery, req.CartID)
 	if err != nil {
@@ -227,10 +236,7 @@ func (store *OrderStore) CreateOrder(req *entity.CreateOrderReq) error {
 	}
 
 	//Deleting the cart_items
-	deleteCartQuery := `
-		DELETE FROM carts
-		WHERE id = $1;
-		`
+	deleteCartQuery := `DELETE FROM carts WHERE id = $1;`
 
 	res, err = store.storage.DB.Exec(deleteCartQuery, req.CartID)
 	if err != nil {

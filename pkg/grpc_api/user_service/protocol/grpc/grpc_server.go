@@ -27,7 +27,10 @@ func RunGRPCService(ctx context.Context, storage *database.Storage, config *conf
 	service := service.NewUserService(storage, config, log, tokenMaker)
 	interceptor := interceptor.NewInterceptor(tokenMaker, log)
 	grpcServer := grpc.NewServer(
-		grpc.UnaryInterceptor(interceptor.AccessMiddleware()),
+		grpc.ChainUnaryInterceptor(
+			interceptor.AccessMiddleware(),
+			interceptor.UserRoleMiddleware(),
+		),
 	)
 
 	proto.RegisterUserServieServer(grpcServer, service)

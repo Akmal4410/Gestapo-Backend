@@ -40,13 +40,13 @@ func (handler *userService) CreateOrder(ctx context.Context, req *proto.CreateOr
 
 	if req.PromoId != nil {
 		//check promoCode is present or not
-		res, err = handler.storage.CheckDataExist("promo_codes", "id", req.GetCartId())
+		res, err = handler.storage.CheckDataExist("promo_codes", "id", req.GetPromoId())
 		if err != nil {
 			handler.log.LogError("Error ", err)
 			return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 		}
 		if !res {
-			handler.log.LogError("Error Cart not found")
+			handler.log.LogError("Error Promo not found")
 			return nil, status.Errorf(codes.NotFound, utils.NotFound)
 		}
 	}

@@ -53,6 +53,7 @@ type CartItemRes struct {
 	Price             float64 `json:"price"`
 	Quantity          int32   `json:"quantity"`
 	AvailableQuantity int32   `json:"available_quantity"`
+	InventoryID       string  `json:"inventory_id"`
 }
 
 type CheckoutCartItemsReq struct {
