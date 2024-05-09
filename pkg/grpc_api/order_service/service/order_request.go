@@ -21,12 +21,14 @@ func (handler *orderService) CreateOrder(ctx context.Context, in *proto.CreateOr
 	}
 
 	req := &entity.CreateOrderReq{
-		AddressID:   in.GetAddressId(),
-		CartID:      in.GetCartId(),
-		PromoID:     in.PromoId,
-		Amount:      float64(in.GetAmount()),
-		PaymentMode: in.GetPaymentMode(),
+		AddressID:     in.GetAddressId(),
+		CartID:        in.GetCartId(),
+		PromoID:       in.PromoId,
+		Amount:        float64(in.GetAmount()),
+		PaymentMode:   in.GetPaymentMode(),
+		TransactionID: in.TransactionId,
 	}
+
 	err = helpers.ValidateBody(nil, req)
 	if err != nil {
 		handler.log.LogError("Error while ValidateBody", err)

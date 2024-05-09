@@ -24,6 +24,7 @@ const (
 	UserServie_GetWishlist_FullMethodName           = "/pb.UserServie/GetWishlist"
 	UserServie_AddProductToCart_FullMethodName      = "/pb.UserServie/AddProductToCart"
 	UserServie_GetCartItmes_FullMethodName          = "/pb.UserServie/GetCartItmes"
+	UserServie_CheckoutCartItems_FullMethodName     = "/pb.UserServie/CheckoutCartItems"
 	UserServie_RemoveProductFromCart_FullMethodName = "/pb.UserServie/RemoveProductFromCart"
 	UserServie_AddAddress_FullMethodName            = "/pb.UserServie/AddAddress"
 	UserServie_GetAddresses_FullMethodName          = "/pb.UserServie/GetAddresses"
@@ -40,8 +41,10 @@ type UserServieClient interface {
 	GetHome(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetHomeResponse, error)
 	AddRemoveWishlist(ctx context.Context, in *AddRemoveWishlistRequest, opts ...grpc.CallOption) (*Response, error)
 	GetWishlist(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetWishlistResponse, error)
+	// ------ Cart Related------------
 	AddProductToCart(ctx context.Context, in *AddToCartRequest, opts ...grpc.CallOption) (*Response, error)
 	GetCartItmes(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetCartItemsResponse, error)
+	CheckoutCartItems(ctx context.Context, in *CheckoutCartItemsRequest, opts ...grpc.CallOption) (*Response, error)
 	RemoveProductFromCart(ctx context.Context, in *RemoveFromCartRequest, opts ...grpc.CallOption) (*Response, error)
 	// ------ Address Related------------
 	AddAddress(ctx context.Context, in *AddAddressRequest, opts ...grpc.CallOption) (*Response, error)
@@ -49,6 +52,7 @@ type UserServieClient interface {
 	GetAddressByID(ctx context.Context, in *AddressIdRequest, opts ...grpc.CallOption) (*GetAddressByIdResponse, error)
 	EditAddress(ctx context.Context, in *EditAddressRequest, opts ...grpc.CallOption) (*Response, error)
 	DeleteAddress(ctx context.Context, in *AddressIdRequest, opts ...grpc.CallOption) (*Response, error)
+	// ------ Order Related------------
 	CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*Response, error)
 }
 
@@ -99,6 +103,15 @@ func (c *userServieClient) AddProductToCart(ctx context.Context, in *AddToCartRe
 func (c *userServieClient) GetCartItmes(ctx context.Context, in *Request, opts ...grpc.CallOption) (*GetCartItemsResponse, error) {
 	out := new(GetCartItemsResponse)
 	err := c.cc.Invoke(ctx, UserServie_GetCartItmes_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServieClient) CheckoutCartItems(ctx context.Context, in *CheckoutCartItemsRequest, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
+	err := c.cc.Invoke(ctx, UserServie_CheckoutCartItems_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -175,8 +188,10 @@ type UserServieServer interface {
 	GetHome(context.Context, *Request) (*GetHomeResponse, error)
 	AddRemoveWishlist(context.Context, *AddRemoveWishlistRequest) (*Response, error)
 	GetWishlist(context.Context, *Request) (*GetWishlistResponse, error)
+	// ------ Cart Related------------
 	AddProductToCart(context.Context, *AddToCartRequest) (*Response, error)
 	GetCartItmes(context.Context, *Request) (*GetCartItemsResponse, error)
+	CheckoutCartItems(context.Context, *CheckoutCartItemsRequest) (*Response, error)
 	RemoveProductFromCart(context.Context, *RemoveFromCartRequest) (*Response, error)
 	// ------ Address Related------------
 	AddAddress(context.Context, *AddAddressRequest) (*Response, error)
@@ -184,6 +199,7 @@ type UserServieServer interface {
 	GetAddressByID(context.Context, *AddressIdRequest) (*GetAddressByIdResponse, error)
 	EditAddress(context.Context, *EditAddressRequest) (*Response, error)
 	DeleteAddress(context.Context, *AddressIdRequest) (*Response, error)
+	// ------ Order Related------------
 	CreateOrder(context.Context, *CreateOrderRequest) (*Response, error)
 	mustEmbedUnimplementedUserServieServer()
 }
@@ -206,6 +222,9 @@ func (UnimplementedUserServieServer) AddProductToCart(context.Context, *AddToCar
 }
 func (UnimplementedUserServieServer) GetCartItmes(context.Context, *Request) (*GetCartItemsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCartItmes not implemented")
+}
+func (UnimplementedUserServieServer) CheckoutCartItems(context.Context, *CheckoutCartItemsRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckoutCartItems not implemented")
 }
 func (UnimplementedUserServieServer) RemoveProductFromCart(context.Context, *RemoveFromCartRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveProductFromCart not implemented")
@@ -327,6 +346,24 @@ func _UserServie_GetCartItmes_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServieServer).GetCartItmes(ctx, req.(*Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserServie_CheckoutCartItems_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckoutCartItemsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServieServer).CheckoutCartItems(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserServie_CheckoutCartItems_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServieServer).CheckoutCartItems(ctx, req.(*CheckoutCartItemsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -483,6 +520,10 @@ var UserServie_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetCartItmes",
 			Handler:    _UserServie_GetCartItmes_Handler,
+		},
+		{
+			MethodName: "CheckoutCartItems",
+			Handler:    _UserServie_CheckoutCartItems_Handler,
 		},
 		{
 			MethodName: "RemoveProductFromCart",

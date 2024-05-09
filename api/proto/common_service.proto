@@ -79,4 +79,5 @@ message CreateOrderRequest {
     optional string promo_id = 3;
     float amount = 4;
     string payment_mode = 5;
+    optional string transaction_id = 6;
 }

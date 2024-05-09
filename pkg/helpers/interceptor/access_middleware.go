@@ -24,6 +24,9 @@ const (
 	addProductDiscount  string = "/pb.MerchantService/AddProductDiscount"
 	editProductDiscount string = "/pb.MerchantService/EditProductDiscount"
 )
+const (
+	getAddresses string = "/pb.UserServie/GetAddresses"
+)
 
 // AccessMiddleware is a gRPC unary server interceptor for access.
 func (interceptor *Interceptor) AccessMiddleware() grpc.UnaryServerInterceptor {
@@ -108,7 +111,6 @@ func (interceptor *Interceptor) MerchantRoleMiddleware() grpc.UnaryServerInterce
 	}
 }
 
-// Currently used by merchant so modify if needed
 func (interceptor *Interceptor) AdminRoleMiddleware() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		payload, ok := ctx.Value(utils.AuthorizationPayloadKey).(*token.AccessPayload)
@@ -119,6 +121,28 @@ func (interceptor *Interceptor) AdminRoleMiddleware() grpc.UnaryServerIntercepto
 		}
 		if payload.UserType != utils.ADMIN {
 			err := fmt.Errorf("user does not have required role: %s", utils.ADMIN)
+			interceptor.log.LogError("Error", err)
+			return nil, status.Errorf(codes.PermissionDenied, err.Error())
+		}
+		ctx = context.WithValue(ctx, utils.AuthorizationPayloadKey, payload)
+		return handler(ctx, req)
+	}
+}
+
+// Currently used by merchant so modify if needed
+func (interceptor *Interceptor) UserRoleMiddleware() grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		if ok := isUserServiceOtherCanAccess(info.FullMethod); ok {
+			return handler(ctx, req)
+		}
+		payload, ok := ctx.Value(utils.AuthorizationPayloadKey).(*token.AccessPayload)
+		if !ok {
+			err := errors.New("unable to retrieve user payload from context")
+			interceptor.log.LogError("Error", err)
+			return nil, status.Errorf(codes.Internal, err.Error())
+		}
+		if payload.UserType != utils.USER {
+			err := fmt.Errorf("user does not have required role: %s", utils.MERCHANT)
 			interceptor.log.LogError("Error", err)
 			return nil, status.Errorf(codes.PermissionDenied, err.Error())
 		}
@@ -138,6 +162,14 @@ func isMerchantCanOnlyAccess(method string) bool {
 func skipAuthenticationBetweenRPC(method string) bool {
 	switch method {
 	case getProductRPC:
+		return true
+	}
+	return false
+}
+
+func isUserServiceOtherCanAccess(method string) bool {
+	switch method {
+	case getAddresses:
 		return true
 	}
 	return false
