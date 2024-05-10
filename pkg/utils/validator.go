@@ -109,3 +109,12 @@ func IsSupportedPaymentMode(mode string) bool {
 	}
 	return false
 }
+
+// IsSupportedOrderTypeMode returns true if the Order mode is supported
+func IsSupportedOrderTypeMode(mode string) bool {
+	switch mode {
+	case OrderActive, OrderCompleted, OrderCancelled:
+		return true
+	}
+	return false
+}

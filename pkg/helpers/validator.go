@@ -71,6 +71,10 @@ func RegisterValidator() {
 	if err != nil {
 		fmt.Println("Error registering payment_mode:", err.Error())
 	}
+	err = validate.RegisterValidation("order_type", validateOrderType)
+	if err != nil {
+		fmt.Println("Error registering order_type:", err.Error())
+	}
 }
 
 var validateUserType validator.Func = func(fl validator.FieldLevel) bool {
@@ -124,6 +128,13 @@ var validateAddRemoveWishlistAction validator.Func = func(fl validator.FieldLeve
 var validatePaymentMode validator.Func = func(fl validator.FieldLevel) bool {
 	if wishlistAction, ok := fl.Field().Interface().(string); ok {
 		return utils.IsSupportedPaymentMode(wishlistAction)
+	}
+	return false
+}
+
+var validateOrderType validator.Func = func(fl validator.FieldLevel) bool {
+	if wishlistAction, ok := fl.Field().Interface().(string); ok {
+		return utils.IsSupportedOrderTypeMode(wishlistAction)
 	}
 	return false
 }

@@ -327,7 +327,7 @@ func (store *MerchantStore) EditProductDiscount(discountId string, req *entity.E
 	return nil
 }
 
-func (store *MerchantStore) GetAllDiscount(merchantId *string) ([]user_entity.DiscountRes, error) {
+func (store *MerchantStore) GetAllDiscount(merchantId *string) ([]*user_entity.DiscountRes, error) {
 	selectQuery := `
 	SELECT 
     p.id AS product_id,
@@ -345,7 +345,7 @@ func (store *MerchantStore) GetAllDiscount(merchantId *string) ([]user_entity.Di
 	if err != nil {
 		return nil, err
 	}
-	var discounts []user_entity.DiscountRes
+	var discounts []*user_entity.DiscountRes
 	defer rows.Close()
 	for rows.Next() {
 		var discount user_entity.DiscountRes
@@ -360,7 +360,7 @@ func (store *MerchantStore) GetAllDiscount(merchantId *string) ([]user_entity.Di
 		if err != nil {
 			return nil, err
 		}
-		discounts = append(discounts, discount)
+		discounts = append(discounts, &discount)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

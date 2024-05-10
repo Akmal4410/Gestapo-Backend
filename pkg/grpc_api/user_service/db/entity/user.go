@@ -98,3 +98,7 @@ type EditAddressReq struct {
 	Landmark    *string `json:"landmark"`
 	IsDefault   *bool   `json:"is_default"`
 }
+
+type GetUserOrdersRes struct {
+	Type string `json:"type" validate:"order_type"`
+}
