@@ -114,4 +114,11 @@ service MerchantService {
             get: "/merchant/order/{type}"
         };
     }
+
+    rpc UpdateOrderStatus (UpdateOrderRequest) returns (Response){
+        option (google.api.http) = {
+            patch: "/merchant/order/{order_item_id}"
+            body: "*"
+        };
+    }
 }

@@ -10,4 +10,5 @@ service OrderService {
     rpc CreateOrder (CreateOrderRequest) returns (Response);
     rpc GetUserOrders (GetOrdersRequest) returns (GetOrderResponse);
     rpc GetMerchantOrders (GetOrdersRequest) returns (GetOrderResponse);
+    rpc UpdateOrderStatus (UpdateOrderRequest) returns (Response);
 }

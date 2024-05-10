@@ -26,9 +26,6 @@ const (
 	OrderCancelled string = "Cancelled"
 
 	TrackingStatus0 int = 0
-	TrackingStatus1 int = 1
-	TrackingStatus2 int = 2
-	TrackingStatus3 int = 3
 )
 
 var TrackingTitles = []string{"Order Processed", "Order Shipped", "Order En Route", "Order Arrived"}

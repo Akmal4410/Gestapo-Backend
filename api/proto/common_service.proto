@@ -101,3 +101,7 @@ message UserOrderResponse  {
     double price = 5;
     string status = 6;
 }
+
+message UpdateOrderRequest {
+    string order_item_id = 1;
+}

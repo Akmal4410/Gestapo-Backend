@@ -96,7 +96,7 @@ func (handler *userService) GetUserOrders(ctx context.Context, in *proto.GetOrde
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
 
-	req := &entity.GetUserOrdersRes{
+	req := &entity.GetOrdersReq{
 		Type: in.GetType(),
 	}
 	err := helpers.ValidateBody(nil, req)

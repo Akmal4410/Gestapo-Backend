@@ -26,6 +26,7 @@ const (
 	MerchantService_EditProductDiscount_FullMethodName = "/pb.MerchantService/EditProductDiscount"
 	MerchantService_GetAllDiscounts_FullMethodName     = "/pb.MerchantService/GetAllDiscounts"
 	MerchantService_GetMerchantOrders_FullMethodName   = "/pb.MerchantService/GetMerchantOrders"
+	MerchantService_UpdateOrderStatus_FullMethodName   = "/pb.MerchantService/UpdateOrderStatus"
 )
 
 // MerchantServiceClient is the client API for MerchantService service.
@@ -40,6 +41,7 @@ type MerchantServiceClient interface {
 	GetAllDiscounts(ctx context.Context, in *GetDiscountsRequest, opts ...grpc.CallOption) (*GetDiscountsResponse, error)
 	// ------ Order Related------------
 	GetMerchantOrders(ctx context.Context, in *GetOrdersRequest, opts ...grpc.CallOption) (*GetOrderResponse, error)
+	UpdateOrderStatus(ctx context.Context, in *UpdateOrderRequest, opts ...grpc.CallOption) (*Response, error)
 }
 
 type merchantServiceClient struct {
@@ -113,6 +115,15 @@ func (c *merchantServiceClient) GetMerchantOrders(ctx context.Context, in *GetOr
 	return out, nil
 }
 
+func (c *merchantServiceClient) UpdateOrderStatus(ctx context.Context, in *UpdateOrderRequest, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
+	err := c.cc.Invoke(ctx, MerchantService_UpdateOrderStatus_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MerchantServiceServer is the server API for MerchantService service.
 // All implementations must embed UnimplementedMerchantServiceServer
 // for forward compatibility
@@ -125,6 +136,7 @@ type MerchantServiceServer interface {
 	GetAllDiscounts(context.Context, *GetDiscountsRequest) (*GetDiscountsResponse, error)
 	// ------ Order Related------------
 	GetMerchantOrders(context.Context, *GetOrdersRequest) (*GetOrderResponse, error)
+	UpdateOrderStatus(context.Context, *UpdateOrderRequest) (*Response, error)
 	mustEmbedUnimplementedMerchantServiceServer()
 }
 
@@ -152,6 +164,9 @@ func (UnimplementedMerchantServiceServer) GetAllDiscounts(context.Context, *GetD
 }
 func (UnimplementedMerchantServiceServer) GetMerchantOrders(context.Context, *GetOrdersRequest) (*GetOrderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMerchantOrders not implemented")
+}
+func (UnimplementedMerchantServiceServer) UpdateOrderStatus(context.Context, *UpdateOrderRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateOrderStatus not implemented")
 }
 func (UnimplementedMerchantServiceServer) mustEmbedUnimplementedMerchantServiceServer() {}
 
@@ -292,6 +307,24 @@ func _MerchantService_GetMerchantOrders_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MerchantService_UpdateOrderStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateOrderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MerchantServiceServer).UpdateOrderStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MerchantService_UpdateOrderStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MerchantServiceServer).UpdateOrderStatus(ctx, req.(*UpdateOrderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MerchantService_ServiceDesc is the grpc.ServiceDesc for MerchantService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -326,6 +359,10 @@ var MerchantService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetMerchantOrders",
 			Handler:    _MerchantService_GetMerchantOrders_Handler,
+		},
+		{
+			MethodName: "UpdateOrderStatus",
+			Handler:    _MerchantService_UpdateOrderStatus_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

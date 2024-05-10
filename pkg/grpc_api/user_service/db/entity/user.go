@@ -99,6 +99,6 @@ type EditAddressReq struct {
 	IsDefault   *bool   `json:"is_default"`
 }
 
-type GetUserOrdersRes struct {
+type GetOrdersReq struct {
 	Type string `json:"type" validate:"order_type"`
 }

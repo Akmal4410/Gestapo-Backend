@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"net/http"
 
 	"github.com/akmal4410/gestapo/pkg/api/proto"
@@ -152,6 +153,37 @@ func (handler *orderService) GetMerchantOrders(ctx context.Context, in *proto.Ge
 		Status:  true,
 		Message: "Orders fetched successfully",
 		Data:    orders,
+	}
+	return response, nil
+}
+
+func (handler *orderService) UpdateOrderStatus(ctx context.Context, in *proto.UpdateOrderRequest) (*proto.Response, error) {
+	payload, err := service_helper.ValidateServiceToken(ctx, handler.log, handler.token)
+	if err != nil {
+		handler.log.LogError("Error while ValidateServiceToken", err)
+		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	}
+
+	res, err := handler.storage.IsMerchantCanUpdate(in.GetOrderItemId(), payload.UserID)
+	if err != nil {
+		handler.log.LogError("Error while CanEditDeleteCartItem", err)
+		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	}
+	if !res {
+		err := errors.New("error while IsMerchantCanUpdate: Not found")
+		handler.log.LogError("Error", err)
+		return nil, status.Errorf(codes.NotFound, utils.NotFound)
+	}
+	err = handler.storage.UpdateOrderStatus(in.GetOrderItemId())
+	if err != nil {
+		handler.log.LogError("Error while UpdateOrderStatus", err)
+		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	}
+
+	response := &proto.Response{
+		Code:    http.StatusOK,
+		Status:  true,
+		Message: "Orders Status updated successfully",
 	}
 	return response, nil
 }
