@@ -8,6 +8,7 @@ import (
 	"github.com/akmal4410/gestapo/internal/database"
 	"github.com/akmal4410/gestapo/pkg/grpc_api/order_service/db/entity"
 	user_entity "github.com/akmal4410/gestapo/pkg/grpc_api/user_service/db/entity"
+	"github.com/lib/pq"
 
 	"github.com/akmal4410/gestapo/pkg/utils"
 	"github.com/google/uuid"
@@ -120,25 +121,31 @@ func (store *OrderStore) CreateOrder(req *entity.CreateOrderReq) error {
 		tx.Rollback()
 		return err
 	}
-	//////////////////////////////
+
 	var discountedPercent *float64
 	if req.PromoID != nil {
 		selectQuery := `SELECT percent FROM promo_codes WHERE id = $1;`
-
 		err = tx.QueryRow(selectQuery, req.PromoID).Scan(&discountedPercent)
 		if err != nil {
-			fmt.Println("Error executing query:", err)
 			tx.Rollback()
 			return err
 		}
 	}
-	fmt.Println("Discount price :", discountedPercent)
 
 	for _, item := range cartItems {
 		amount := item.Price
 		if discountedPercent != nil {
 			amount = amount * (1 - *discountedPercent/100)
 		}
+
+		var size float32
+		selectSizeQuery := `SELECT size FROM inventories WHERE id = $1;`
+		err = tx.QueryRow(selectSizeQuery, item.InventoryID).Scan(&size)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+
 		orderItemID, err := uuid.NewRandom()
 		if err != nil {
 			tx.Rollback()
@@ -147,11 +154,11 @@ func (store *OrderStore) CreateOrder(req *entity.CreateOrderReq) error {
 
 		insertOrderItemQuery := `
 		INSERT INTO order_items
-		(id, order_id, product_id, quantity, amount, status, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
+		(id, order_id, product_id, size, quantity, amount, status, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);
 		`
 
-		_, err = tx.Exec(insertOrderItemQuery, orderItemID, orderDetailID, item.ProductID, item.Quantity, amount, utils.OrderActive, createdAt, updatedAt)
+		_, err = tx.Exec(insertOrderItemQuery, orderItemID, orderDetailID, item.ProductID, size, item.Quantity, amount, utils.OrderActive, createdAt, updatedAt)
 		if err != nil {
 			tx.Rollback()
 			return err
@@ -170,7 +177,7 @@ func (store *OrderStore) CreateOrder(req *entity.CreateOrderReq) error {
 		VALUES ($1, $2, $3, $4, $5);
 		`
 
-		_, err = tx.Exec(insertTrackingQuery, trackingID, orderItemID, utils.TrackingStatus1, createdAt, updatedAt)
+		_, err = tx.Exec(insertTrackingQuery, trackingID, orderItemID, utils.TrackingStatus0, createdAt, updatedAt)
 		if err != nil {
 			tx.Rollback()
 			return err
@@ -189,7 +196,7 @@ func (store *OrderStore) CreateOrder(req *entity.CreateOrderReq) error {
 		VALUES ($1, $2, $3, $4, $5, $6);
 		`
 
-		_, err = tx.Exec(insertTrackingItmeQuery, trackingItemID, trackingID, utils.TrackingTitles[utils.TrackingStatus1], utils.TrackingSummeries[utils.TrackingStatus1], createdAt, updatedAt)
+		_, err = tx.Exec(insertTrackingItmeQuery, trackingItemID, trackingID, utils.TrackingTitles[utils.TrackingStatus0], utils.TrackingSummeries[utils.TrackingStatus0], createdAt, updatedAt)
 		if err != nil {
 			tx.Rollback()
 			return err
@@ -255,4 +262,56 @@ func (store *OrderStore) CreateOrder(req *entity.CreateOrderReq) error {
 
 	tx.Commit()
 	return nil
+}
+
+func (store *OrderStore) GetUserOrders(userID, status string) ([]*entity.UserOrderRes, error) {
+	selectQuery := `
+	SELECT
+    oi.id AS id,
+    p.product_name AS product_name,
+	p.images AS product_images,
+    oi.size AS size,
+    oi.amount AS price,
+	oi.status AS status
+	FROM
+    order_items oi
+	LEFT JOIN
+    products p ON oi.product_id = p.id
+	LEFT JOIN
+    order_details o ON o.user_id = $1
+	WHERE 
+	oi.status = $2;
+	`
+
+	rows, err := store.storage.DB.Query(selectQuery, userID, status)
+	if err != nil {
+		return nil, err
+	}
+
+	var orders []*entity.UserOrderRes
+
+	defer rows.Close()
+	for rows.Next() {
+		var order entity.UserOrderRes
+		var images pq.StringArray
+
+		err := rows.Scan(
+			&order.ID,
+			&order.ProductName,
+			&images,
+			&order.Size,
+			&order.Price,
+			&order.Status,
+		)
+		if err != nil {
+			return nil, err
+		}
+		order.ProductImage = []string(images)[0]
+		orders = append(orders, &order)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return orders, nil
+
 }

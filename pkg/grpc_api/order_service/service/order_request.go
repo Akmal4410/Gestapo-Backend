@@ -65,3 +65,48 @@ func (handler *orderService) CreateOrder(ctx context.Context, in *proto.CreateOr
 	}
 	return response, nil
 }
+
+func (handler *orderService) GetUserOrders(ctx context.Context, in *proto.GetUserOrdersRequest) (*proto.GetUserOrderResponse, error) {
+	servicePayload, err := service_helper.ValidateServiceToken(ctx, handler.log, handler.token)
+	if err != nil {
+		handler.log.LogError("Error while ValidateServiceToken", err)
+		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	}
+
+	userOrdersEntities, err := handler.storage.GetUserOrders(servicePayload.UserID, in.Type)
+	if err != nil {
+		handler.log.LogError("Error while GetUserOrders", err)
+		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	}
+	for _, order := range userOrdersEntities {
+		if order.ProductImage != "" {
+			url, err := handler.s3.GetPreSignedURL(order.ProductImage)
+			if err != nil {
+				handler.log.LogError("Error while GetPreSignedURL", err)
+				return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+			}
+			order.ProductImage = url
+		}
+	}
+
+	var orders []*proto.UserOrderResponse
+	for _, order := range userOrdersEntities {
+		newProduct := &proto.UserOrderResponse{
+			Id:           order.ID,
+			ProductImage: order.ProductImage,
+			ProductName:  order.ProductName,
+			Size:         float64(order.Size),
+			Price:        order.Price,
+			Status:       order.Status,
+		}
+		orders = append(orders, newProduct)
+	}
+
+	response := &proto.GetUserOrderResponse{
+		Code:    http.StatusOK,
+		Status:  true,
+		Message: "Orders fetched successfully",
+		Data:    orders,
+	}
+	return response, nil
+}

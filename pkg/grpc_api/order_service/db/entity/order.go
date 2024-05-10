@@ -9,3 +9,12 @@ type CreateOrderReq struct {
 	UserID        string  `json:"user_id"`
 	TransactionID *string `json:"transaction_id"`
 }
+
+type UserOrderRes struct {
+	ID           string  `json:"id"`
+	ProductName  string  `json:"product_name"`
+	ProductImage string  `json:"product_image"`
+	Size         float32 `json:"size"`
+	Price        float64 `json:"price"`
+	Status       string  `json:"status"`
+}

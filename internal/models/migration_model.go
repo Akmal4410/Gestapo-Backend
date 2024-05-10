@@ -165,6 +165,7 @@ type Order_Items struct {
 	OrderID   uuid.UUID     `gorm:"NOT NULL"`
 	Product   Products      `gorm:"foreignKey:ProductID;references:ID"`
 	ProductID uuid.UUID     `gorm:"NOT NULL;index"`
+	Size      float64       `gorm:"NOT NULL"`
 	Quantity  int           `gorm:"NOT NULL"`
 	Amount    float64       `gorm:"NOT NULL"`
 	Status    string        `gorm:"NOT NULL"`
