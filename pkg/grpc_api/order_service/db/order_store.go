@@ -315,3 +315,53 @@ func (store *OrderStore) GetUserOrders(userID, status string) ([]*entity.UserOrd
 	return orders, nil
 
 }
+
+func (store *OrderStore) GetMerchantOrders(merchantID, status string) ([]*entity.UserOrderRes, error) {
+	selectQuery := `
+	SELECT
+    oi.id AS id,
+    p.product_name AS product_name,
+	p.images AS product_images,
+    oi.size AS size,
+    oi.amount AS price,
+	oi.status AS status
+	FROM
+    order_items oi
+	LEFT JOIN
+    products p ON oi.product_id = p.id
+	WHERE 
+	p.merchent_id = $1 AND oi.status = $2;
+	`
+
+	rows, err := store.storage.DB.Query(selectQuery, merchantID, status)
+	if err != nil {
+		return nil, err
+	}
+
+	var orders []*entity.UserOrderRes
+
+	defer rows.Close()
+	for rows.Next() {
+		var order entity.UserOrderRes
+		var images pq.StringArray
+
+		err := rows.Scan(
+			&order.ID,
+			&order.ProductName,
+			&images,
+			&order.Size,
+			&order.Price,
+			&order.Status,
+		)
+		if err != nil {
+			return nil, err
+		}
+		order.ProductImage = []string(images)[0]
+		orders = append(orders, &order)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return orders, nil
+
+}

@@ -82,11 +82,11 @@ message CreateOrderRequest {
     optional string transaction_id = 6;
 }
 
-message GetUserOrdersRequest {
+message GetOrdersRequest {
     string type = 1;
 }
 
-message GetUserOrderResponse {
+message GetOrderResponse {
     int32 code = 1;
     bool status = 2;
     string message = 3;

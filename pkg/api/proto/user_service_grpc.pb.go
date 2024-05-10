@@ -55,7 +55,7 @@ type UserServieClient interface {
 	DeleteAddress(ctx context.Context, in *AddressIdRequest, opts ...grpc.CallOption) (*Response, error)
 	// ------ Order Related------------
 	CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*Response, error)
-	GetUserOrders(ctx context.Context, in *GetUserOrdersRequest, opts ...grpc.CallOption) (*GetUserOrderResponse, error)
+	GetUserOrders(ctx context.Context, in *GetOrdersRequest, opts ...grpc.CallOption) (*GetOrderResponse, error)
 }
 
 type userServieClient struct {
@@ -183,8 +183,8 @@ func (c *userServieClient) CreateOrder(ctx context.Context, in *CreateOrderReque
 	return out, nil
 }
 
-func (c *userServieClient) GetUserOrders(ctx context.Context, in *GetUserOrdersRequest, opts ...grpc.CallOption) (*GetUserOrderResponse, error) {
-	out := new(GetUserOrderResponse)
+func (c *userServieClient) GetUserOrders(ctx context.Context, in *GetOrdersRequest, opts ...grpc.CallOption) (*GetOrderResponse, error) {
+	out := new(GetOrderResponse)
 	err := c.cc.Invoke(ctx, UserServie_GetUserOrders_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -212,7 +212,7 @@ type UserServieServer interface {
 	DeleteAddress(context.Context, *AddressIdRequest) (*Response, error)
 	// ------ Order Related------------
 	CreateOrder(context.Context, *CreateOrderRequest) (*Response, error)
-	GetUserOrders(context.Context, *GetUserOrdersRequest) (*GetUserOrderResponse, error)
+	GetUserOrders(context.Context, *GetOrdersRequest) (*GetOrderResponse, error)
 	mustEmbedUnimplementedUserServieServer()
 }
 
@@ -259,7 +259,7 @@ func (UnimplementedUserServieServer) DeleteAddress(context.Context, *AddressIdRe
 func (UnimplementedUserServieServer) CreateOrder(context.Context, *CreateOrderRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateOrder not implemented")
 }
-func (UnimplementedUserServieServer) GetUserOrders(context.Context, *GetUserOrdersRequest) (*GetUserOrderResponse, error) {
+func (UnimplementedUserServieServer) GetUserOrders(context.Context, *GetOrdersRequest) (*GetOrderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserOrders not implemented")
 }
 func (UnimplementedUserServieServer) mustEmbedUnimplementedUserServieServer() {}
@@ -510,7 +510,7 @@ func _UserServie_CreateOrder_Handler(srv interface{}, ctx context.Context, dec f
 }
 
 func _UserServie_GetUserOrders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetUserOrdersRequest)
+	in := new(GetOrdersRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -522,7 +522,7 @@ func _UserServie_GetUserOrders_Handler(srv interface{}, ctx context.Context, dec
 		FullMethod: UserServie_GetUserOrders_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServieServer).GetUserOrders(ctx, req.(*GetUserOrdersRequest))
+		return srv.(UserServieServer).GetUserOrders(ctx, req.(*GetOrdersRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

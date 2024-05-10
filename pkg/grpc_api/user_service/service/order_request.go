@@ -88,7 +88,7 @@ func (handler *userService) CreateOrder(ctx context.Context, req *proto.CreateOr
 	return response, nil
 }
 
-func (handler *userService) GetUserOrders(ctx context.Context, in *proto.GetUserOrdersRequest) (*proto.GetUserOrderResponse, error) {
+func (handler *userService) GetUserOrders(ctx context.Context, in *proto.GetOrdersRequest) (*proto.GetOrderResponse, error) {
 	payload, ok := ctx.Value(utils.AuthorizationPayloadKey).(*token.AccessPayload)
 	if !ok {
 		err := errors.New("unable to retrieve user payload from context")

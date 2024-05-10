@@ -107,4 +107,11 @@ service MerchantService {
             body: "*"
         };
     }
+
+    //------ Order Related------------
+    rpc GetMerchantOrders (GetOrdersRequest) returns (GetOrderResponse){
+        option (google.api.http) = {
+            get: "/merchant/order/{type}"
+        };
+    }
 }

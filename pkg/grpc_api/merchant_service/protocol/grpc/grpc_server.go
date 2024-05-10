@@ -28,7 +28,7 @@ func RunGRPCService(ctx context.Context, storage *database.Storage, config *conf
 	grpcServer := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			interceptor.AccessMiddleware(),
-			interceptor.AdminRoleMiddleware(),
+			interceptor.MerchantRoleMiddleware(),
 		),
 	)
 
