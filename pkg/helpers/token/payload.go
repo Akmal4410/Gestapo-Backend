@@ -39,6 +39,7 @@ type AccessPayload struct {
 // ServicePayload contains the payload data of the token and is used to validate between services
 type ServicePayload struct {
 	UserID      string `json:"user_id"`
+	UserType    string `json:"user_type"`
 	ServiceName string `json:"service_name"`
 	TokenType   string `json:"token_type"`
 	jwt.RegisteredClaims
@@ -74,9 +75,10 @@ func NewAccessPayload(userID, userName, userType string) *AccessPayload {
 }
 
 // NewServicePayload creates a new token payload with a specific username and duration
-func NewServicePayload(userID, serviceName string) *ServicePayload {
+func NewServicePayload(userID, userType, serviceName string) *ServicePayload {
 	payload := &ServicePayload{
 		UserID:      userID,
+		UserType:    userType,
 		ServiceName: serviceName,
 		TokenType:   ServiceToken,
 		RegisteredClaims: jwt.RegisteredClaims{

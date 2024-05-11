@@ -122,6 +122,7 @@ message EditAddressRequest {
     optional bool is_default = 8;
 }
 
+
 service UserServie {
     rpc GetHome (Request) returns (GetHomeResponse) {
         option (google.api.http) = {
@@ -212,6 +213,14 @@ service UserServie {
     rpc GetUserOrders (GetOrdersRequest) returns (GetOrderResponse){
         option (google.api.http) = {
             get: "/user/order/{type}"
+        };
+    }
+
+    //------- Product Review
+    rpc AddProductReview (AddReviewRequest) returns (Response){
+        option (google.api.http) = {
+            post: "/user/product/review"
+            body:"*"
         };
     }
 }

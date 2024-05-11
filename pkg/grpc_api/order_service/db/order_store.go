@@ -268,6 +268,7 @@ func (store *OrderStore) GetUserOrders(userID, status string) ([]*entity.UserOrd
 	selectQuery := `
 	SELECT
     oi.id AS id,
+	p.id AS product_id,
     p.product_name AS product_name,
 	p.images AS product_images,
     oi.size AS size,
@@ -297,6 +298,7 @@ func (store *OrderStore) GetUserOrders(userID, status string) ([]*entity.UserOrd
 
 		err := rows.Scan(
 			&order.ID,
+			&order.ProductID,
 			&order.ProductName,
 			&images,
 			&order.Size,

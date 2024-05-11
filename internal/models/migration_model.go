@@ -193,3 +193,15 @@ type Tracking_Items struct {
 	CreatedAt      time.Time        `gorm:"NOT NULL"`
 	UpdatedAt      time.Time        `gorm:"NOT NULL"`
 }
+
+type Reviews struct {
+	ID        uuid.UUID `gorm:"NOT NULL;PRIMARY_KEY"`
+	Product   Products  `gorm:"foreignKey:ProductID;references:ID"`
+	ProductID uuid.UUID `gorm:"NOT NULL;index"`
+	User      User_Data `gorm:"foreignKey:UserID;references:ID"`
+	UserID    uuid.UUID `gorm:"NOT NULL"`
+	Star      float32   `gorm:"NOT NULL"`
+	Review    string    `gorm:"NOT NULL"`
+	CreatedAt time.Time `gorm:"NOT NULL"`
+	UpdatedAt time.Time `gorm:"NOT NULL"`
+}

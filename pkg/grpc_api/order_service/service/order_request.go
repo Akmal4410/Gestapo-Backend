@@ -94,6 +94,7 @@ func (handler *orderService) GetUserOrders(ctx context.Context, in *proto.GetOrd
 	for _, order := range userOrdersEntities {
 		newProduct := &proto.OrderResponse{
 			Id:           order.ID,
+			ProductId:    order.ProductID,
 			ProductImage: order.ProductImage,
 			ProductName:  order.ProductName,
 			Size:         float64(order.Size),

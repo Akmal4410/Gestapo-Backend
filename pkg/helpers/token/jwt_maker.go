@@ -92,9 +92,9 @@ func (maker *JWTMaker) VerifyAccessToken(token string) (*AccessPayload, error) {
 }
 
 // CreateServiceToken create a token for specific service and duration
-func (maker *JWTMaker) CreateServiceToken(userID, serviceName string) (string, error) {
+func (maker *JWTMaker) CreateServiceToken(userID, userType, serviceName string) (string, error) {
 	mySigningKey := []byte(maker.secretKey)
-	payload := NewServicePayload(userID, serviceName)
+	payload := NewServicePayload(userID, userType, serviceName)
 	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
 	return jwtToken.SignedString(mySigningKey)
 }
