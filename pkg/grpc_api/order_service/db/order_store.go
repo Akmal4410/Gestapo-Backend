@@ -420,7 +420,7 @@ func (store *OrderStore) UpdateOrderStatus(orderItemID string) error {
 		return err
 	}
 
-	status = status + 1
+	status = status + 1 //beacuse only after transaction is completed it will update the status
 
 	updateTrackingItemQuery := `UPDATE tracking_items
 	SET title = $2, summary = $3,  updated_at = $4
