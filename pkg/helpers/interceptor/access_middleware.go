@@ -14,8 +14,15 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+// For skipping authentication between rpc
 const (
+	//Product Service
 	getProductRPC string = "/pb.ProductService/GetProducts"
+	//Order Service
+	createOrderRPC       string = "/pb.OrderService/CreateOrder"
+	getUserOrdersRPC     string = "/pb.OrderService/GetUserOrders"
+	getMerchantOrdersRPC string = "/pb.OrderService/GetMerchantOrders"
+	updateOrderStatusRPC string = "/pb.OrderService/UpdateOrderStatus"
 )
 
 // For protecting merchant calls
@@ -161,9 +168,14 @@ func isMerchantCanOnlyAccess(method string) bool {
 
 func skipAuthenticationBetweenRPC(method string) bool {
 	switch method {
+	//Product Service
 	case getProductRPC:
 		return true
+	//Order Service
+	case createOrderRPC, getUserOrdersRPC, getMerchantOrdersRPC, updateOrderStatusRPC:
+		return true
 	}
+
 	return false
 }
 

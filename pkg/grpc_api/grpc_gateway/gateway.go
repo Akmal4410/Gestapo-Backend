@@ -49,6 +49,11 @@ func newGateway(ctx context.Context, log logger.Logger, config config.Config, op
 		return nil, errProduct
 	}
 
+	errOrder := registerOrderServiceEndPoints(ctx, log, config, gMux, dialOpts)
+	if errOrder != nil {
+		return nil, errOrder
+	}
+
 	return gMux, nil
 }
 
@@ -111,6 +116,19 @@ func registerProductServiceEndPoints(ctx context.Context, log logger.Logger, con
 		err := proto.RegisterProductServiceHandlerFromEndpoint(ctx, gMux, *endpoint, dialOpts)
 		if err != nil {
 			log.LogError("error in registering product endpoint.", err)
+			return err
+		}
+	}
+	return nil
+}
+
+func registerOrderServiceEndPoints(ctx context.Context, log logger.Logger, config config.Config, gMux *runtime.ServeMux, dialOpts []grpc.DialOption) error {
+	var endpoint *string
+	if config.ServerAddress != nil {
+		endpoint = &config.ServerAddress.Order
+		err := proto.RegisterOrderServiceHandlerFromEndpoint(ctx, gMux, *endpoint, dialOpts)
+		if err != nil {
+			log.LogError("error in registering order endpoint.", err)
 			return err
 		}
 	}
