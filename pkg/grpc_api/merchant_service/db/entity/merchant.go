@@ -58,3 +58,7 @@ type EditDiscountReq struct {
 	StartTime    *time.Time `json:"start_time" validate:"omitempty"`
 	EndTime      *time.Time `json:"end_time" validate:"omitempty"`
 }
+
+type UpdateOrderReq struct {
+	OrderItemID string `json:"order_item_id" validate:"required"`
+}

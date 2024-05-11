@@ -8,5 +8,7 @@ option go_package = "api/proto";
 
 service OrderService {
     rpc CreateOrder (CreateOrderRequest) returns (Response);
-    rpc GetUserOrders (GetUserOrdersRequest) returns (GetUserOrderResponse);
+    rpc GetUserOrders (GetOrdersRequest) returns (GetOrderResponse);
+    rpc GetMerchantOrders (GetOrdersRequest) returns (GetOrderResponse);
+    rpc UpdateOrderStatus (UpdateOrderRequest) returns (Response);
 }

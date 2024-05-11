@@ -315,3 +315,132 @@ func (store *OrderStore) GetUserOrders(userID, status string) ([]*entity.UserOrd
 	return orders, nil
 
 }
+
+func (store *OrderStore) GetMerchantOrders(merchantID, status string) ([]*entity.UserOrderRes, error) {
+	selectQuery := `
+	SELECT
+    oi.id AS id,
+    p.product_name AS product_name,
+	p.images AS product_images,
+    oi.size AS size,
+    oi.amount AS price,
+	oi.status AS status
+	FROM
+    order_items oi
+	LEFT JOIN
+    products p ON oi.product_id = p.id
+	WHERE 
+	p.merchent_id = $1 AND oi.status = $2;
+	`
+
+	rows, err := store.storage.DB.Query(selectQuery, merchantID, status)
+	if err != nil {
+		return nil, err
+	}
+
+	var orders []*entity.UserOrderRes
+
+	defer rows.Close()
+	for rows.Next() {
+		var order entity.UserOrderRes
+		var images pq.StringArray
+
+		err := rows.Scan(
+			&order.ID,
+			&order.ProductName,
+			&images,
+			&order.Size,
+			&order.Price,
+			&order.Status,
+		)
+		if err != nil {
+			return nil, err
+		}
+		order.ProductImage = []string(images)[0]
+		orders = append(orders, &order)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return orders, nil
+
+}
+
+func (store *OrderStore) IsMerchantCanUpdate(orderItemID, merchantID string) (bool, error) {
+	selectQuery := `SELECT COUNT(oi.id) 
+	FROM order_items oi
+	JOIN products p ON oi.product_id = p.id
+	WHERE oi.id = $1 AND p.merchent_id = $2;
+	`
+	var count int
+	err := store.storage.DB.QueryRow(selectQuery, orderItemID, merchantID).Scan(&count)
+	if err != nil {
+		fmt.Println("Error executing query:", err)
+		return false, err
+	}
+	return count > 0, nil
+}
+
+func (store *OrderStore) UpdateOrderStatus(orderItemID string) error {
+	ctx := context.Background()
+	tx, err := store.storage.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	updatedAt := time.Now()
+
+	updateTrackingDetailsQuery := `
+	UPDATE tracking_details
+	SET status = LEAST(status + 1, 3), updated_at = $2
+	WHERE order_item_id = $1;
+	`
+	res, err := tx.Exec(updateTrackingDetailsQuery, orderItemID, updatedAt)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	n, err := res.RowsAffected()
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	if n == 0 {
+		tx.Rollback()
+		return fmt.Errorf("couldnot update the tracking_details")
+	}
+
+	selectQuery := `SELECT id, status FROM tracking_details WHERE order_item_id = $1;`
+	var trackingID string
+	var status int
+	err = store.storage.DB.QueryRow(selectQuery, orderItemID).Scan(&trackingID, &status)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	status = status + 1 //beacuse only after transaction is completed it will update the status
+
+	updateTrackingItemQuery := `UPDATE tracking_items
+	SET title = $2, summary = $3,  updated_at = $4
+	WHERE tracking_id = $1;
+	`
+	res, err = tx.Exec(updateTrackingItemQuery, trackingID, utils.TrackingTitles[status], utils.TrackingSummeries[status], updatedAt)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	n, err = res.RowsAffected()
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	if n == 0 {
+		tx.Rollback()
+		return fmt.Errorf("couldnot update the tracking_items")
+	}
+	tx.Commit()
+	return nil
+}

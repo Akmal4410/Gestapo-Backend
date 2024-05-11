@@ -484,7 +484,7 @@ func local_request_UserServie_CreateOrder_0(ctx context.Context, marshaler runti
 }
 
 func request_UserServie_GetUserOrders_0(ctx context.Context, marshaler runtime.Marshaler, client UserServieClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetUserOrdersRequest
+	var protoReq GetOrdersRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -510,7 +510,7 @@ func request_UserServie_GetUserOrders_0(ctx context.Context, marshaler runtime.M
 }
 
 func local_request_UserServie_GetUserOrders_0(ctx context.Context, marshaler runtime.Marshaler, server UserServieServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetUserOrdersRequest
+	var protoReq GetOrdersRequest
 	var metadata runtime.ServerMetadata
 
 	var (

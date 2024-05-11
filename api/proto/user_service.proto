@@ -209,7 +209,7 @@ service UserServie {
         };
     }
 
-    rpc GetUserOrders (GetUserOrdersRequest) returns (GetUserOrderResponse){
+    rpc GetUserOrders (GetOrdersRequest) returns (GetOrderResponse){
         option (google.api.http) = {
             get: "/user/order/{type}"
         };
