@@ -29,4 +29,4 @@ const (
 )
 
 var TrackingTitles = []string{"Order Processed", "Order Shipped", "Order En Route", "Order Arrived"}
-var TrackingSummeries = []string{"Your Order is being processedd", "Your Order is Shipped", "Your Order is Route", "Order Arrived"}
+var TrackingSummeries = []string{"Your Order is being processedd", "Your Order is Shipped", "Your Order is in Route", "Order Arrived"}

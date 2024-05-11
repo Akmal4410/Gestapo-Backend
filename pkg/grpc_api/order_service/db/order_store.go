@@ -390,11 +390,11 @@ func (store *OrderStore) UpdateOrderStatus(orderItemID string) error {
 
 	updatedAt := time.Now()
 
-	updateTrackingDetailsQuery := `UPDATE tracking_details
-	SET status = LEAST(status + 1, 3), updated_at = $3
+	updateTrackingDetailsQuery := `
+	UPDATE tracking_details
+	SET status = LEAST(status + 1, 3), updated_at = $2
 	WHERE order_item_id = $1;
 	`
-
 	res, err := tx.Exec(updateTrackingDetailsQuery, orderItemID, updatedAt)
 	if err != nil {
 		tx.Rollback()
@@ -407,20 +407,24 @@ func (store *OrderStore) UpdateOrderStatus(orderItemID string) error {
 		return err
 	}
 	if n == 0 {
+		tx.Rollback()
 		return fmt.Errorf("couldnot update the tracking_details")
 	}
 
 	selectQuery := `SELECT id, status FROM tracking_details WHERE order_item_id = $1;`
-	var trackingID, status int
+	var trackingID string
+	var status int
 	err = store.storage.DB.QueryRow(selectQuery, orderItemID).Scan(&trackingID, &status)
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
 
+	status = status + 1
+
 	updateTrackingItemQuery := `UPDATE tracking_items
 	SET title = $2, summary = $3,  updated_at = $4
-	WHERE id = $1;
+	WHERE tracking_id = $1;
 	`
 	res, err = tx.Exec(updateTrackingItemQuery, trackingID, utils.TrackingTitles[status], utils.TrackingSummeries[status], updatedAt)
 	if err != nil {
@@ -434,6 +438,7 @@ func (store *OrderStore) UpdateOrderStatus(orderItemID string) error {
 		return err
 	}
 	if n == 0 {
+		tx.Rollback()
 		return fmt.Errorf("couldnot update the tracking_items")
 	}
 	tx.Commit()
