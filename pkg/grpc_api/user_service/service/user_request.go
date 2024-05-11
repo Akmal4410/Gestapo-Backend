@@ -62,7 +62,7 @@ func (handler *userService) GetHome(ctx context.Context, req *proto.Request) (*p
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
 
-	serviceToken, err := handler.token.CreateServiceToken(payload.UserID, "product")
+	serviceToken, err := handler.token.CreateServiceToken(payload.UserID, payload.UserType, "product")
 	if err != nil {
 		handler.log.LogError("error while generating service token in GetProducts", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)

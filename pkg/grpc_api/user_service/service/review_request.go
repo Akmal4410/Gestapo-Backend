@@ -43,7 +43,7 @@ func (handler *userService) AddProductReview(ctx context.Context, in *proto.AddR
 		return nil, status.Errorf(codes.NotFound, utils.NotFound)
 	}
 
-	serviceToken, err := handler.token.CreateServiceToken(payload.UserID, "product")
+	serviceToken, err := handler.token.CreateServiceToken(payload.UserID, payload.UserType, "product")
 	if err != nil {
 		handler.log.LogError("error while generating service token in AddProductReview", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)

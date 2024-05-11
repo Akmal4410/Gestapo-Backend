@@ -88,7 +88,7 @@ func (handler *merchantService) GetProducts(ctx context.Context, req *proto.GetP
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
 
-	serviceToken, err := handler.token.CreateServiceToken(payload.UserID, "product")
+	serviceToken, err := handler.token.CreateServiceToken(payload.UserID, payload.UserType, "product")
 	if err != nil {
 		handler.log.LogError("error while generating service token in GetProducts", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
@@ -111,7 +111,7 @@ func (handler *merchantService) GetProducts(ctx context.Context, req *proto.GetP
 	response, err := productClient.GetProducts(serviceCtx, &proto.GetProductRequest{MerchantId: req.MerchantId})
 	if err != nil {
 		handler.log.LogError("error parsing product service context :", err)
-		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+		return nil, err
 	}
 	return response, nil
 }
@@ -124,7 +124,7 @@ func (handler *merchantService) DeleteProduct(ctx context.Context, req *proto.De
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
 
-	serviceToken, err := handler.token.CreateServiceToken(payload.UserID, "product")
+	serviceToken, err := handler.token.CreateServiceToken(payload.UserID, payload.UserType, "product")
 	if err != nil {
 		handler.log.LogError("error while generating service token in DeleteProduct", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
@@ -210,7 +210,7 @@ func (handler *merchantService) AddProductDiscount(ctx context.Context, in *prot
 		return nil, status.Errorf(codes.InvalidArgument, utils.InvalidRequest)
 	}
 
-	serviceToken, err := handler.token.CreateServiceToken(payload.UserID, "product")
+	serviceToken, err := handler.token.CreateServiceToken(payload.UserID, payload.UserType, "product")
 	if err != nil {
 		handler.log.LogError("error while generating service token in DeleteProduct", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)

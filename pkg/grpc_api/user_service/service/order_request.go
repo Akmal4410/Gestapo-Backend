@@ -60,7 +60,7 @@ func (handler *userService) CreateOrder(ctx context.Context, req *proto.CreateOr
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
 
-	serviceToken, err := handler.token.CreateServiceToken(payload.UserID, "order")
+	serviceToken, err := handler.token.CreateServiceToken(payload.UserID, payload.UserType, "order")
 	if err != nil {
 		handler.log.LogError("error while generating service token in CreateOrder", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
@@ -105,7 +105,7 @@ func (handler *userService) GetUserOrders(ctx context.Context, in *proto.GetOrde
 		return nil, status.Errorf(codes.InvalidArgument, utils.InvalidRequest)
 	}
 
-	serviceToken, err := handler.token.CreateServiceToken(payload.UserID, "order")
+	serviceToken, err := handler.token.CreateServiceToken(payload.UserID, payload.UserType, "order")
 	if err != nil {
 		handler.log.LogError("error while generating service token in CreateOrder", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)

@@ -10,6 +10,8 @@ type GetProductRes struct {
 	Size          *[]float64 `json:"size,omitempty"`
 	Price         float64    `json:"price,omitempty"`
 	DiscountPrice *float64   `json:"discount_price,omitempty"`
+	ReviewStar    *float64   `json:"review_star,omitempty"`
+	WishlistID    *string    `json:"wishlist_id,omitempty"`
 }
 
 type AddReviewReq struct {

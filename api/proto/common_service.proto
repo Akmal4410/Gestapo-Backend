@@ -48,6 +48,8 @@ message ProductResponse  {
     repeated double size = 7;
     double price = 8;
     optional double discount_price = 9;
+    optional double review_star = 11;
+    optional string wishlist_id = 12;
 }
 
 message GetProductsResponse {

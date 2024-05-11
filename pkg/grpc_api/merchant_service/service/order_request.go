@@ -35,7 +35,7 @@ func (handler *merchantService) GetMerchantOrders(ctx context.Context, in *proto
 		return nil, status.Errorf(codes.InvalidArgument, utils.InvalidRequest)
 	}
 
-	serviceToken, err := handler.token.CreateServiceToken(payload.UserID, "order")
+	serviceToken, err := handler.token.CreateServiceToken(payload.UserID, payload.UserType, "order")
 	if err != nil {
 		handler.log.LogError("error while generating service token in CreateOrder", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
@@ -80,7 +80,7 @@ func (handler *merchantService) UpdateOrderStatus(ctx context.Context, in *proto
 		return nil, status.Errorf(codes.InvalidArgument, utils.InvalidRequest)
 	}
 
-	serviceToken, err := handler.token.CreateServiceToken(payload.UserID, "order")
+	serviceToken, err := handler.token.CreateServiceToken(payload.UserID, payload.UserType, "order")
 	if err != nil {
 		handler.log.LogError("error while generating service token in CreateOrder", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)

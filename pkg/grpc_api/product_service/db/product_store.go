@@ -34,12 +34,70 @@ func (store ProductStore) CheckDataExist(table, column, value string) (bool, err
 	return result != 0, nil
 }
 
-func (store *ProductStore) GetProducts(merchantId *string) ([]entity.GetProductRes, error) {
-	var products []entity.GetProductRes
+func (store *ProductStore) GetProductsForUser(merchantId *string, userId string) ([]*entity.GetProductRes, error) {
+	var products []*entity.GetProductRes
 	selectQuery := `
-        SELECT id, product_name, images, price
-        FROM products
-        WHERE merchent_id = COALESCE($1, merchent_id);
+	SELECT 
+    p.id AS product_id, 
+    p.product_name AS product_name, 
+    p.images AS product_images, 
+    p.price AS product_price,
+    AVG(r.star) AS star,
+    w.id AS wishlist_id
+	FROM 
+    products p
+	LEFT JOIN 
+    reviews r ON p.id = r.product_id
+	LEFT JOIN 
+    wishlists w ON p.id = w.product_id 
+    WHERE p.merchent_id = COALESCE($1, p.merchent_id) AND (w.user_id = $2 OR w.user_id IS NULL)
+	GROUP BY 
+    p.id, p.product_name, p.images, p.price, w.id;
+    `
+
+	rows, err := store.storage.DB.Query(selectQuery, merchantId, userId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var product entity.GetProductRes
+		var images pq.StringArray
+
+		err := rows.Scan(
+			&product.ID,
+			&product.ProductName,
+			&images,
+			&product.Price,
+			&product.ReviewStar,
+			&product.WishlistID,
+		)
+		if err != nil {
+			return nil, err
+		}
+		product.ProductImages = []string(images)
+		products = append(products, &product)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	if len(products) == 0 {
+		return []*entity.GetProductRes{}, nil
+	}
+
+	return products, nil
+}
+
+func (store *ProductStore) GetProductsForMerchants(merchantId *string) ([]*entity.GetProductRes, error) {
+	var products []*entity.GetProductRes
+	selectQuery := `
+	SELECT id, product_name, images, price
+	FROM products
+	WHERE merchent_id = COALESCE($1, merchent_id);
     `
 
 	rows, err := store.storage.DB.Query(selectQuery, merchantId)
@@ -62,7 +120,7 @@ func (store *ProductStore) GetProducts(merchantId *string) ([]entity.GetProductR
 			return nil, err
 		}
 		product.ProductImages = []string(images)
-		products = append(products, product)
+		products = append(products, &product)
 	}
 
 	err = rows.Err()
@@ -71,7 +129,7 @@ func (store *ProductStore) GetProducts(merchantId *string) ([]entity.GetProductR
 	}
 
 	if len(products) == 0 {
-		return []entity.GetProductRes{}, nil
+		return []*entity.GetProductRes{}, nil
 	}
 
 	return products, nil

@@ -15,7 +15,7 @@ type Maker interface {
 	VerifyAccessToken(token string) (*AccessPayload, error)
 
 	// CreateServiceToken create a service token
-	CreateServiceToken(userID, serviceName string) (string, error)
+	CreateServiceToken(userID, userType, serviceName string) (string, error)
 
 	// VerifyServiceToken  checks if service token is valid or not
 	VerifyServiceToken(token string) (*ServicePayload, error)
