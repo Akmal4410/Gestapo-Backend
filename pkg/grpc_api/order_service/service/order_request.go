@@ -90,9 +90,9 @@ func (handler *orderService) GetUserOrders(ctx context.Context, in *proto.GetOrd
 		}
 	}
 
-	var orders []*proto.UserOrderResponse
+	var orders []*proto.OrderResponse
 	for _, order := range userOrdersEntities {
-		newProduct := &proto.UserOrderResponse{
+		newProduct := &proto.OrderResponse{
 			Id:           order.ID,
 			ProductImage: order.ProductImage,
 			ProductName:  order.ProductName,
@@ -135,9 +135,9 @@ func (handler *orderService) GetMerchantOrders(ctx context.Context, in *proto.Ge
 		}
 	}
 
-	var orders []*proto.UserOrderResponse
+	var orders []*proto.OrderResponse
 	for _, order := range userOrdersEntities {
-		newProduct := &proto.UserOrderResponse{
+		newProduct := &proto.OrderResponse{
 			Id:           order.ID,
 			ProductImage: order.ProductImage,
 			ProductName:  order.ProductName,

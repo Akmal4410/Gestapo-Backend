@@ -1,5 +1,7 @@
 package entity
 
+import "time"
+
 type CreateOrderReq struct {
 	AddressID     string  `json:"address_id" validate:"required"`
 	CartID        string  `json:"cart_id" validate:"required"`
@@ -17,4 +19,15 @@ type UserOrderRes struct {
 	Size         float32 `json:"size"`
 	Price        float64 `json:"price"`
 	Status       string  `json:"status"`
+}
+
+type GetTrackingDetailsReq struct {
+	OrderItemID string `json:"order_item_id" validate:"required"`
+}
+
+type TrackingDetailsRes struct {
+	Status  int32     `json:"status"`
+	Title   string    `json:"title"`
+	Summary string    `json:"summary"`
+	Time    time.Time `json:"time"`
 }

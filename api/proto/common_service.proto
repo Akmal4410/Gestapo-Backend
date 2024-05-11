@@ -90,10 +90,10 @@ message GetOrderResponse {
     int32 code = 1;
     bool status = 2;
     string message = 3;
-    repeated UserOrderResponse data = 4;
+    repeated OrderResponse data = 4;
 }
 
-message UserOrderResponse  {
+message OrderResponse  {
 	string id = 1;
 	string product_image = 2;
     string product_name = 3;
@@ -105,3 +105,4 @@ message UserOrderResponse  {
 message UpdateOrderRequest {
     string order_item_id = 1;
 }
+
