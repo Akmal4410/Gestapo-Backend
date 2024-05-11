@@ -14,6 +14,7 @@ type CreateOrderReq struct {
 
 type UserOrderRes struct {
 	ID           string  `json:"id"`
+	ProductID    string  `json:"product_id"`
 	ProductName  string  `json:"product_name"`
 	ProductImage string  `json:"product_image"`
 	Size         float32 `json:"size"`

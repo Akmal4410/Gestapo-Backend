@@ -23,6 +23,7 @@ type DBMigration struct {
 	order_items      models.Order_Items
 	tracking_details models.Tracking_Details
 	tracking_items   models.Tracking_Items
+	reviews          models.Reviews
 }
 
 var migrate DBMigration
@@ -83,7 +84,12 @@ func AutoMigrateTables(gormDB *gorm.DB) {
 	if err := gormDB.AutoMigrate(&migrate.tracking_details); err != nil {
 		fmt.Println(err.Error())
 	}
+
 	if err := gormDB.AutoMigrate(&migrate.tracking_items); err != nil {
+		fmt.Println(err.Error())
+	}
+
+	if err := gormDB.AutoMigrate(&migrate.reviews); err != nil {
 		fmt.Println(err.Error())
 	}
 }

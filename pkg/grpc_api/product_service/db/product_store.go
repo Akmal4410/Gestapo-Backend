@@ -1,8 +1,13 @@
 package db
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/akmal4410/gestapo/internal/database"
 	"github.com/akmal4410/gestapo/pkg/grpc_api/product_service/db/entity"
+	"github.com/akmal4410/gestapo/pkg/utils"
+	"github.com/google/uuid"
 	"github.com/lib/pq"
 )
 
@@ -13,6 +18,20 @@ type ProductStore struct {
 func NewProductStore(storage *database.Storage) *ProductStore {
 	return &ProductStore{storage: storage}
 
+}
+func (store ProductStore) CheckDataExist(table, column, value string) (bool, error) {
+	checkQuery := fmt.Sprintf(`SELECT * FROM %s WHERE %s = $1;`, table, column)
+	res, err := store.storage.DB.Exec(checkQuery, value)
+	if err != nil {
+		return false, err
+	}
+
+	result, err := res.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+
+	return result != 0, nil
 }
 
 func (store *ProductStore) GetProducts(merchantId *string) ([]entity.GetProductRes, error) {
@@ -116,4 +135,53 @@ func (store *ProductStore) GetProductById(productId string) (*entity.GetProductR
 		return nil, err
 	}
 	return &product, nil
+}
+
+func (store *ProductStore) IsUserCanAddReview(orderItemID, userID string) (bool, error) {
+	selectQuery := `SELECT COUNT(oi.id) 
+	FROM order_items oi
+	JOIN products p ON oi.product_id = p.id
+	JOIN order_details od ON oi.order_id = od.id
+	WHERE oi.id = $1 AND od.user_id = $2 AND oi.status = $3;
+	`
+	var count int
+	err := store.storage.DB.QueryRow(selectQuery, orderItemID, userID, utils.OrderCompleted).Scan(&count)
+	if err != nil {
+		fmt.Println("Error executing query:", err)
+		return false, err
+	}
+	return count > 0, nil
+}
+
+func (store *ProductStore) IsUserAlreadyAddedReview(productID, userID string) (bool, error) {
+	selectQuery := `SELECT COUNT(*) 
+	FROM reviews
+	WHERE product_id = $1 AND user_id = $2;
+	`
+	var count int
+	err := store.storage.DB.QueryRow(selectQuery, productID, userID).Scan(&count)
+	if err != nil {
+		fmt.Println("Error executing query:", err)
+		return false, err
+	}
+	return count > 0, nil
+}
+
+func (store *ProductStore) AddProductReview(req *entity.AddReviewReq) error {
+	createdAt := time.Now()
+	updatedAt := time.Now()
+
+	uuId, err := uuid.NewRandom()
+	if err != nil {
+		return err
+	}
+	insertQuery := `
+	INSERT INTO reviews (id, product_id, user_id, star, review, created_at, updated_at)
+	VALUES ($1, $2, $3, $4, $5, $6, $7);
+	`
+	_, err = store.storage.DB.Exec(insertQuery, uuId, req.ProductID, req.UserID, req.Star, req.Review, createdAt, updatedAt)
+	if err != nil {
+		return err
+	}
+	return nil
 }

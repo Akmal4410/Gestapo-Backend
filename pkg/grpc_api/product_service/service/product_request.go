@@ -60,7 +60,7 @@ func (handler *productService) GetProducts(ctx context.Context, req *proto.GetPr
 	return response, nil
 }
 
-func (handler *productService) GetProductById(ctx context.Context, req *proto.GetProductByIdRequest) (*proto.GetProductByIdResponse, error) {
+func (handler *productService) GetProductById(ctx context.Context, req *proto.ProductIdRequest) (*proto.GetProductByIdResponse, error) {
 	product, err := handler.storage.GetProductById(req.GetProductId())
 	if err != nil {
 		if err == sql.ErrNoRows {

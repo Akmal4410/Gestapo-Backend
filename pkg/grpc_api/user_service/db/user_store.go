@@ -378,12 +378,12 @@ func (store *UserStore) GetCartById(cartID string) (*entity.CartRes, error) {
 	SELECT id, user_id, price FROM carts WHERE id = $1;
 	`
 
-	rows := store.storage.DB.QueryRow(selectQuery, cartID)
-	if rows.Err() != nil {
-		return nil, rows.Err()
+	row := store.storage.DB.QueryRow(selectQuery, cartID)
+	if row.Err() != nil {
+		return nil, row.Err()
 	}
 	var cart entity.CartRes
-	err := rows.Scan(
+	err := row.Scan(
 		&cart.CartID,
 		&cart.UserID,
 		&cart.Price,

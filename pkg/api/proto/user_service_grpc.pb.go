@@ -33,6 +33,7 @@ const (
 	UserServie_DeleteAddress_FullMethodName         = "/pb.UserServie/DeleteAddress"
 	UserServie_CreateOrder_FullMethodName           = "/pb.UserServie/CreateOrder"
 	UserServie_GetUserOrders_FullMethodName         = "/pb.UserServie/GetUserOrders"
+	UserServie_AddProductReview_FullMethodName      = "/pb.UserServie/AddProductReview"
 )
 
 // UserServieClient is the client API for UserServie service.
@@ -56,6 +57,8 @@ type UserServieClient interface {
 	// ------ Order Related------------
 	CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*Response, error)
 	GetUserOrders(ctx context.Context, in *GetOrdersRequest, opts ...grpc.CallOption) (*GetOrderResponse, error)
+	// ------- Product Review
+	AddProductReview(ctx context.Context, in *AddReviewRequest, opts ...grpc.CallOption) (*Response, error)
 }
 
 type userServieClient struct {
@@ -192,6 +195,15 @@ func (c *userServieClient) GetUserOrders(ctx context.Context, in *GetOrdersReque
 	return out, nil
 }
 
+func (c *userServieClient) AddProductReview(ctx context.Context, in *AddReviewRequest, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
+	err := c.cc.Invoke(ctx, UserServie_AddProductReview_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServieServer is the server API for UserServie service.
 // All implementations must embed UnimplementedUserServieServer
 // for forward compatibility
@@ -213,6 +225,8 @@ type UserServieServer interface {
 	// ------ Order Related------------
 	CreateOrder(context.Context, *CreateOrderRequest) (*Response, error)
 	GetUserOrders(context.Context, *GetOrdersRequest) (*GetOrderResponse, error)
+	// ------- Product Review
+	AddProductReview(context.Context, *AddReviewRequest) (*Response, error)
 	mustEmbedUnimplementedUserServieServer()
 }
 
@@ -261,6 +275,9 @@ func (UnimplementedUserServieServer) CreateOrder(context.Context, *CreateOrderRe
 }
 func (UnimplementedUserServieServer) GetUserOrders(context.Context, *GetOrdersRequest) (*GetOrderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserOrders not implemented")
+}
+func (UnimplementedUserServieServer) AddProductReview(context.Context, *AddReviewRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddProductReview not implemented")
 }
 func (UnimplementedUserServieServer) mustEmbedUnimplementedUserServieServer() {}
 
@@ -527,6 +544,24 @@ func _UserServie_GetUserOrders_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserServie_AddProductReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddReviewRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServieServer).AddProductReview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserServie_AddProductReview_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServieServer).AddProductReview(ctx, req.(*AddReviewRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserServie_ServiceDesc is the grpc.ServiceDesc for UserServie service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -589,6 +624,10 @@ var UserServie_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserOrders",
 			Handler:    _UserServie_GetUserOrders_Handler,
+		},
+		{
+			MethodName: "AddProductReview",
+			Handler:    _UserServie_AddProductReview_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

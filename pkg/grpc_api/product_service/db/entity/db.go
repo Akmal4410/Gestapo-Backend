@@ -11,3 +11,11 @@ type GetProductRes struct {
 	Price         float64    `json:"price,omitempty"`
 	DiscountPrice *float64   `json:"discount_price,omitempty"`
 }
+
+type AddReviewReq struct {
+	ProductID   string  `json:"product_id" validate:"required"`
+	OrderItemID string  `json:"cart_item_id" validate:"required"`
+	UserID      string  `json:"user_id" validate:"required"`
+	Star        float32 `json:"star" validate:"required"`
+	Review      string  `json:"review" validate:"required"`
+}

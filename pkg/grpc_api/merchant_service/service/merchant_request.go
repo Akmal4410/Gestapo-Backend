@@ -144,7 +144,7 @@ func (handler *merchantService) DeleteProduct(ctx context.Context, req *proto.De
 	}))
 	defer cancel()
 
-	productRes, err := productClient.GetProductById(serviceCtx, &proto.GetProductByIdRequest{
+	productRes, err := productClient.GetProductById(serviceCtx, &proto.ProductIdRequest{
 		ProductId: req.GetProductId(),
 	})
 	if err != nil {
@@ -230,7 +230,7 @@ func (handler *merchantService) AddProductDiscount(ctx context.Context, in *prot
 	}))
 	defer cancel()
 
-	productRes, err := productClient.GetProductById(serviceCtx, &proto.GetProductByIdRequest{
+	productRes, err := productClient.GetProductById(serviceCtx, &proto.ProductIdRequest{
 		ProductId: in.GetProductId(),
 	})
 	if err != nil {

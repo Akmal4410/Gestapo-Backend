@@ -95,14 +95,21 @@ message GetOrderResponse {
 
 message OrderResponse  {
 	string id = 1;
-	string product_image = 2;
-    string product_name = 3;
-    double size = 4;
-    double price = 5;
-    string status = 6;
+    string product_id = 2;
+	string product_image = 3;
+    string product_name = 4;
+    double size = 5;
+    double price = 6;
+    string status = 7;
 }
 
 message UpdateOrderRequest {
     string order_item_id = 1;
 }
 
+message AddReviewRequest {
+    string product_id = 1;
+    string order_item_id = 2;
+    float start = 3;
+    string review = 4;
+}
