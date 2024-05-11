@@ -381,6 +381,18 @@ func (store *OrderStore) IsMerchantCanUpdate(orderItemID, merchantID string) (bo
 	return count > 0, nil
 }
 
+func (store *OrderStore) GetMerchantTrackingStatus(orderItemID string) (int, error) {
+	selectQuery := `SELECT status FROM tracking_details WHERE order_item_id = $1;`
+	var status int
+	err := store.storage.DB.QueryRow(selectQuery, orderItemID).Scan(&status)
+	if err != nil {
+		fmt.Println("Error executing query:", err)
+		return 0, err
+	}
+
+	return status, nil
+}
+
 func (store *OrderStore) UpdateOrderStatus(orderItemID string) error {
 	ctx := context.Background()
 	tx, err := store.storage.DB.BeginTx(ctx, nil)

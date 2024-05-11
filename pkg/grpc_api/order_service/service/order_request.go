@@ -174,6 +174,18 @@ func (handler *orderService) UpdateOrderStatus(ctx context.Context, in *proto.Up
 		handler.log.LogError("Error", err)
 		return nil, status.Errorf(codes.NotFound, utils.NotFound)
 	}
+
+	statusCount, err := handler.storage.GetMerchantTrackingStatus(in.GetOrderItemId())
+	if err != nil {
+		handler.log.LogError("Error while GetMerchantTrackingStatus", err)
+		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	}
+	if statusCount >= 3 {
+		err := errors.New("error while GetMerchantTrackingStatus: Oder is already completed")
+		handler.log.LogError("Error", err)
+		return nil, status.Errorf(codes.PermissionDenied, "Order is already completed")
+	}
+
 	err = handler.storage.UpdateOrderStatus(in.GetOrderItemId())
 	if err != nil {
 		handler.log.LogError("Error while UpdateOrderStatus", err)
