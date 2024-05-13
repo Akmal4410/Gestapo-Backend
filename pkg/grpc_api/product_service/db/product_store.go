@@ -135,7 +135,77 @@ func (store *ProductStore) GetProductsForMerchants(merchantId *string) ([]*entit
 	return products, nil
 }
 
-func (store *ProductStore) GetProductById(productId string) (*entity.GetProductRes, error) {
+func (store *ProductStore) GetProductByIdForUser(productId, userId string) (*entity.GetProductRes, error) {
+	selectQuery := `
+	SELECT
+    p.id AS id,
+	p.merchent_id AS merchent_id,
+    p.product_name AS product_name,
+    p.description AS description,
+    c.category_name AS category_name,
+    p.size AS size,
+    p.price AS price,
+    CASE
+        WHEN d.end_time IS NOT NULL AND d.end_time > NOW()
+		THEN p.price - (p.price * d.percent / 100) 
+        ELSE NULL
+    END AS discount_price,
+    p.images AS product_images,
+	AVG(r.star) AS star,
+    w.id AS wishlist_id
+	FROM
+    products p
+	LEFT JOIN
+    categories c ON p.category_id = c.id
+	LEFT JOIN
+    discounts d ON p.discount_id = d.id
+	LEFT JOIN 
+    reviews r ON p.id = r.product_id
+	LEFT JOIN 
+    wishlists w ON p.id = w.product_id 
+	WHERE 
+	p.id = $1 AND (w.user_id = $2 OR w.user_id IS NULL)
+	GROUP BY 
+    p.id, p.merchent_id, p.product_name, p.description, c.category_name, p.size, p.price, p.images, w.id, d.end_time, d.percent;
+	`
+	rows := store.storage.DB.QueryRow(selectQuery, productId, userId)
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+
+	var product entity.GetProductRes
+
+	var images pq.StringArray
+	var sizes pq.Float64Array
+
+	err := rows.Scan(
+		&product.ID,
+		&product.MerchantID,
+		&product.ProductName,
+		&product.Description,
+		&product.CategoryName,
+		&sizes,
+		&product.Price,
+		&product.DiscountPrice,
+		&images,
+		&product.ReviewStar,
+		&product.WishlistID,
+	)
+	product.ProductImages = []string(images)
+	// Convert pq.Float64Array to []float64
+	var sizeList []float64
+	for _, v := range sizes {
+		sizeList = append(sizeList, float64(v))
+	}
+	product.Size = &sizeList
+
+	if err != nil {
+		return nil, err
+	}
+	return &product, nil
+}
+
+func (store *ProductStore) GetProductByIdForMerchant(productId string) (*entity.GetProductRes, error) {
 	selectQuery := `
 	SELECT
     p.id AS id,

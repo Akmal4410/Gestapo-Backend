@@ -84,8 +84,8 @@ func (store *AdminStore) GetCategories() ([]*proto.CategoryRes, error) {
 	return categories, nil
 }
 
-func (store *AdminStore) GetUsers() ([]entity.GetUserRes, error) {
-	var users []entity.GetUserRes
+func (store *AdminStore) GetUsers() ([]*entity.GetUserRes, error) {
+	var users []*entity.GetUserRes
 
 	selectQuery := `
 	SELECT id, profile_image, full_name, user_name, phone, email, dob, gender, user_type 
@@ -115,7 +115,7 @@ func (store *AdminStore) GetUsers() ([]entity.GetUserRes, error) {
 		if err != nil {
 			return nil, err
 		}
-		users = append(users, user)
+		users = append(users, &user)
 	}
 
 	err = rows.Err()

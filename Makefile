@@ -15,7 +15,7 @@ redis:
 
 prune:
 	@echo Removing unused images starting with deploy-
-	docker images | grep '^deploy-' | awk '{print $3}' | xargs -I {} docker rmi {}
+	docker images | grep 'deploy-' | awk '{print $3}' | xargs -I {} docker rmi {}
 
 
 authentication_server:
@@ -78,6 +78,11 @@ prune_images:
 	@echo done 
 
 AUTH_BINARY=authenticationServiceApp
+ADMIN_BINARY=adminServiceApp
+USER_BINARY=userServiceApp
+MERCHANT_BINARY=merchantServiceApp
+PRODUCT_BINARY=productServiceApp
+ORDER_BINARY=orderServiceApp
 GATEWAY_BINARY=gatewayApp
 
 build_authentication:
@@ -87,6 +92,41 @@ build_authentication:
 	mv cmd/authentication_service/${AUTH_BINARY} deploy/build
 	@echo Done!
 
+build_admin:
+	@echo Building admin binary...
+	cd cmd/admin_service && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o ${ADMIN_BINARY} .
+	@echo Moving file..
+	mv cmd/admin_service/${ADMIN_BINARY} deploy/build
+	@echo Done!	
+
+build_user:
+	@echo Building user binary...
+	cd cmd/user_service && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o ${USER_BINARY} .
+	@echo Moving file..
+	mv cmd/user_service/${USER_BINARY} deploy/build
+	@echo Done!	
+
+build_merchant:
+	@echo Building merchant binary...
+	cd cmd/merchant_service && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o ${MERCHANT_BINARY} .
+	@echo Moving file..
+	mv cmd/merchant_service/${MERCHANT_BINARY} deploy/build
+	@echo Done!		
+
+build_product:
+	@echo Building product binary...
+	cd cmd/product_service && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o ${PRODUCT_BINARY} .
+	@echo Moving file..
+	mv cmd/product_service/${PRODUCT_BINARY} deploy/build
+	@echo Done!		
+
+build_order:
+	@echo Building order binary...
+	cd cmd/order_service && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o ${ORDER_BINARY} .
+	@echo Moving file..
+	mv cmd/order_service/${ORDER_BINARY} deploy/build
+	@echo Done!				
+
 build_gateway:
 	@echo Building gateway binary...
 	cd cmd/grpc_gateway && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o ${GATEWAY_BINARY} .
@@ -94,8 +134,7 @@ build_gateway:
 	mv cmd/grpc_gateway/${GATEWAY_BINARY} deploy/build
 	@echo Done!
 
-
-run: build_gateway build_authentication
+run: build_authentication build_admin build_user build_merchant build_product build_order build_gateway 
 	@echo Stopping docker images if running...
 	cd deploy && docker compose down --remove-orphans
 	@echo Building when required and starting docker images...
