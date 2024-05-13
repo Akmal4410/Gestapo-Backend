@@ -3,11 +3,13 @@ package service
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"net/http"
 
 	"github.com/akmal4410/gestapo/pkg/api/proto"
 	"github.com/akmal4410/gestapo/pkg/grpc_api/product_service/db/entity"
 	"github.com/akmal4410/gestapo/pkg/helpers/service_helper"
+	"github.com/akmal4410/gestapo/pkg/helpers/token"
 	"github.com/akmal4410/gestapo/pkg/utils"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -74,14 +76,35 @@ func (handler *productService) GetProducts(ctx context.Context, req *proto.GetPr
 }
 
 func (handler *productService) GetProductById(ctx context.Context, req *proto.ProductIdRequest) (*proto.GetProductByIdResponse, error) {
-	product, err := handler.storage.GetProductById(req.GetProductId())
-	if err != nil {
-		if err == sql.ErrNoRows {
-			handler.log.LogError("Error while GetProductById Not found", err)
-			return nil, status.Errorf(codes.NotFound, "No found")
-		}
-		handler.log.LogError("Error while GetProductById", err)
+	payload, ok := ctx.Value(utils.AuthorizationPayloadKey).(*token.AccessPayload)
+	if !ok {
+		err := errors.New("unable to retrieve payload from context")
+		handler.log.LogError("Error", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	}
+
+	var product *entity.GetProductRes
+	var err error
+	if payload.UserType == utils.USER {
+		product, err = handler.storage.GetProductByIdForUser(req.GetProductId(), payload.UserID)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				handler.log.LogError("Error while GetProductById Not found", err)
+				return nil, status.Errorf(codes.NotFound, "No found")
+			}
+			handler.log.LogError("Error while GetProductById", err)
+			return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+		}
+	} else {
+		product, err = handler.storage.GetProductByIdForMerchant(req.GetProductId())
+		if err != nil {
+			if err == sql.ErrNoRows {
+				handler.log.LogError("Error while GetProductById Not found", err)
+				return nil, status.Errorf(codes.NotFound, "No found")
+			}
+			handler.log.LogError("Error while GetProductById", err)
+			return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+		}
 	}
 
 	if product.ProductImages != nil {
@@ -105,6 +128,8 @@ func (handler *productService) GetProductById(ctx context.Context, req *proto.Pr
 		Size:          *product.Size,
 		Price:         product.Price,
 		DiscountPrice: product.DiscountPrice,
+		ReviewStar:    product.ReviewStar,
+		WishlistId:    product.WishlistID,
 	}
 
 	response := &proto.GetProductByIdResponse{

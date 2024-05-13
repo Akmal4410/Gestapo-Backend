@@ -71,9 +71,12 @@ func (store *UserStore) GetDiscount() (*entity.DiscountRes, error) {
 	return &discount, nil
 }
 
-func (store *UserStore) GetMerchants() ([]entity.MerchantRes, error) {
+func (store *UserStore) GetMerchants() ([]*entity.MerchantRes, error) {
 	selectQuery := `
-	SELECT id, full_name, profile_image 
+	SELECT 
+	id, 
+	COALESCE(NULLIF(full_name, ''), user_name) AS full_name, 
+	profile_image 
 	FROM user_data
 	WHERE user_type = $1
 	LIMIT 7;
@@ -82,7 +85,7 @@ func (store *UserStore) GetMerchants() ([]entity.MerchantRes, error) {
 	if err != nil {
 		return nil, err
 	}
-	var merchants []entity.MerchantRes
+	var merchants []*entity.MerchantRes
 	defer rows.Close()
 	for rows.Next() {
 		var merchant entity.MerchantRes
@@ -95,7 +98,7 @@ func (store *UserStore) GetMerchants() ([]entity.MerchantRes, error) {
 		if err != nil {
 			return nil, err
 		}
-		merchants = append(merchants, merchant)
+		merchants = append(merchants, &merchant)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -160,8 +163,8 @@ func (store *UserStore) RemoveFromWishlist(req *entity.AddRemoveWishlistReq) err
 	return nil
 }
 
-func (store *UserStore) GetWishlistProducts(userId string) ([]product_entity.GetProductRes, error) {
-	var products []product_entity.GetProductRes
+func (store *UserStore) GetWishlistProducts(userId string) ([]*product_entity.GetProductRes, error) {
+	var products []*product_entity.GetProductRes
 
 	selectQuery := `
 	SELECT
@@ -196,7 +199,7 @@ func (store *UserStore) GetWishlistProducts(userId string) ([]product_entity.Get
 			return nil, err
 		}
 		product.ProductImages = []string(images)
-		products = append(products, product)
+		products = append(products, &product)
 	}
 
 	err = rows.Err()
@@ -205,7 +208,7 @@ func (store *UserStore) GetWishlistProducts(userId string) ([]product_entity.Get
 	}
 
 	if len(products) == 0 {
-		return []product_entity.GetProductRes{}, nil
+		return []*product_entity.GetProductRes{}, nil
 	}
 
 	return products, nil
