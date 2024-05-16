@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: authentication-deployment
+  name: merchant-deployment
   labels:
-    app: authentication
+    app: merchant
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: authentication
+      app: merchant
   template:
     metadata:
       labels:
-        app: authentication
+        app: merchant
     spec:
       containers:
-        - name: authentication
-          image: gestapo/authentication:1.0.0
+        - name: merchant
+          image: gestapo/merchant:1.0.0
           imagePullPolicy: Never
           ports:
             - containerPort: 80

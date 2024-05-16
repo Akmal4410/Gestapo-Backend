@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: authentication-deployment
+  name: admin-deployment
   labels:
-    app: authentication
+    app: admin
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: authentication
+      app: admin
   template:
     metadata:
       labels:
-        app: authentication
+        app: admin
     spec:
       containers:
-        - name: authentication
-          image: gestapo/authentication:1.0.0
+        - name: admin
+          image: gestapo/admin:1.0.0
           imagePullPolicy: Never
           ports:
             - containerPort: 80

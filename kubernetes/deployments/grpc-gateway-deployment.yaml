@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: authentication-deployment
+  name: grpc-gateway-deployment
   labels:
-    app: authentication
+    app: grpc-gateway
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: authentication
+      app: grpc-gateway
   template:
     metadata:
       labels:
-        app: authentication
+        app: grpc-gateway
     spec:
       containers:
-        - name: authentication
-          image: gestapo/authentication:1.0.0
+        - name: grpc-gateway
+          image: gestapo/gateway:1.0.0
           imagePullPolicy: Never
           ports:
             - containerPort: 80

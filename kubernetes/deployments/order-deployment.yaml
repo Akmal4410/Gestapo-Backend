@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: authentication-deployment
+  name: order-deployment
   labels:
-    app: authentication
+    app: order
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: authentication
+      app: order
   template:
     metadata:
       labels:
-        app: authentication
+        app: order
     spec:
       containers:
-        - name: authentication
-          image: gestapo/authentication:1.0.0
+        - name: order
+          image: gestapo/order:1.0.0
           imagePullPolicy: Never
           ports:
             - containerPort: 80

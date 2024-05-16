@@ -172,7 +172,7 @@ run: build_authentication build_admin build_user build_merchant build_product bu
 	cd deploy && sudo docker compose up --build -d
 	@echo Docker images built and started!
 
-
+//////////////////////////////////////////
 
 
 .PHONY: postgres createdb dropdb server proto build_authentication run

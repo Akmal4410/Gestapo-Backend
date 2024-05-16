@@ -31,7 +31,12 @@ spec:
                   name: app-secret
                   key: POSTGRES_PASSWORD
             - name: POSTGRES_DB
-              valueFrom:
-                secretKeyRef:
-                  name: app-secret
-                  key: POSTGRES_DB
+              value: gestapo
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - "-d"
+                - gestapo
+            initialDelaySeconds: 30
+            periodSeconds: 10

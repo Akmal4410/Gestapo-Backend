@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: authentication-deployment
+  name: user-deployment
   labels:
-    app: authentication
+    app: user
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: authentication
+      app: user
   template:
     metadata:
       labels:
-        app: authentication
+        app: user
     spec:
       containers:
-        - name: authentication
-          image: gestapo/authentication:1.0.0
+        - name: user
+          image: gestapo/user:1.0.0
           imagePullPolicy: Never
           ports:
             - containerPort: 80
