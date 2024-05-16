@@ -13,11 +13,6 @@ redis:
 	@echo Creating a new container for postgres
 	docker run --name redis7.2 -p 6379:6379 -d redis:7.2-alpine
 
-prune:
-	@echo Removing unused images starting with deploy-
-	docker images | grep 'deploy-' | awk '{print $3}' | xargs -I {} docker rmi {}
-
-
 authentication_server:
 	@echo Running authentication service
 	go run cmd/authentication_service/main.go 
@@ -134,6 +129,42 @@ build_gateway:
 	mv cmd/grpc_gateway/${GATEWAY_BINARY} deploy/build
 	@echo Done!
 
+
+tag_services:
+	@echo Tagging services
+	sudo docker tag deploy-grpc-gateway gestapo/gateway:1.0.0
+	sudo docker tag deploy-authentication-service gestapo/authentication:1.0.0
+	sudo docker tag deploy-admin-service gestapo/admin:1.0.0
+	sudo docker tag deploy-user-service gestapo/user:1.0.0
+	sudo docker tag deploy-merchant-service gestapo/merchant:1.0.0
+	sudo docker tag deploy-product-service gestapo/product:1.0.0
+	sudo docker tag deploy-order-service gestapo/order:1.0.0
+	@echo services tagged successfully 
+
+prune_tags:
+	@echo removing tagged images..
+	sudo docker rmi gestapo/gateway:1.0.0
+	sudo docker rmi gestapo/authentication:1.0.0
+	sudo docker rmi gestapo/admin:1.0.0
+	sudo docker rmi gestapo/user:1.0.0
+	sudo docker rmi gestapo/merchant:1.0.0
+	sudo docker rmi gestapo/product:1.0.0
+	sudo docker rmi gestapo/order:1.0.0
+	@echo done !!
+
+prune:
+	@echo removing tagged images..
+	sudo docker rmi deploy-grpc-gateway:latest
+	sudo docker rmi deploy-authentication-service:latest
+	sudo docker rmi deploy-admin-service:latest
+	sudo docker rmi deploy-user-service:latest
+	sudo docker rmi deploy-merchant-service:latest
+	sudo docker rmi deploy-product-service:latest
+	sudo docker rmi deploy-order-service:latest
+	@echo done !!
+
+
+
 run: build_authentication build_admin build_user build_merchant build_product build_order build_gateway 
 	@echo Stopping docker images if running...
 	cd deploy && docker compose down --remove-orphans
@@ -142,7 +173,6 @@ run: build_authentication build_admin build_user build_merchant build_product bu
 	@echo Docker images built and started!
 
 
- 
 
 
 .PHONY: postgres createdb dropdb server proto build_authentication run

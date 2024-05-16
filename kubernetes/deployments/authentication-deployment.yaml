@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authentication-deployment
+  labels:
+    app: authentication
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: authentication
+  template:
+    metadata:
+      labels:
+        app: authentication
+    spec:
+      containers:
+        - name: authentication-service
+          image: gestapo/authentication:1.0.0
+          ports:
+            - containerPort: 5432
