@@ -35,4 +35,6 @@ To show details of a table use
 find kubernetes/ -type f -name "*.yaml" -exec kubectl apply -f {} \;
 
 eval $(minikube docker-env)
+eval $(minikube -p minikube docker-env)
 eval $(minikube docker-env -u) - unset
+eval $(minikube -p minikube docker-env -u)
