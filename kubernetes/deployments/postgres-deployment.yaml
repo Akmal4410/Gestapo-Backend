@@ -31,7 +31,10 @@ spec:
                   name: app-secret
                   key: POSTGRES_PASSWORD
             - name: POSTGRES_DB
-              value: gestapo
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: postgres-db
           livenessProbe:
             exec:
               command:

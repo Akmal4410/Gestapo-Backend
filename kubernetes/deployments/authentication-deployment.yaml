@@ -19,4 +19,4 @@ spec:
           image: gestapo/authentication:1.0.0
           imagePullPolicy: Never
           ports:
-            - containerPort: 80
+            - containerPort: 9001

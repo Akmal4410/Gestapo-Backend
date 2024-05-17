@@ -184,7 +184,7 @@ prune:
 	sudo docker rmi deploy-grpc-gateway:latest
 	@echo done !!
 
-prune_minikube_image:
+prune_minikube_old_images:
 	@echo removing images..
 	minikube image rm deploy-authentication-service:latest
 	minikube image rm deploy-admin-service:latest
@@ -195,9 +195,20 @@ prune_minikube_image:
 	minikube image rm deploy-grpc-gateway:latest
 	@echo done !!
 
+prune_minikube_images:
+	@echo removing tagged images..
+	minikube image rm gestapo/gateway:1.0.0
+	minikube image rm gestapo/authentication:1.0.0
+	minikube image rm gestapo/admin:1.0.0
+	minikube image rm gestapo/user:1.0.0
+	minikube image rm gestapo/merchant:1.0.0
+	minikube image rm gestapo/product:1.0.0
+	minikube image rm gestapo/order:1.0.0
+	@echo done !!	
+
 
 # Befor calling minikube call `eval $(minikube -p minikube docker-env)` after call `eval $(minikube -p minikube docker-env -u)`
-minikube: build_binary build_image tag_build_image prune_minikube_image
+minikube: build_binary build_image tag_build_image prune_minikube_old_images
 	@echo =============Running in minikube=============
 	find kubernetes/ -type f -name "*.yaml" -exec kubectl apply -f {} \;
 	

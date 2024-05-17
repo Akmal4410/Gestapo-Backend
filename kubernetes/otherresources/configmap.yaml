@@ -4,3 +4,5 @@ metadata:
   name: app-config
 data:
   postgres_url: postgres-service
+  postgres-port: "5432"
+  postgres-db: "gestapo"
