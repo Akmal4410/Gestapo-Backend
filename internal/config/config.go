@@ -22,13 +22,18 @@ type Config struct {
 }
 
 type ServerAddress struct {
-	Gateway        string `mapstructure:"GATEWAY" json:"GATEWAY"`
-	Authentication string `mapstructure:"AUTHENTICATION" json:"AUTHENTICATION"`
-	Admin          string `mapstructure:"ADMIN" json:"ADMIN"`
-	User           string `mapstructure:"USER" json:"USER"`
-	Merchant       string `mapstructure:"MERCHANT" json:"MERCHANT"`
-	Product        string `mapstructure:"PRODUCT" json:"PRODUCT"`
-	Order          string `mapstructure:"ORDER" json:"ORDER"`
+	Gateway        string   `mapstructure:"GATEWAY" json:"GATEWAY"`
+	Authentication *Address `mapstructure:"AUTHENTICATION" json:"AUTHENTICATION"`
+	Admin          *Address `mapstructure:"ADMIN" json:"ADMIN"`
+	User           *Address `mapstructure:"USER" json:"USER"`
+	Merchant       *Address `mapstructure:"MERCHANT" json:"MERCHANT"`
+	Product        *Address `mapstructure:"PRODUCT" json:"PRODUCT"`
+	Order          *Address `mapstructure:"ORDER" json:"ORDER"`
+}
+
+type Address struct {
+	Port    string `mapstructure:"PORT" json:"PORT"`
+	Address string `mapstructure:"ADDRESS" json:"ADDRESS"`
 }
 
 type Database struct {

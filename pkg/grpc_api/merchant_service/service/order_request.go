@@ -41,7 +41,7 @@ func (handler *merchantService) GetMerchantOrders(ctx context.Context, in *proto
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
 
-	conn, err := service_helper.ConnectEndpoints(handler.config.ServerAddress.Order, "order", handler.log)
+	conn, err := service_helper.ConnectEndpoints(handler.config.ServerAddress.Order.Address, "order", handler.log)
 	if err != nil {
 		handler.log.LogError("error while connecting order service :", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
@@ -86,7 +86,7 @@ func (handler *merchantService) UpdateOrderStatus(ctx context.Context, in *proto
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
 
-	conn, err := service_helper.ConnectEndpoints(handler.config.ServerAddress.Order, "order", handler.log)
+	conn, err := service_helper.ConnectEndpoints(handler.config.ServerAddress.Order.Address, "order", handler.log)
 	if err != nil {
 		handler.log.LogError("error while connecting order service :", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
