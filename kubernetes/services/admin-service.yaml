@@ -7,5 +7,5 @@ spec:
     app: admin
   ports:
     - protocol: TCP
-      port: 9002
-      targetPort: 9002
+      port: 80
+      targetPort: 80

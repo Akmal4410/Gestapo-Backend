@@ -19,4 +19,4 @@ spec:
           image: gestapo/order:1.0.0
           imagePullPolicy: Never
           ports:
-            - containerPort: 9006
+            - containerPort: 80

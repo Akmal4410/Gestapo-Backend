@@ -7,5 +7,5 @@ spec:
     app: user
   ports:
     - protocol: TCP
-      port: 9003
-      targetPort: 9003
+      port: 80
+      targetPort: 80

@@ -13,7 +13,7 @@ spec:
               service:
                 name: authentication-service
                 port:
-                  number: 9001
+                  number: 80
 
           - path: /admin
             pathType: Prefix
@@ -21,7 +21,7 @@ spec:
               service:
                 name: admin-service
                 port:
-                  number: 9002
+                  number: 80
 
           - path: /user
             pathType: Prefix
@@ -29,7 +29,7 @@ spec:
               service:
                 name: user-service
                 port:
-                  number: 9003
+                  number: 80
 
           - path: /merchant
             pathType: Prefix
@@ -37,7 +37,7 @@ spec:
               service:
                 name: merchant-service
                 port:
-                  number: 9004
+                  number: 80
 
           - path: /product
             pathType: Prefix
@@ -45,7 +45,7 @@ spec:
               service:
                 name: product-service
                 port:
-                  number: 9005
+                  number: 80
 
           - path: /order
             pathType: Prefix
@@ -53,4 +53,4 @@ spec:
               service:
                 name: order-service
                 port:
-                  number: 9006
+                  number: 80
