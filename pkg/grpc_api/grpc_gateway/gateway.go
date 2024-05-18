@@ -60,7 +60,7 @@ func newGateway(ctx context.Context, log logger.Logger, config config.Config, op
 func registerAuthServiceEndPoints(ctx context.Context, log logger.Logger, config config.Config, gMux *runtime.ServeMux, dialOpts []grpc.DialOption) error {
 	var endpoint *string
 	if config.ServerAddress != nil {
-		endpoint = &config.ServerAddress.Authentication
+		endpoint = &config.ServerAddress.Authentication.Address
 		err := proto.RegisterAuthenticationServiceHandlerFromEndpoint(ctx, gMux, *endpoint, dialOpts)
 		if err != nil {
 			log.LogError("error in registering authentication endpoint.", err)
@@ -73,7 +73,7 @@ func registerAuthServiceEndPoints(ctx context.Context, log logger.Logger, config
 func registerAdminServiceEndPoints(ctx context.Context, log logger.Logger, config config.Config, gMux *runtime.ServeMux, dialOpts []grpc.DialOption) error {
 	var endpoint *string
 	if config.ServerAddress != nil {
-		endpoint = &config.ServerAddress.Admin
+		endpoint = &config.ServerAddress.Admin.Address
 		err := proto.RegisterAdminServiceHandlerFromEndpoint(ctx, gMux, *endpoint, dialOpts)
 		if err != nil {
 			log.LogError("error in registering admin endpoint.", err)
@@ -86,7 +86,7 @@ func registerAdminServiceEndPoints(ctx context.Context, log logger.Logger, confi
 func registerUserServiceEndPoints(ctx context.Context, log logger.Logger, config config.Config, gMux *runtime.ServeMux, dialOpts []grpc.DialOption) error {
 	var endpoint *string
 	if config.ServerAddress != nil {
-		endpoint = &config.ServerAddress.User
+		endpoint = &config.ServerAddress.User.Address
 		err := proto.RegisterUserServieHandlerFromEndpoint(ctx, gMux, *endpoint, dialOpts)
 		if err != nil {
 			log.LogError("error in registering user endpoint.", err)
@@ -99,7 +99,7 @@ func registerUserServiceEndPoints(ctx context.Context, log logger.Logger, config
 func registerMerchantServiceEndPoints(ctx context.Context, log logger.Logger, config config.Config, gMux *runtime.ServeMux, dialOpts []grpc.DialOption) error {
 	var endpoint *string
 	if config.ServerAddress != nil {
-		endpoint = &config.ServerAddress.Merchant
+		endpoint = &config.ServerAddress.Merchant.Address
 		err := proto.RegisterMerchantServiceHandlerFromEndpoint(ctx, gMux, *endpoint, dialOpts)
 		if err != nil {
 			log.LogError("error in registering merchant endpoint.", err)
@@ -112,7 +112,7 @@ func registerMerchantServiceEndPoints(ctx context.Context, log logger.Logger, co
 func registerProductServiceEndPoints(ctx context.Context, log logger.Logger, config config.Config, gMux *runtime.ServeMux, dialOpts []grpc.DialOption) error {
 	var endpoint *string
 	if config.ServerAddress != nil {
-		endpoint = &config.ServerAddress.Product
+		endpoint = &config.ServerAddress.Product.Address
 		err := proto.RegisterProductServiceHandlerFromEndpoint(ctx, gMux, *endpoint, dialOpts)
 		if err != nil {
 			log.LogError("error in registering product endpoint.", err)
@@ -125,7 +125,7 @@ func registerProductServiceEndPoints(ctx context.Context, log logger.Logger, con
 func registerOrderServiceEndPoints(ctx context.Context, log logger.Logger, config config.Config, gMux *runtime.ServeMux, dialOpts []grpc.DialOption) error {
 	var endpoint *string
 	if config.ServerAddress != nil {
-		endpoint = &config.ServerAddress.Order
+		endpoint = &config.ServerAddress.Order.Address
 		err := proto.RegisterOrderServiceHandlerFromEndpoint(ctx, gMux, *endpoint, dialOpts)
 		if err != nil {
 			log.LogError("error in registering order endpoint.", err)

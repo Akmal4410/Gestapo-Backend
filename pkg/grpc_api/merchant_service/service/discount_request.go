@@ -47,7 +47,7 @@ func (handler *merchantService) AddProductDiscount(ctx context.Context, in *prot
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
 
-	conn, err := service_helper.ConnectEndpoints(handler.config.ServerAddress.Product, "product", handler.log)
+	conn, err := service_helper.ConnectEndpoints(handler.config.ServerAddress.Product.Address, "product", handler.log)
 	if err != nil {
 		handler.log.LogError("error while connecting product service :", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)

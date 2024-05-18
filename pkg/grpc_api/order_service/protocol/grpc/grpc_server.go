@@ -34,9 +34,10 @@ func RunGRPCService(ctx context.Context, storage *database.Storage, config *conf
 	proto.RegisterOrderServiceServer(grpcServer, service)
 	log.LogInfo("Registreing for reflection")
 	reflection.Register(grpcServer)
-	lis, err := net.Listen("tcp", config.ServerAddress.Order)
+	port := ":" + config.ServerAddress.Order.Port
+	lis, err := net.Listen("tcp", port)
 	if err != nil {
-		log.LogError("error in listening to port", config.ServerAddress.Order, "error:", err)
+		log.LogError("error in listening to port", port, "error:", err)
 		return err
 	}
 	//graceful shutdown
