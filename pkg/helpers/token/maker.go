@@ -19,4 +19,10 @@ type Maker interface {
 
 	// VerifyServiceToken  checks if service token is valid or not
 	VerifyServiceToken(token string) (*ServicePayload, error)
+
+	// CreateRefreshToken create a refresh token for specific value and duration
+	CreateRefreshToken(userID, userType string) (string, error)
+
+	// VerifyRefreshToken  checks if refresh token is valid or not
+	VerifyRefreshToken(token string) (*RefreshPayload, error)
 }

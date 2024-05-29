@@ -16,7 +16,9 @@ import (
 const (
 	signUp         string = "/pb.AuthenticationService/SignUpUser"
 	forgotPassword string = "/pb.AuthenticationService/ForgotPassword"
-	sso            string = "/pb.AuthenticationService/SSOAuth"
+	refreshToken   string = "/pb.AuthenticationService/RefreshToken"
+
+	sso string = "/pb.AuthenticationService/SSOAuth"
 )
 
 // AuthMiddleware is a gRPC unary server interceptor for authentication.
@@ -56,18 +58,30 @@ func (interceptor *AuthInterceptor) AuthMiddleware() grpc.UnaryServerInterceptor
 		}
 
 		token := fields[1]
-		// Verify and parse the token
-		payload, err := interceptor.token.VerifySessionToken(token)
-		if err != nil {
-			err := fmt.Errorf("error while VerifySessionToken: %s", err.Error())
-			interceptor.log.LogError("Error : ", err)
-			return nil, status.Errorf(codes.Unauthenticated, err.Error())
+		// it the token is request is refresh token
+		if info.FullMethod == refreshToken {
+			// Verify and parse the token
+			payload, err := interceptor.token.VerifyRefreshToken(token)
+			if err != nil {
+				err := fmt.Errorf("error while VerifyRefreshToken: %s", err.Error())
+				interceptor.log.LogError("Error : ", err)
+				return nil, status.Errorf(codes.Unauthenticated, err.Error())
+			}
+			// Add the payload to the context
+			ctx = context.WithValue(ctx, utils.AuthorizationPayloadKey, payload)
+			return handler(ctx, req)
+		} else {
+			// Verify and parse the token
+			payload, err := interceptor.token.VerifySessionToken(token)
+			if err != nil {
+				err := fmt.Errorf("error while VerifySessionToken: %s", err.Error())
+				interceptor.log.LogError("Error : ", err)
+				return nil, status.Errorf(codes.Unauthenticated, err.Error())
+			}
+			// Add the payload to the context
+			ctx = context.WithValue(ctx, utils.AuthorizationPayloadKey, payload)
+			return handler(ctx, req)
 		}
-
-		// Add the payload to the context
-		ctx = context.WithValue(ctx, utils.AuthorizationPayloadKey, payload)
-
-		return handler(ctx, req)
 	}
 }
 
@@ -116,7 +130,7 @@ func (interceptor *AuthInterceptor) AuthSsoMiddleware() grpc.UnaryServerIntercep
 // isAuthenticationNeeded returns true if the route needed authentication middleware
 func isAuthenticationNeeded(route string) bool {
 	switch route {
-	case signUp, forgotPassword:
+	case signUp, forgotPassword, refreshToken:
 		return true
 	}
 	return false
