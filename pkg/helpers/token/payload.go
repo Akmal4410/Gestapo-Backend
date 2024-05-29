@@ -16,6 +16,7 @@ var (
 const (
 	sessionToken string = "session-token"
 	accessToken  string = "access-token"
+	refreshToken string = "refresh-token"
 	ServiceToken string = "service-token"
 )
 
@@ -31,6 +32,14 @@ type SessionPayload struct {
 type AccessPayload struct {
 	UserID    string `json:"user_id"`
 	UserName  string `json:"user_name"`
+	UserType  string `json:"user_type"`
+	TokenType string `json:"token_type"`
+	jwt.RegisteredClaims
+}
+
+// RefreshPayload contains the payload data of the token
+type RefreshPayload struct {
+	UserID    string `json:"user_id"`
 	UserType  string `json:"user_type"`
 	TokenType string `json:"token_type"`
 	jwt.RegisteredClaims
@@ -74,6 +83,20 @@ func NewAccessPayload(userID, userName, userType string) *AccessPayload {
 	return payload
 }
 
+// NewRefreshPayload creates a new token payload with a specific userid and duration
+func NewRefreshPayload(userID, userType string) *RefreshPayload {
+	payload := &RefreshPayload{
+		UserID:    userID,
+		UserType:  userType,
+		TokenType: refreshToken,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 48)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+		},
+	}
+	return payload
+}
+
 // NewServicePayload creates a new token payload with a specific username and duration
 func NewServicePayload(userID, userType, serviceName string) *ServicePayload {
 	payload := &ServicePayload{
@@ -98,6 +121,13 @@ func (payload *SessionPayload) Valid() error {
 }
 
 func (payload *AccessPayload) Valid() error {
+	if time.Now().After(payload.RegisteredClaims.ExpiresAt.Time) {
+		return ErrorExpiredToken
+	}
+	return nil
+}
+
+func (payload *RefreshPayload) Valid() error {
 	if time.Now().After(payload.RegisteredClaims.ExpiresAt.Time) {
 		return ErrorExpiredToken
 	}

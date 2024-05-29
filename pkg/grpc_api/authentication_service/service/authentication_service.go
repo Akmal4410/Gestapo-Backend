@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/akmal4410/gestapo/pkg/api/proto"
+	"github.com/akmal4410/gestapo/pkg/grpc_api/authentication_service/db"
 	"github.com/akmal4410/gestapo/pkg/helpers"
 	"github.com/akmal4410/gestapo/pkg/helpers/token"
 	"github.com/akmal4410/gestapo/pkg/service/sso"
@@ -149,21 +150,26 @@ func (auth *authenticationService) SignUpUser(ctx context.Context, req *proto.Si
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
 
-	token, err := auth.token.CreateAccessToken(id, req.UserName, req.UserType)
+	access, refresh, err := auth.createToken(&db.TokenPayload{
+		UserId:   id,
+		UserName: req.UserName,
+		UserType: req.UserType,
+	})
 	if err != nil {
-		auth.log.LogError("Error while CreateAccessToken", err)
+		auth.log.LogError("Error while createToken", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
+
+	mdOut := metadata.New(map[string]string{
+		"access-token":  access,
+		"refresh-token": refresh,
+	})
 
 	response := &proto.Response{
 		Code:    200,
 		Status:  true,
 		Message: "User Signup Successfully",
 	}
-
-	mdOut := metadata.New(map[string]string{
-		"access-token": token,
-	})
 	return response, grpc.SetHeader(ctx, mdOut)
 }
 
@@ -193,26 +199,26 @@ func (auth *authenticationService) LoginUser(ctx context.Context, req *proto.Log
 		auth.log.LogError("Error while GetTokenPayload", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
-	token, err := auth.token.CreateAccessToken(payload.UserId, req.UserName, payload.UserType)
+	access, refresh, err := auth.createToken(payload)
 	if err != nil {
-		auth.log.LogError("Error while CreateAccessToken", err)
+		auth.log.LogError("Error while createToken", err)
 		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 	}
+
+	mdOut := metadata.New(map[string]string{
+		"access-token":  access,
+		"refresh-token": refresh,
+	})
 
 	response := &proto.Response{
 		Code:    200,
 		Status:  true,
 		Message: "User loggedin Successfully",
 	}
-
-	mdOut := metadata.New(map[string]string{
-		"access-token": token,
-	})
 	return response, grpc.SetHeader(ctx, mdOut)
 }
 
 func (auth *authenticationService) ForgotPassword(ctx context.Context, req *proto.ForgotPasswordRequest) (*proto.Response, error) {
-
 	err := validateForgotPasswordRequest(req)
 	if err != nil {
 		auth.log.LogError("Error while ValidateBody", err)
@@ -325,15 +331,70 @@ func (auth *authenticationService) SSOAuth(ctx context.Context, req *proto.SsoRe
 			return nil, status.Errorf(codes.Internal, utils.InternalServerError)
 		}
 
+		mdOut := metadata.New(map[string]string{
+			"access-token": token,
+		})
+
 		response := &proto.Response{
 			Code:    200,
 			Status:  true,
 			Message: "User Signup Successfully",
 		}
-
-		mdOut := metadata.New(map[string]string{
-			"access-token": token,
-		})
 		return response, grpc.SetHeader(ctx, mdOut)
 	}
+}
+
+func (auth *authenticationService) RefreshToken(ctx context.Context, req *proto.RefreshTokenRequest) (*proto.Response, error) {
+	payload := ctx.Value(utils.AuthorizationPayloadKey).(*token.RefreshPayload)
+
+	if req.UserId != payload.UserID {
+		auth.log.LogError("Forbidden")
+		return nil, status.Errorf(codes.PermissionDenied, "Forbidden")
+	}
+
+	res, err := auth.storage.CheckDataExist("id", payload.UserID)
+	if err != nil {
+		auth.log.LogError("Error while CheckDataExist", err)
+		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	}
+	if !res {
+		auth.log.LogError("User doesn't exist", req.UserId)
+		return nil, status.Errorf(codes.NotFound, "User doesn't exist")
+	}
+
+	tokenPayload, err := auth.storage.GetTokenPayload("id", req.UserId)
+	if err != nil {
+		auth.log.LogError("Error while GetTokenPayload", err)
+		return nil, status.Errorf(codes.Internal, utils.InternalServerError)
+	}
+
+	access, refresh, err := auth.createToken(tokenPayload)
+	if err != nil {
+		auth.log.LogError("Error while createToken", err)
+		return nil, err
+	}
+	mdOut := metadata.New(map[string]string{
+		"access-token":  access,
+		"refresh-token": refresh,
+	})
+	response := &proto.Response{
+		Code:    200,
+		Status:  true,
+		Message: "Refresh Token Successfully",
+	}
+	return response, grpc.SetHeader(ctx, mdOut)
+}
+
+func (auth *authenticationService) createToken(token *db.TokenPayload) (string, string, error) {
+	accessToken, err := auth.token.CreateAccessToken(token.UserId, token.UserName, token.UserType)
+	if err != nil {
+		auth.log.LogError("Error while CreateAccessToken", err)
+		return "", "", status.Errorf(codes.Internal, utils.InternalServerError)
+	}
+	refreshToken, err := auth.token.CreateRefreshToken(token.UserId, token.UserType)
+	if err != nil {
+		auth.log.LogError("Error while CreateAccessToken", err)
+		return "", "", status.Errorf(codes.Internal, utils.InternalServerError)
+	}
+	return accessToken, refreshToken, nil
 }

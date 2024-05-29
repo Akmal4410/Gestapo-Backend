@@ -40,6 +40,10 @@ message SsoRequest {
     string action = 2;
 }
 
+message RefreshTokenRequest {
+    string user_id = 1;
+}
+
 
 service AuthenticationService {
     rpc SendOTP (SendOTPRequest) returns (Response) {
@@ -75,5 +79,11 @@ service AuthenticationService {
             post: "/auth/sso-auth"
             body: "*"
         };
-    } 
+    }
+    
+    rpc RefreshToken (RefreshTokenRequest) returns (Response) {
+        option (google.api.http) = {
+            get: "/auth/refresh-token/{user_id}"
+        };
+    }
 }
