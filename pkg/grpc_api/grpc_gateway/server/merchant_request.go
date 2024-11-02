@@ -43,8 +43,6 @@ func (handler *RestServer) EditProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	payload := r.Context().Value(utils.AuthorizationPayloadKey).(*token.AccessPayload)
-
 	files := r.MultipartForm.File["files"]
 	if len(files) > maxFileCount {
 		handler.log.LogError("Too many files uploaded", "Max allowed: %d", maxFileCount)
@@ -52,6 +50,7 @@ func (handler *RestServer) EditProfile(w http.ResponseWriter, r *http.Request) {
 		helpers.ErrorJson(w, http.StatusBadRequest, errMsg)
 		return
 	}
+	payload := r.Context().Value(utils.AuthorizationPayloadKey).(*token.AccessPayload)
 
 	var uploadedFileKeys []string
 	for _, fileHeader := range files {

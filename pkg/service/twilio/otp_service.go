@@ -25,7 +25,7 @@ func NewOTPService(twilio *config.Twilio) TwilioService {
 
 func (service *OTPService) SendOTP(to string) error {
 
-	var client = twilio.NewRestClientWithParams(twilio.ClientParams{
+	client := twilio.NewRestClientWithParams(twilio.ClientParams{
 		Username: service.twilio.AccountSid,
 		Password: service.twilio.AuthToken,
 	})
@@ -46,7 +46,7 @@ func (service *OTPService) SendOTP(to string) error {
 
 func (service OTPService) VerfiyOTP(to, code string) (bool, error) {
 
-	var client *twilio.RestClient = twilio.NewRestClientWithParams(twilio.ClientParams{
+	client := twilio.NewRestClientWithParams(twilio.ClientParams{
 		Username: service.twilio.AccountSid,
 		Password: service.twilio.AuthToken,
 	})
